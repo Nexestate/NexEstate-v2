@@ -1,5 +1,6 @@
-import { ArrowRight, Building2, Eye, MapPin, Pencil, Share2 } from 'lucide-react';
+import { ArrowRight, Building2, Eye, Heart, MapPin, Pencil, Share2 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
+import { useFavorites } from '../../hooks/useFavorites';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
@@ -15,6 +16,7 @@ const SHARED_TO_PROPERTY: Record<string, string> = {
 
 export function SharedPropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const shared = DEMO_SHARED_PROPERTIES.find((p) => p.id === id);
 
   if (!shared) {
@@ -28,8 +30,9 @@ export function SharedPropertyDetailPage() {
     );
   }
 
-  const propertyId = SHARED_TO_PROPERTY[shared.id] ?? 'prop-1';
+  const propertyId = SHARED_TO_PROPERTY[shared.id] ?? shared.id;
   const property = getDemoProperty(propertyId);
+  const favorited = isFavorite(propertyId);
   const canEdit = shared.permissionLevel === 'edit' || shared.permissionLevel === 'admin';
   const occupancy = property
     ? getOccupancyPercent(property.occupiedUnits, property.totalUnits)
@@ -116,11 +119,13 @@ export function SharedPropertyDetailPage() {
         <Link to="/buyer/search">
           <Button variant="outline">חיפוש נכסים דומים</Button>
         </Link>
-        {canEdit && (
-          <Link to="/buyer/favorites">
-            <Button>שמור למועדפים</Button>
-          </Link>
-        )}
+        <Button
+          variant={favorited ? 'default' : 'outline'}
+          onClick={() => void toggleFavorite(propertyId)}
+        >
+          <Heart className={`h-4 w-4 ${favorited ? 'fill-current' : ''}`} />
+          {favorited ? 'במועדפים' : 'שמור למועדפים'}
+        </Button>
       </div>
     </div>
   );

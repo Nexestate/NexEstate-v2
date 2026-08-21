@@ -16,6 +16,10 @@ export { fetchAuctions, fetchPayments, createAuction } from './auctionsService';
 export type { AuctionInsert } from './auctionsService';
 export { fetchSharedWithUser } from './sharedPropertiesService';
 export type { SharedPropertySummary } from './sharedPropertiesService';
+export { fetchFavorites, addFavorite, removeFavorite } from './favoritesService';
+export { searchPublicProperties } from './buyerSearchService';
+export { updateProfile } from './profilesService';
+export type { ProfileUpdatePayload } from './profilesService';
 export {
   fetchBrokerDashboardStats,
   fetchManagedPropertySidebar,
