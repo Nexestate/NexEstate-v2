@@ -3,15 +3,6 @@
   <head>
     <script>
       (function () {
-        if (location.hostname === 'www.nexestate.co') {
-          location.replace(
-            'https://nexestate.co' + location.pathname + location.search + location.hash,
-          );
-        }
-      })();
-    </script>
-    <script>
-      (function () {
         var t = localStorage.getItem('nexestate-theme');
         if (t !== 'light') document.documentElement.classList.add('dark');
       })();
