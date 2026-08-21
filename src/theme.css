@@ -3,22 +3,49 @@
 @theme {
   --font-sans: "Assistant", "Heebo", ui-sans-serif, system-ui, sans-serif;
 
-  --color-background: #030712;
-  --color-foreground: #f8fafc;
-  --color-card: #0c1222;
-  --color-card-foreground: #f8fafc;
-  --color-muted: #151d2e;
-  --color-muted-foreground: #8b9cb3;
-  --color-border: #1a2332;
-  --color-input: #151d2e;
+  --color-background: var(--theme-background);
+  --color-foreground: var(--theme-foreground);
+  --color-card: var(--theme-card);
+  --color-card-foreground: var(--theme-card-foreground);
+  --color-muted: var(--theme-muted);
+  --color-muted-foreground: var(--theme-muted-foreground);
+  --color-border: var(--theme-border);
+  --color-input: var(--theme-input);
   --color-primary: #3b82f6;
   --color-primary-foreground: #ffffff;
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-destructive: #ef4444;
   --color-accent: #8b5cf6;
-  --color-sidebar: #0f1419;
-  --color-sidebar-border: #1e293b;
+  --color-sidebar: var(--theme-sidebar);
+  --color-sidebar-border: var(--theme-sidebar-border);
+}
+
+/* Light theme (default when .dark is absent) */
+:root {
+  --theme-background: #f1f5f9;
+  --theme-foreground: #0f172a;
+  --theme-card: #ffffff;
+  --theme-card-foreground: #0f172a;
+  --theme-muted: #e2e8f0;
+  --theme-muted-foreground: #64748b;
+  --theme-border: #cbd5e1;
+  --theme-input: #e2e8f0;
+  --theme-sidebar: #ffffff;
+  --theme-sidebar-border: #e2e8f0;
+}
+
+html.dark {
+  --theme-background: #030712;
+  --theme-foreground: #f8fafc;
+  --theme-card: #0c1222;
+  --theme-card-foreground: #f8fafc;
+  --theme-muted: #151d2e;
+  --theme-muted-foreground: #8b9cb3;
+  --theme-border: #1a2332;
+  --theme-input: #151d2e;
+  --theme-sidebar: #0f1419;
+  --theme-sidebar-border: #1e293b;
 }
 
 @layer base {

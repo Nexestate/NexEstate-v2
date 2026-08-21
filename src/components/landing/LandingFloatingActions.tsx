@@ -157,13 +157,13 @@ export function AccessibilityWidget() {
         aria-label="תפריט נגישות"
         aria-expanded={open}
         className={cn(
-          'floating-action-btn grid h-12 w-12 place-items-center rounded-full border-2 transition-all',
+          'floating-action-btn grid h-9 w-9 place-items-center rounded-full border transition-all',
           open
-            ? 'border-primary bg-primary/15 text-primary shadow-lg shadow-primary/25'
-            : 'border-primary/60 bg-card/90 text-primary hover:border-primary hover:bg-primary/10',
+            ? 'border-primary bg-primary/15 text-primary shadow-md shadow-primary/20'
+            : 'border-primary/50 bg-card/90 text-primary hover:border-primary hover:bg-primary/10',
         )}
       >
-        <Accessibility className="h-5 w-5" />
+        <Accessibility className="h-4 w-4" />
       </button>
     </div>
   );
@@ -193,11 +193,11 @@ export function ScrollToTopButton() {
       onClick={scrollToTop}
       aria-label="גלילה לראש העמוד"
       className={cn(
-        'floating-action-btn fixed bottom-[5.5rem] end-6 z-50 grid h-12 w-12 place-items-center rounded-full border-2 border-primary/60 bg-card/90 text-primary shadow-lg transition-all duration-300 hover:border-primary hover:bg-primary/10',
+        'floating-action-btn fixed bottom-[4.25rem] end-6 z-50 grid h-9 w-9 place-items-center rounded-full border border-primary/50 bg-card/90 text-primary shadow-md transition-all duration-300 hover:border-primary hover:bg-primary/10',
         visible ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0',
       )}
     >
-      <ChevronUp className="h-5 w-5" />
+      <ChevronUp className="h-4 w-4" />
     </button>
   );
 }

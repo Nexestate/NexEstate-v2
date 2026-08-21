@@ -13,7 +13,6 @@ import {
   Linkedin,
   Mail,
   MapPin,
-  Maximize2,
   Phone,
   Search,
   Sparkles,
@@ -59,12 +58,10 @@ const CATEGORIES = [
 ];
 
 const RECENT_DEALS = [
-  { price: 8_710_000, type: 'דירה', city: 'תל אביב', address: 'רוטשילד 45', rooms: 4, sqm: 120 },
-  { price: 5_200_000, type: 'משרד', city: 'רמת גן', address: 'ביאליק 12', rooms: 0, sqm: 180 },
-  { price: 12_500_000, type: 'בית', city: 'הרצליה', address: 'הרצל 8', rooms: 6, sqm: 320 },
-  { price: 3_450_000, type: 'דירה', city: 'חיפה', address: 'הנשיא 22', rooms: 5, sqm: 140 },
-  { price: 6_800_000, type: 'מסחרי', city: 'ירושלים', address: 'יפו 100', rooms: 0, sqm: 250 },
-  { price: 2_100_000, type: 'מגרש', city: 'ראשון לציון', address: 'אזור תעשייה', rooms: 0, sqm: 500 },
+  { price: 15_710_000, city: 'תל אביב', address: 'דיזנגוף 17', rooms: 4, date: '31.7.2026' },
+  { price: 8_450_000, city: 'תל אביב', address: 'רוטשילד 45', rooms: 5, date: '28.7.2026' },
+  { price: 6_200_000, city: 'רמת גן', address: 'ביאליק 12', rooms: 4, date: '25.7.2026' },
+  { price: 4_850_000, city: 'הרצליה', address: 'סוקולוב 8', rooms: 5, date: '22.7.2026' },
 ];
 
 const AUCTIONS = [
@@ -266,12 +263,13 @@ export function HeroSection() {
       <div className="pointer-events-none absolute start-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-3xl animate-pulse-glow" />
 
       <div className="relative mx-auto max-w-4xl text-center">
-        <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-[4.5rem] animate-fade-up text-glow">
-          <span className="text-gradient">מצא. פרסם. סגור עסקה.</span>
+        <h1 className="animate-fade-up text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-[4.5rem]">
+          <span className="text-foreground">מצא. פרסם. סגור </span>
+          <span className="text-primary">עסקה.</span>
         </h1>
 
         <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg animate-fade-up" style={{ animationDelay: '0.1s' }}>
-          שוק הנדל&quot;ן המוביל בישראל לנכסים, פרויקטים ומכירות פומביות
+          שוק הנדל&quot;ן המוביל לנכסים, פרויקטים ומכירות פומביות.
         </p>
 
         <div className="mx-auto mt-10 max-w-3xl animate-fade-up" style={{ animationDelay: '0.2s' }}>
@@ -302,7 +300,7 @@ export function HeroSection() {
                 חיפוש חכם
               </span>
             </div>
-            <div className="hero-search-bar flex items-center gap-2 rounded-full border border-primary/20 bg-[#0a1020]/80 p-1.5 pe-2 backdrop-blur-xl sm:p-2 sm:pe-2.5">
+            <div className="hero-search-bar flex items-center gap-2 rounded-full border border-primary/30 p-1.5 pe-2 backdrop-blur-xl sm:p-2 sm:pe-2.5">
               <AnimatedSearchInput
                 value={searchQuery}
                 onChange={setSearchQuery}
@@ -398,50 +396,39 @@ export function RecentDealsSection() {
         <div className="mb-8 flex items-end justify-between">
           <div>
             <h2 className="flex items-center gap-2 text-2xl font-bold sm:text-3xl">
-              <span>🔥</span>
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-warning/15 text-base">🔥</span>
               עסקאות אחרונות בשוק
             </h2>
-            <p className="mt-1.5 text-sm text-muted-foreground">עסקאות שנסגרו לאחרונה</p>
+            <p className="mt-1.5 text-sm text-muted-foreground">נתונים אמיתיים מרשם המקרקעין</p>
           </div>
-          <Link to="/deals" className="hidden text-sm text-primary transition-colors hover:underline sm:block">
+          <Link to="/deals" className="hidden text-sm font-medium text-primary transition-colors hover:underline sm:block">
             לכל העסקאות ←
           </Link>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-          {RECENT_DEALS.map((deal) => (
-            <div
-              key={deal.address}
-              className="deal-card min-w-[260px] shrink-0 overflow-hidden rounded-2xl border border-border sm:min-w-[280px]"
-            >
-              <div className="flex h-28 items-center justify-center bg-gradient-to-br from-primary/15 via-card to-accent/10">
-                <Building2 className="h-10 w-10 text-primary/30" />
-              </div>
-              <div className="p-5">
-                <div className="text-2xl font-bold text-primary">{formatCurrency(deal.price)}</div>
-                <div className="mt-1 text-sm font-medium">{deal.type}</div>
-                <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="h-3 w-3 shrink-0" />
-                  {deal.city} • {deal.address}
+        <div className="deals-container rounded-2xl border border-primary/15 p-4 sm:p-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {RECENT_DEALS.map((deal) => (
+              <Link
+                key={deal.address}
+                to="/deals"
+                className="deal-card block rounded-xl border border-border/60 p-5 transition-all"
+              >
+                <div className="text-xl font-bold text-primary sm:text-2xl">{formatCurrency(deal.price)}</div>
+                <div className="mt-2 text-base font-semibold">{deal.address}</div>
+                <div className="mt-1.5 flex items-center gap-1 text-sm text-muted-foreground">
+                  <MapPin className="h-3.5 w-3.5 shrink-0" />
+                  {deal.city}
                 </div>
-                {(deal.rooms > 0 || deal.sqm > 0) && (
-                  <div className="mt-3 flex items-center gap-4 border-t border-border/50 pt-3 text-xs text-muted-foreground">
-                    {deal.rooms > 0 && (
-                      <span className="flex items-center gap-1">
-                        <Bed className="h-3.5 w-3.5" />
-                        {deal.rooms} חדרים
-                      </span>
-                    )}
-                    {deal.sqm > 0 && (
-                      <span className="flex items-center gap-1">
-                        <Maximize2 className="h-3.5 w-3.5" />
-                        {deal.sqm} מ&quot;ר
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+                <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3 text-xs text-muted-foreground">
+                  <span>{deal.date}</span>
+                  <span className="flex items-center gap-1">
+                    <Bed className="h-3.5 w-3.5" />
+                    {deal.rooms} חדרים
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </section>
