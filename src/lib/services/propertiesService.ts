@@ -1,6 +1,6 @@
 import { DEMO_PROPERTIES, getDemoProperty } from '../../data/demoData';
 import type { PropertyWithUnits } from '../../types/domain';
-import { isDemoMode, requireSupabase, throwIfError } from './serviceHelpers';
+import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
 function mapProperty(row: Record<string, unknown>, units: PropertyWithUnits['units']): PropertyWithUnits {
   const occupied = units.filter((u) => u.unit_status === 'occupied').length;
@@ -136,6 +136,7 @@ export async function createProperty(payload: PropertyInsert): Promise<string> {
   const client = requireSupabase();
   const { data, error } = await client.from('properties').insert(payload).select('id').single();
   throwIfError(error);
+  if (!data) throw new ServiceError('Property insert returned no data');
   return data.id as string;
 }
 

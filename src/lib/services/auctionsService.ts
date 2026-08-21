@@ -1,6 +1,6 @@
 import { DEMO_AUCTIONS, DEMO_PAYMENTS } from '../../data/demoData';
 import type { Auction, Payment } from '../../types/domain';
-import { isDemoMode, requireSupabase, throwIfError } from './serviceHelpers';
+import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
 export async function fetchAuctions(): Promise<Auction[]> {
   if (isDemoMode()) return DEMO_AUCTIONS;
@@ -94,5 +94,6 @@ export async function createAuction(payload: AuctionInsert): Promise<string> {
     .select('id')
     .single();
   throwIfError(error);
+  if (!data) throw new ServiceError('Auction insert returned no data');
   return data.id as string;
 }

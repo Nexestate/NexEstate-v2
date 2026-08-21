@@ -5,7 +5,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { ROLE_LABELS } from '../../lib/roles';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Card, CardContent, CardTitle } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { cn } from '../../lib/utils';

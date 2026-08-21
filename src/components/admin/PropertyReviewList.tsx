@@ -6,7 +6,7 @@ import { FilterBar } from '../../components/ui/FilterBar';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { DEMO_PROPERTY_REVIEWS } from '../../data/demoData';
-import type { PropertyReview, ReviewStatus } from '../../data/demoData.admin';
+import type { ReviewStatus } from '../../data/demoData.admin';
 import { useMemo, useState } from 'react';
 
 interface PropertyReviewListProps {

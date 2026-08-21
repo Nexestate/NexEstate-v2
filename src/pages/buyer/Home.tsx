@@ -5,7 +5,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { DEMO_ADMIN_STATS, DEMO_BUYER_NOTIFICATIONS, DEMO_FAVORITES, DEMO_PROPERTY_REVIEWS, DEMO_SHARED_PROPERTIES } from '../../data/demoData';
+import { DEMO_BUYER_NOTIFICATIONS, DEMO_FAVORITES, DEMO_SHARED_PROPERTIES } from '../../data/demoData';
 
 const PERMISSION_LABELS = { view: 'צפייה', edit: 'עריכה', admin: 'מנהל' } as const;
 const PERMISSION_VARIANTS = { view: 'primary', edit: 'warning', admin: 'success' } as const;

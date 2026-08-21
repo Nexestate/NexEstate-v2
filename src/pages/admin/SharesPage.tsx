@@ -1,4 +1,4 @@
-import { CheckCircle, Eye, Pencil, Shield, XCircle } from 'lucide-react';
+import { Eye, Pencil, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';

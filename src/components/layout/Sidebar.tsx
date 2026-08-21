@@ -166,7 +166,9 @@ export function Sidebar({ sections, sharedProperties = [], onClose }: SidebarPro
                         className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
                       >
                         <span className="flex-1 truncate">{prop.title}</span>
-                        <PermIcon className="h-3.5 w-3.5 text-primary" title={PERMISSION_LABELS[prop.permissionLevel]} />
+                        <span title={PERMISSION_LABELS[prop.permissionLevel]}>
+                          <PermIcon className="h-3.5 w-3.5 text-primary" />
+                        </span>
                       </NavLink>
                     </li>
                   );
