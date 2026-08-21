@@ -1,0 +1,140 @@
+# NexEstate — Project Rules
+
+## Core Constraints
+
+- **Never** create external sync, copy, or bundle scripts (e.g. `sync.sh`, `bundle.js`, file-copy utilities). All application code lives **only** under `src/`.
+- Use the standard **React 18 + TypeScript + Vite 6 + Tailwind CSS v4** folder layout.
+- Split UI into **small, modular components** under `src/components/`.
+- Use **clean, relative imports** that resolve correctly with Vite — no broken or alias-only paths unless already configured in the project.
+- Full **RTL (Hebrew)** support and a modern **Dark Mode** design throughout.
+
+## Tech Stack
+
+| Layer | Choice |
+|-------|--------|
+| Frontend | React 18, TypeScript, Vite 6, Tailwind CSS v4 |
+| Backend | Supabase (PostgreSQL, Auth, Storage, Edge Functions) |
+| Routing | React Router v7 |
+| Icons | Lucide React |
+| Email | Resend (via Edge Functions) |
+| OAuth | @sticklightapp/app-auth |
+
+## Folder Structure
+
+```
+src/
+├── App.tsx                 # Route definitions
+├── providers.tsx           # App-wide providers
+├── theme.css               # Design tokens (colors, fonts)
+├── components/
+│   ├── ui/                 # Button, Card, Input, Badge, FilterBar, SlidePanel, EmptyState
+│   ├── mobile/             # MobileBottomNav, etc.
+│   ├── property/           # SharePropertyModal, property-specific UI
+│   └── ProtectedRoute.tsx
+├── contexts/
+│   ├── AuthContext.tsx
+│   └── ThemeContext.tsx
+├── hooks/                  # usePropertyShares, useSigningLinks, useBodyScrollLock, …
+├── pages/
+│   ├── broker/
+│   ├── buyer/
+│   ├── admin/
+│   └── …                   # One folder per role dashboard
+├── data/                   # demoData.ts and static fixtures (if needed)
+└── lib/                    # supabase client, helpers
+```
+
+## UI & Design
+
+- **Direction:** `dir="rtl"` on root layout; Hebrew copy for all user-facing text.
+- **Theme:** Dark-first palette from `src/theme.css`:
+  - Primary `#3b82f6`, Success `#10b981`, Warning `#f59e0b`, Destructive `#ef4444`, Accent `#8b5cf6`
+- **Components:** Rounded cards (`rounded-xl` / `rounded-2xl`), subtle borders, hover states on stat cards.
+- **Stat cards:** Icon in colored circle + bold number + muted label; link to relevant route when applicable.
+- **Sidebar:** Right-side in RTL; grouped sections with titles; active item uses `bg-primary/10 text-primary`.
+- **Mobile:** Bottom nav via `MobileBottomNav`; "More" sheet for secondary links.
+- Reuse existing UI primitives from `src/components/ui/` before adding new ones.
+
+## User Roles & Routing
+
+```typescript
+type UserRole =
+  | 'superadmin' | 'admin' | 'broker' | 'buyer' | 'developer'
+  | 'owner' | 'investor' | 'manager' | 'receiver' | 'partner';
+```
+
+| Path prefix | Allowed roles |
+|-------------|---------------|
+| `/dashboard` | Any authenticated user (redirect by role) |
+| `/broker/*` | broker, admin, superadmin, owner, manager, partner |
+| `/buyer/*` | buyer, admin, superadmin |
+| `/admin/*` | admin, superadmin |
+| `/developer/*` | developer, admin, superadmin |
+| `/owner/*` | owner, admin, superadmin |
+| `/investor/*` | investor, admin, superadmin |
+| `/manager/*` | manager, admin, superadmin |
+| `/partner/*` | partner, admin, superadmin |
+
+**Post-login redirect:** superadmin → `/broker`; admin → `/admin`; broker → `/broker`; owner/manager/partner → `/broker`; buyer → `/buyer`.
+
+Protect routes with `ProtectedRoute`; never bypass role checks in the UI alone — rely on Supabase RLS server-side.
+
+## Dashboard Layout (All Roles)
+
+Shared shell: **Header** (greeting, bell, menu) + **Sidebar** (logo, nav sections, user card with avatar/name/email/logout) + **Main content**. On mobile, collapse sidebar and show bottom nav.
+
+### Broker (`/broker/*`)
+
+- **Sidebar sections:** ראשי (לוח בקרה, נכסים שלי, מכירות פומביות, התראות) · ניהול CRM (לקוחות, לידים, משימות, הסכמים — each with `+` quick-add) · ניהול נכסים (נכסים מנוהלים with dynamic property tree, דוחות) · חשבון (פרופיל, לוח אדמין if admin, הגדרות).
+- **Home widgets:** 6 stat cards, occupancy + monthly income bar, upcoming tasks, managed properties list, recent signing links.
+- **Data sources:** `properties`, `property_units`, `tenants`, `leases`, `clients`, `leads`, `tasks`, `notifications`, `signing_links`, `property_shares`.
+
+### Buyer (`/buyer/*`)
+
+- **Nav:** לוח בקרה, נכסים ששותפו, חיפוש (placeholder), מועדפים (placeholder), התראות, הגדרות.
+- **Home:** stat cards (מועדפים, שותפו, מתאימים, התראות) + shared property cards from `property_shares`.
+
+### Admin (`/admin/*`)
+
+- **Nav:** לוח בקרה, ניהול נכסים, ניהול משתמשים, שיתופי נכסים, פניות תמיכה, ייבוא עסקאות, סטטוס מהיר (ממתינים/מאושרים/נדחויים), חזרה לדשבורד, הגדרות.
+- **Home:** platform stats, weekly activity chart, role distribution, pending approvals, recent users.
+- **Data sources:** `profiles`, `properties` (counts); extended stats marked TODO in spec.
+
+## Data & Supabase
+
+- All DB access through the Supabase client; respect **RLS policies**.
+- Key tables: `profiles`, `properties`, `property_shares`, `pending_invites`, `property_units`, `tenants`, `leases`, `clients`, `leads`, `tasks`, `auctions`, `signing_links`, `notifications`.
+- On login/register: **claim** pending invites → create `property_shares`, update role from `intended_role`.
+- Property share permission levels: `view` | `edit` | `admin`.
+
+## Edge Functions (server logic only — not in `src/`)
+
+`notify-share`, `send-email`, `get-signing-link`, `complete-signing`, `generate-agreement-pdf`, `check-alerts`.
+
+## Coding Standards
+
+- **TypeScript:** Strict types for props, API responses, and enums (`property_kind`, `property_status`, `lead_status`, etc.).
+- **Components:** One primary export per file; co-locate small helpers only when tightly coupled.
+- **Hooks:** Data fetching and mutations in `src/hooks/`; keep pages thin.
+- **No over-engineering:** Minimal diff; match existing patterns in neighboring files.
+- **Comments:** Only for non-obvious business logic (invite claim flow, signing token handling, etc.).
+- **Tests:** Add only when requested or for critical paths.
+
+## Auth Flows
+
+- Email + password and Google OAuth.
+- Routes: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/callback`.
+- Settings tabs (shared): פרופיל, סיסמא, התראות, תצוגה, פרטיות; role-specific tabs (business, billing, system) as per role.
+
+## Public Pages
+
+- Landing page (marketing): hero search, categories, recent deals, auctions, FAQ, footer.
+- Digital signing: `/sign/:token` — public canvas signature, then reveal property details + PDF.
+
+## What NOT to Do
+
+- Do not add sync/bundle/copy scripts outside `src/`.
+- Do not commit secrets (`.env`, API keys).
+- Do not create monolithic page files when sections can be components.
+- Do not use LTR-only layouts or hard-coded English strings in the dashboard UI.
+- Do not skip RTL icon/label placement (icons on the correct side for Hebrew).

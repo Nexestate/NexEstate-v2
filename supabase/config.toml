@@ -1,0 +1,17 @@
+# A string used to distinguish different Supabase projects on the same host
+project_id = "nexestate-v2"
+
+[functions.send-email]
+verify_jwt = true
+
+[functions.notify-share]
+verify_jwt = true
+
+[functions.generate-agreement-pdf]
+verify_jwt = true
+
+[functions.complete-signing]
+verify_jwt = false
+
+[functions.get-signing-link]
+verify_jwt = false

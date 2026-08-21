@@ -1,0 +1,168 @@
+import type { AppNotification, Auction, Payment, Task } from '../types/domain';
+
+export const DEMO_TASKS: Task[] = [
+  {
+    id: 'task-1',
+    title: 'להתקשר לדני לוי — ליד חדש',
+    status: 'open',
+    priority: 'urgent',
+    due_date: '2026-08-20',
+    client_name: 'דני לוי',
+    property_title: 'בניין שקטר 30',
+    created_at: '2026-08-19T08:00:00Z',
+  },
+  {
+    id: 'task-2',
+    title: 'להכין הסכם בלעדיות — יוסי כהן',
+    status: 'in_progress',
+    priority: 'high',
+    due_date: '2026-08-21',
+    client_name: 'יוסי כהן',
+    created_at: '2026-08-18T10:00:00Z',
+  },
+  {
+    id: 'task-3',
+    title: 'בדיקת יחידה 12 לפני הצגה',
+    status: 'open',
+    priority: 'medium',
+    due_date: '2026-08-22',
+    property_title: 'בניין שקטר 30',
+    created_at: '2026-08-17T14:00:00Z',
+  },
+  {
+    id: 'task-4',
+    title: 'חידוש חוזה — עו"ד כהן ושות',
+    status: 'done',
+    priority: 'medium',
+    due_date: '2026-08-15',
+    client_name: 'עו"ד כהן ושות',
+    property_title: 'בניין שקטר 30',
+    created_at: '2026-08-10T09:00:00Z',
+  },
+];
+
+export const DEMO_NOTIFICATIONS: AppNotification[] = [
+  {
+    id: 'notif-1',
+    type: 'lease',
+    title: 'חוזה מסתיים בעוד 7 ימים',
+    message: 'החוזה של עו"ד כהן ושות מסתיים ב-28/02/2026',
+    severity: 'critical',
+    is_read: false,
+    created_at: '2026-08-19T07:00:00Z',
+  },
+  {
+    id: 'notif-2',
+    type: 'payment',
+    title: 'תשלום ממתין',
+    message: 'יש לקבל תשלום מחברת הייטק בע"מ בסך ₪12,500',
+    severity: 'warning',
+    is_read: false,
+    created_at: '2026-08-18T12:00:00Z',
+  },
+  {
+    id: 'notif-3',
+    type: 'lead',
+    title: 'ליד חדש',
+    message: 'דני לוי השאיר פרטים לגבי בניין שקטר 30',
+    severity: 'info',
+    is_read: false,
+    created_at: '2026-08-19T06:30:00Z',
+  },
+  {
+    id: 'notif-4',
+    type: 'signature',
+    title: 'הסכם נחתם',
+    message: 'יוסי כהן חתם על הסכם בלעדיות',
+    severity: 'info',
+    is_read: true,
+    created_at: '2026-08-17T16:00:00Z',
+  },
+  {
+    id: 'notif-5',
+    type: 'lease',
+    title: 'תזכורת חוזה',
+    message: 'חוזה סטארט-אפ XYZ — בדוק אפשרות חידוש',
+    severity: 'warning',
+    is_read: true,
+    created_at: '2026-08-16T09:00:00Z',
+  },
+];
+
+export const DEMO_AUCTIONS: Auction[] = [
+  {
+    id: 'auction-1',
+    title: 'מכירה פומבית — דירת 4 חדרים',
+    property_title: 'מתכת 34, חולון',
+    start_price: 2_800_000,
+    current_bid: 3_100_000,
+    status: 'active',
+    starts_at: '2026-08-15T10:00:00Z',
+    ends_at: '2026-08-25T18:00:00Z',
+  },
+  {
+    id: 'auction-2',
+    title: 'מכירה פומבית — משרדים',
+    property_title: 'Azrieli, תל אביב',
+    start_price: 5_500_000,
+    status: 'scheduled',
+    starts_at: '2026-09-01T10:00:00Z',
+    ends_at: '2026-09-15T18:00:00Z',
+  },
+  {
+    id: 'auction-3',
+    title: 'מכירה פומבית — מגרש בנייה',
+    property_title: 'ראשון לציון',
+    start_price: 1_200_000,
+    current_bid: 1_450_000,
+    status: 'ended',
+    starts_at: '2026-07-01T10:00:00Z',
+    ends_at: '2026-07-20T18:00:00Z',
+  },
+];
+
+export const DEMO_PAYMENTS: Payment[] = [
+  {
+    id: 'pay-1',
+    tenant_name: 'חברת הייטק בע"מ',
+    property_title: 'בניין שקטר 30',
+    unit_number: '1',
+    amount: 12_500,
+    due_date: '2026-09-01',
+    status: 'pending',
+  },
+  {
+    id: 'pay-2',
+    tenant_name: 'סטארט-אפ XYZ',
+    property_title: 'בניין שקטר 30',
+    unit_number: '2',
+    amount: 9_800,
+    due_date: '2026-09-01',
+    status: 'pending',
+  },
+  {
+    id: 'pay-3',
+    tenant_name: 'עו"ד כהן ושות',
+    property_title: 'בניין שקטר 30',
+    unit_number: '5',
+    amount: 8_200,
+    due_date: '2026-08-01',
+    status: 'overdue',
+  },
+  {
+    id: 'pay-4',
+    tenant_name: 'רפואה פלוס',
+    property_title: 'בניין שקטר 30',
+    unit_number: '8',
+    amount: 11_000,
+    due_date: '2026-08-01',
+    status: 'paid',
+  },
+];
+
+export const DEMO_ADMIN_USERS = [
+  { id: 'u1', full_name: 'מיכאל וינר', email: 'viner.michael@gmail.com', role: 'broker', created_at: '2026-01-10' },
+  { id: 'u2', full_name: 'שרה כהן', email: 'sara@email.com', role: 'buyer', created_at: '2026-03-15' },
+  { id: 'u3', full_name: 'דוד לevy', email: 'david@email.com', role: 'owner', created_at: '2026-05-20' },
+  { id: 'u4', full_name: 'Admin', email: 'admin@nexestate.co', role: 'admin', created_at: '2025-12-01' },
+];
