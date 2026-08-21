@@ -274,7 +274,7 @@ export function HeroSection() {
 
         <div className="mx-auto mt-10 max-w-3xl animate-fade-up pt-3" style={{ animationDelay: '0.2s' }}>
           <div className="hero-search-bar relative flex items-center gap-2 rounded-full border border-primary/30 p-1.5 pe-2 backdrop-blur-xl sm:p-2 sm:pe-2.5">
-            <span className="hero-smart-badge absolute -top-3 end-5 z-10 inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold sm:end-6">
+            <span className="hero-smart-badge absolute -top-3 start-5 z-10 inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold sm:start-6">
               <Sparkles className="h-3 w-3" />
               חיפוש חכם
             </span>
