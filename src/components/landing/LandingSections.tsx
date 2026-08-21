@@ -21,7 +21,6 @@ import {
   TrendingUp,
   Twitter,
   Users,
-  Wand2,
   Youtube,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -212,9 +211,12 @@ function AuctionCard({ auction }: { auction: typeof AUCTIONS[0] }) {
   const countdown = useCountdown(auction.endsAt);
 
   return (
-    <div className="auction-card group min-w-[300px] shrink-0 overflow-hidden rounded-2xl border border-border sm:min-w-[340px]">
-      <div className="relative flex h-40 items-center justify-center bg-gradient-to-br from-warning/25 via-card to-primary/10">
-        <Gavel className="h-16 w-16 text-warning/50 transition-transform duration-300 group-hover:scale-110" />
+    <Link
+      to="/auctions"
+      className="auction-card group flex h-full flex-col overflow-hidden rounded-xl border border-border/60 transition-all"
+    >
+      <div className="relative flex h-36 shrink-0 items-center justify-center bg-gradient-to-br from-warning/25 via-card to-primary/10 sm:h-40">
+        <Gavel className="h-14 w-14 text-warning/50 transition-transform duration-300 group-hover:scale-110 sm:h-16 sm:w-16" />
         <div className="absolute top-3 start-3 flex items-center gap-1 rounded-full bg-destructive/90 px-2.5 py-1 text-[10px] font-bold text-white shadow-lg">
           <Clock className="h-3 w-3" />
           {countdown}
@@ -223,21 +225,21 @@ function AuctionCard({ auction }: { auction: typeof AUCTIONS[0] }) {
           חדש
         </div>
       </div>
-      <div className="p-5">
-        <h3 className="font-semibold">{auction.title}</h3>
-        <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-          <MapPin className="h-3 w-3" />
+      <div className="flex flex-1 flex-col p-5">
+        <h3 className="font-semibold leading-snug">{auction.title}</h3>
+        <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+          <MapPin className="h-3 w-3 shrink-0" />
           {auction.city}
         </p>
-        <p className="mt-3 text-2xl font-bold text-warning">{formatCurrency(auction.price)}</p>
-        <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
+        <p className="mt-auto pt-4 text-xl font-bold text-warning sm:text-2xl">{formatCurrency(auction.price)}</p>
+        <div className="mt-3 flex items-center gap-3 border-t border-border/50 pt-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Users className="h-3 w-3" />
             {auction.bidders} מציעים
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -245,13 +247,11 @@ function AuctionCard({ auction }: { auction: typeof AUCTIONS[0] }) {
 
 export function HeroSection() {
   const navigate = useNavigate();
-  const [searchTab, setSearchTab] = useState<'sale' | 'rent'>('sale');
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (searchQuery) params.set('q', searchQuery);
-    if (searchTab) params.set('type', searchTab);
     navigate(`/market${params.toString() ? `?${params}` : ''}`);
   };
 
@@ -272,48 +272,24 @@ export function HeroSection() {
           שוק הנדל&quot;ן המוביל לנכסים, פרויקטים ומכירות פומביות.
         </p>
 
-        <div className="mx-auto mt-10 max-w-3xl animate-fade-up" style={{ animationDelay: '0.2s' }}>
-          <div className="mb-5 flex justify-center">
-            <div className="inline-flex rounded-full border border-border/40 bg-card/30 p-1 backdrop-blur-sm">
-              {(['sale', 'rent'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setSearchTab(tab)}
-                  className={cn(
-                    'rounded-full px-7 py-2 text-sm font-semibold transition-all duration-300',
-                    searchTab === tab
-                      ? 'bg-primary text-white shadow-md shadow-primary/30'
-                      : 'text-muted-foreground hover:text-foreground',
-                  )}
-                >
-                  {tab === 'sale' ? 'למכירה' : 'להשכרה'}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative pt-2">
-            <div className="absolute -top-1 start-1/2 z-10 -translate-x-1/2">
-              <span className="hero-smart-badge inline-flex items-center gap-1.5 rounded-full px-4 py-1 text-[11px] font-bold text-primary">
-                <Wand2 className="h-3 w-3" />
-                חיפוש חכם
-              </span>
-            </div>
-            <div className="hero-search-bar flex items-center gap-2 rounded-full border border-primary/30 p-1.5 pe-2 backdrop-blur-xl sm:p-2 sm:pe-2.5">
-              <AnimatedSearchInput
-                value={searchQuery}
-                onChange={setSearchQuery}
-                onSubmit={handleSearch}
-              />
-              <Button
-                className="hero-search-btn h-11 shrink-0 rounded-full px-7 text-sm font-bold sm:h-12 sm:px-9"
-                onClick={handleSearch}
-              >
-                <Search className="h-4 w-4 shrink-0" />
-                חיפוש
-              </Button>
-            </div>
+        <div className="mx-auto mt-10 max-w-3xl animate-fade-up pt-3" style={{ animationDelay: '0.2s' }}>
+          <div className="hero-search-bar relative flex items-center gap-2 rounded-full border border-primary/30 p-1.5 pe-2 backdrop-blur-xl sm:p-2 sm:pe-2.5">
+            <span className="hero-smart-badge absolute -top-3 end-5 z-10 inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold sm:end-6">
+              <Sparkles className="h-3 w-3" />
+              חיפוש חכם
+            </span>
+            <AnimatedSearchInput
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onSubmit={handleSearch}
+            />
+            <Button
+              className="hero-search-btn h-11 shrink-0 rounded-full px-7 text-sm font-bold sm:h-12 sm:px-9"
+              onClick={handleSearch}
+            >
+              <Search className="h-4 w-4 shrink-0" />
+              חיפוש
+            </Button>
           </div>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
@@ -405,13 +381,13 @@ export function RecentDealsSection() {
             לכל העסקאות ←
           </Link>
         </div>
-        <div className="deals-container rounded-2xl border border-primary/15 p-4 sm:p-5">
+        <div className="landing-cards-container rounded-2xl border border-primary/15 p-4 sm:p-5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {RECENT_DEALS.map((deal) => (
               <Link
                 key={deal.address}
                 to="/deals"
-                className="deal-card block rounded-xl border border-border/60 p-5 transition-all"
+                className="deal-card flex h-full min-w-0 flex-col rounded-xl border border-border/60 p-5 transition-all"
               >
                 <div className="text-xl font-bold text-primary sm:text-2xl">{formatCurrency(deal.price)}</div>
                 <div className="mt-2 text-base font-semibold">{deal.address}</div>
@@ -419,7 +395,7 @@ export function RecentDealsSection() {
                   <MapPin className="h-3.5 w-3.5 shrink-0" />
                   {deal.city}
                 </div>
-                <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3 text-xs text-muted-foreground">
+                <div className="mt-auto flex items-center justify-between border-t border-border/50 pt-3 text-xs text-muted-foreground">
                   <span>{deal.date}</span>
                   <span className="flex items-center gap-1">
                     <Bed className="h-3.5 w-3.5" />
@@ -448,10 +424,12 @@ export function AuctionsSection() {
             כל המכרזים ←
           </Link>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-          {AUCTIONS.map((a) => (
-            <AuctionCard key={a.id} auction={a} />
-          ))}
+        <div className="landing-cards-container rounded-2xl border border-warning/20 p-4 sm:p-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {AUCTIONS.map((a) => (
+              <AuctionCard key={a.id} auction={a} />
+            ))}
+          </div>
         </div>
       </div>
     </section>

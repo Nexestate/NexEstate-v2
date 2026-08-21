@@ -99,9 +99,18 @@
   }
 
   .hero-smart-badge {
-    background: linear-gradient(180deg, rgb(59 130 246 / 0.18) 0%, rgb(59 130 246 / 0.08) 100%);
-    border: 1px solid rgb(59 130 246 / 0.35);
-    box-shadow: 0 0 20px -4px rgb(59 130 246 / 0.4);
+    background: #3b82f6;
+    color: #ffffff;
+    border: 2px solid var(--color-background);
+    box-shadow: 0 2px 12px -2px rgb(59 130 246 / 0.6);
+  }
+
+  html.dark .hero-smart-badge {
+    border-color: rgb(10 16 32);
+  }
+
+  .hero-search-bar {
+    margin-top: 0.5rem;
   }
 
   .hero-quick-link {
@@ -193,6 +202,16 @@
     background: linear-gradient(180deg, rgb(245 158 11 / 0.08) 0%, rgb(17 24 39 / 0.9) 100%);
   }
 
+  .landing-cards-container {
+    background: rgb(59 130 246 / 0.03);
+    box-shadow: inset 0 0 0 1px rgb(59 130 246 / 0.08);
+    overflow: visible;
+  }
+
+  html.dark .landing-cards-container {
+    background: rgb(10 15 26 / 0.6);
+  }
+
   .deal-card {
     background: var(--color-card);
     transition: all 0.3s ease;
@@ -204,28 +223,19 @@
     transform: translateY(-2px);
   }
 
-  .deals-container {
-    background: rgb(59 130 246 / 0.03);
-    box-shadow: inset 0 0 0 1px rgb(59 130 246 / 0.08);
-  }
-
-  html.dark .deals-container {
-    background: rgb(10 15 26 / 0.6);
-  }
-
-  .nav-dropdown {
-    backdrop-filter: blur(16px);
-  }
-
   .auction-card {
-    background: linear-gradient(180deg, rgb(17 24 39 / 0.95) 0%, rgb(10 15 26 / 1) 100%);
+    background: var(--color-card);
     transition: all 0.3s ease;
   }
 
   .auction-card:hover {
     border-color: rgb(245 158 11 / 0.5);
-    box-shadow: 0 12px 40px -8px rgb(245 158 11 / 0.2);
-    transform: translateY(-4px);
+    box-shadow: 0 8px 32px -8px rgb(245 158 11 / 0.2);
+    transform: translateY(-2px);
+  }
+
+  .nav-dropdown {
+    backdrop-filter: blur(16px);
   }
 
   .mockup-glow {
