@@ -8,7 +8,7 @@
       "source": "/:path*",
       "has": [{ "type": "host", "value": "www.nexestate.co" }],
       "destination": "https://nexestate.co/:path*",
-      "permanent": true
+      "statusCode": 308
     }
   ]
 }

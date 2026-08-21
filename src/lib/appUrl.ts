@@ -10,7 +10,10 @@ export function getAppOrigin(): string {
   if (configured) return configured;
 
   if (typeof window !== 'undefined' && window.location?.origin) {
-    return window.location.origin.replace(/\/$/, '');
+    const origin = window.location.origin.replace(/\/$/, '');
+    // Always canonicalize to apex — www serves HTML but asset redirects break (CORS).
+    if (origin === 'https://www.nexestate.co') return DEFAULT_PRODUCTION_ORIGIN;
+    return origin;
   }
 
   return DEFAULT_PRODUCTION_ORIGIN;
