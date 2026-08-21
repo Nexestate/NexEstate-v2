@@ -9,7 +9,7 @@ interface PublicLayoutProps {
 
 export function PublicLayout({ children }: PublicLayoutProps) {
   return (
-    <div id="top" className="min-h-screen bg-background" dir="rtl">
+    <div id="top" className="landing-page min-h-screen bg-background font-sans" dir="rtl">
       <LandingHeader />
       <main>{children}</main>
       <LandingFooter />

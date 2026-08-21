@@ -5,19 +5,25 @@ import {
   Building2,
   ChevronDown,
   Clock,
+  Facebook,
   Factory,
   FileSignature,
   Gavel,
   Home,
+  Linkedin,
+  Mail,
   MapPin,
   Maximize2,
+  Phone,
   Search,
   Sparkles,
   Store,
   TreePine,
   TrendingUp,
+  Twitter,
   Users,
   Wand2,
+  Youtube,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -64,7 +70,7 @@ const RECENT_DEALS = [
 const AUCTIONS = [
   {
     id: 1,
-    title: 'דירת 4 חדרים — נווה צedek',
+    title: 'דירת 4 חדרים — נווה צדק',
     city: 'תל אביב',
     price: 3_100_000,
     bidders: 12,
@@ -72,7 +78,7 @@ const AUCTIONS = [
   },
   {
     id: 2,
-    title: 'משרדים — Azrieli',
+    title: 'משרדים — מגדל עזריאלי',
     city: 'תל אביב',
     price: 5_500_000,
     bidders: 7,
@@ -160,11 +166,11 @@ const FAQ = [
 ];
 
 const FOOTER_LINKS: Record<string, { label: string; to: string }[]> = {
-  מידע: [
+  חברה: [
     { label: 'אודות', to: '/' },
+    { label: 'צוות', to: '/players' },
     { label: 'בלוג', to: '/' },
-    { label: 'מדריכים', to: '/market' },
-    { label: 'צור קשר', to: '/login' },
+    { label: 'קריירה', to: '/' },
   ],
   'שירותי האתר': [
     { label: 'שוק נכסים', to: '/market' },
@@ -172,11 +178,15 @@ const FOOTER_LINKS: Record<string, { label: string; to: string }[]> = {
     { label: 'מחשבון תשואה', to: '/calculator' },
     { label: 'מחירים', to: '/prices' },
     { label: 'מפת עסקאות', to: '/deals' },
+    { label: 'הזדמנויות', to: '/opportunities' },
   ],
-  משפטי: [
+  עזרה: [
+    { label: 'מרכז תמיכה', to: '/login' },
+    { label: 'שאלות נפוצות', to: '/#faq' },
+    { label: 'צור קשר', to: '/login' },
+    { label: 'מדריכים', to: '/market' },
     { label: 'תנאי שימוש', to: '/register' },
     { label: 'מדיניות פרטיות', to: '/register' },
-    { label: 'נגישות', to: '/#faq' },
   ],
 };
 
@@ -260,8 +270,8 @@ export function HeroSection() {
           <span className="text-gradient">מצא. פרסם. סגור עסקה.</span>
         </h1>
 
-        <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg animate-fade-up" style={{ animationDelay: '0.1s' }}>
-          שוק נכסים, פרויקטים ומכירות — The leading real estate market for properties, projects, and auctions.
+        <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg animate-fade-up" style={{ animationDelay: '0.1s' }}>
+          שוק הנדל&quot;ן המוביל בישראל לנכסים, פרויקטים ומכירות פומביות
         </p>
 
         <div className="mx-auto mt-10 max-w-2xl animate-fade-up" style={{ animationDelay: '0.2s' }}>
@@ -598,40 +608,44 @@ export function CtaSection() {
 }
 
 export function LandingFooter() {
+  const social = [
+    { label: 'Facebook', icon: Facebook, href: '#' },
+    { label: 'LinkedIn', icon: Linkedin, href: '#' },
+    { label: 'YouTube', icon: Youtube, href: '#' },
+    { label: 'Twitter', icon: Twitter, href: '#' },
+  ];
+
   return (
     <footer className="border-t border-border/50 bg-card/20 px-4 py-14">
       <div className="mx-auto max-w-7xl">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
-          <div className="lg:col-span-2">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-12">
+          <div className="sm:col-span-2 lg:col-span-3">
             <Link to="/" className="inline-block">
               <span className="text-2xl font-extrabold">
                 <span className="text-foreground">Nex</span>
                 <span className="text-primary">Estate</span>
               </span>
             </Link>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              פלטפורמת הנדל&quot;ן המתקדמת בישראל — שוק נכסים, CRM, חתימה דיגיטלית ומכירות פומביות.
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
+              פלטפורמת הנדל&quot;ן המתקדמת בישראל — שוק נכסים, CRM, חתימה דיגיטלית, ניהול שוכרים ומכירות פומביות במקום אחד.
             </p>
-            <div className="mt-4 space-y-1.5 text-sm text-muted-foreground">
-              <p>info@nexestate.co</p>
-              <p>03-1234567</p>
-              <p>רחוב הרצל 1, תל אביב</p>
-            </div>
-            <div className="mt-5 flex gap-3">
-              {['Facebook', 'LinkedIn', 'YouTube'].map((s) => (
+            <div className="mt-5 flex gap-2.5">
+              {social.map(({ label, icon: Icon, href }) => (
                 <a
-                  key={s}
-                  href="#"
-                  className="grid h-9 w-9 place-items-center rounded-lg border border-border/60 text-xs text-muted-foreground transition-all hover:border-primary hover:text-primary"
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-border/60 text-muted-foreground transition-all hover:border-primary hover:text-primary"
                 >
-                  {s.charAt(0)}
+                  <Icon className="h-4 w-4" />
                 </a>
               ))}
             </div>
           </div>
+
           {Object.entries(FOOTER_LINKS).map(([title, links]) => (
-            <div key={title}>
-              <h4 className="mb-4 font-semibold">{title}</h4>
+            <div key={title} className="lg:col-span-2">
+              <h4 className="mb-4 text-sm font-bold">{title}</h4>
               <ul className="space-y-2.5">
                 {links.map((link) => (
                   <li key={link.label}>
@@ -643,10 +657,37 @@ export function LandingFooter() {
               </ul>
             </div>
           ))}
+
+          <div className="sm:col-span-2 lg:col-span-3">
+            <h4 className="mb-4 text-sm font-bold">יצירת קשר</h4>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              <li className="flex items-start gap-2.5">
+                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <a href="mailto:info@nexestate.co" className="hover:text-foreground">info@nexestate.co</a>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <Phone className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <a href="tel:+97231234567" className="hover:text-foreground">03-1234567</a>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span>רחוב הרצל 1, תל אביב</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span>א׳–ה׳ 09:00–18:00</span>
+              </li>
+            </ul>
+          </div>
         </div>
+
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/50 pt-8 sm:flex-row">
           <p className="text-xs text-muted-foreground">© 2026 NexEstate. כל הזכויות שמורות.</p>
-          <p className="text-xs text-muted-foreground">נבנה בישראל 🇮🇱</p>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <Link to="/register" className="hover:text-foreground">תנאי שימוש</Link>
+            <Link to="/register" className="hover:text-foreground">מדיניות פרטיות</Link>
+            <span>נבנה בישראל 🇮🇱</span>
+          </div>
         </div>
       </div>
     </footer>

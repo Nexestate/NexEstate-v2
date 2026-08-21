@@ -187,4 +187,15 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  .landing-page {
+    font-family: "Assistant", "Heebo", ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  .landing-page h1,
+  .landing-page h2,
+  .landing-page h3 {
+    letter-spacing: -0.02em;
+  }
 }
