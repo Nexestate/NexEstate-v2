@@ -1,18 +1,15 @@
 import { Building2, ChevronDown, ChevronUp, Layers, MapPin, Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { FilterBar } from '../../components/ui/FilterBar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
-import {
-  PropertyFormModal,
-  propertyFormToPayload,
-  type PropertyFormValues,
-} from '../../components/property/PropertyFormModal';
+import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { createProperty, fetchProperties } from '../../lib/services';
+import { useEntityCreated } from '../../hooks/useEntityCreated';
+import { fetchProperties } from '../../lib/services';
 import { formatCurrency, getOccupancyPercent } from '../../lib/utils';
 import type { PropertyWithUnits } from '../../types/domain';
 import { UNIT_STATUS_LABELS } from '../../types/domain';
@@ -26,31 +23,26 @@ const STATUS_VARIANT: Record<string, 'success' | 'primary' | 'warning' | 'outlin
 
 export function PropertiesPage() {
   const { user } = useAuth();
+  const { openQuickAdd } = useQuickAdd();
   const [properties, setProperties] = useState<PropertyWithUnits[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
     fetchProperties(user?.id).then((data) => {
       setProperties(data);
       if (data.length) setExpanded(data[0].id);
       setLoading(false);
     });
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [load]);
 
-  const handleCreate = async (values: PropertyFormValues) => {
-    if (!user) throw new Error('not auth');
-    await createProperty(propertyFormToPayload(values, user.id));
-    load();
-  };
+  useEntityCreated('property', load);
 
   const filtered = properties.filter(
     (p) =>
@@ -76,7 +68,7 @@ export function PropertiesPage() {
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="primary">{properties.length} נכסים</Badge>
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button onClick={() => openQuickAdd('property')}>
             <Plus className="h-4 w-4" />
             נכס חדש
           </Button>
@@ -181,12 +173,6 @@ export function PropertiesPage() {
           );
         })}
       </div>
-
-      <PropertyFormModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onSubmit={handleCreate}
-      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { ChevronDown, ChevronLeft, Eye, LogOut, Pencil, Plus, Shield } from 'luc
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useQuickAdd, type QuickAddType } from '../../contexts/QuickAddContext';
 import { DEMO_MANAGED_PROPERTIES } from '../../data/demoData';
 import { ROLE_LABELS } from '../../lib/roles';
 import { cn, getInitials } from '../../lib/utils';
@@ -34,8 +35,16 @@ const PERMISSION_LABELS: Record<PermissionLevel, string> = {
 
 export function Sidebar({ sections, sharedProperties = [], onClose }: SidebarProps) {
   const { user, signOut } = useAuth();
+  const { openQuickAdd } = useQuickAdd();
   const [expandedProperty, setExpandedProperty] = useState<string | null>(DEMO_MANAGED_PROPERTIES[0]?.id ?? null);
   const [sharedOpen, setSharedOpen] = useState(sharedProperties.length > 0);
+
+  const handleQuickAdd = (e: React.MouseEvent, type: QuickAddType, propertyId?: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openQuickAdd(type, propertyId ? { propertyId } : undefined);
+    onClose?.();
+  };
 
   return (
     <aside className="flex h-full w-64 flex-col border-s border-sidebar-border bg-sidebar">
@@ -59,30 +68,34 @@ export function Sidebar({ sections, sharedProperties = [], onClose }: SidebarPro
                 const Icon = item.icon;
                 return (
                   <li key={item.to}>
-                    <NavLink
-                      to={item.to}
-                      end={item.end}
-                      onClick={onClose}
-                      className={({ isActive }) =>
-                        cn(
-                          'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                          isActive
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                        )
-                      }
-                    >
-                      <Icon className="h-5 w-5 shrink-0" />
-                      <span className="flex-1">{item.label}</span>
+                    <div className="flex items-center gap-1">
+                      <NavLink
+                        to={item.to}
+                        end={item.end}
+                        onClick={onClose}
+                        className={({ isActive }) =>
+                          cn(
+                            'flex flex-1 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                            isActive
+                              ? 'bg-primary/10 text-primary'
+                              : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                          )
+                        }
+                      >
+                        <Icon className="h-5 w-5 shrink-0" />
+                        <span className="flex-1">{item.label}</span>
+                      </NavLink>
                       {item.addNew && (
-                        <span
-                          className="grid h-6 w-6 place-items-center rounded-md bg-primary/10 text-primary"
-                          onClick={(e) => e.preventDefault()}
+                        <button
+                          type="button"
+                          aria-label={`הוסף ${item.label}`}
+                          className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary/10 text-primary hover:bg-primary/20"
+                          onClick={(e) => handleQuickAdd(e, item.addNew as QuickAddType)}
                         >
                           <Plus className="h-3.5 w-3.5" />
-                        </span>
+                        </button>
                       )}
-                    </NavLink>
+                    </div>
 
                     {item.to === '/broker/properties' && DEMO_MANAGED_PROPERTIES.length > 0 && (
                       <ul className="me-2 mt-1 space-y-0.5 border-s border-border ps-3">
@@ -107,22 +120,42 @@ export function Sidebar({ sections, sharedProperties = [], onClose }: SidebarPro
                             {expandedProperty === prop.id && (
                               <ul className="me-2 space-y-0.5 border-s border-border ps-3 pb-1">
                                 <li>
-                                  <NavLink
-                                    to={`/broker/tenants?property=${prop.id}`}
-                                    className="flex items-center gap-2 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
-                                  >
-                                    שוכרים (3)
-                                    <Plus className="ms-auto h-3 w-3 text-primary" />
-                                  </NavLink>
+                                  <div className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground">
+                                    <NavLink
+                                      to={`/broker/tenants?property=${prop.id}`}
+                                      onClick={onClose}
+                                      className="flex-1"
+                                    >
+                                      שוכרים (3)
+                                    </NavLink>
+                                    <button
+                                      type="button"
+                                      aria-label="הוסף שוכר"
+                                      className="grid h-5 w-5 place-items-center rounded text-primary hover:bg-primary/10"
+                                      onClick={(e) => handleQuickAdd(e, 'tenant', prop.id)}
+                                    >
+                                      <Plus className="h-3 w-3" />
+                                    </button>
+                                  </div>
                                 </li>
                                 <li>
-                                  <NavLink
-                                    to={`/broker/leases?property=${prop.id}`}
-                                    className="flex items-center gap-2 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
-                                  >
-                                    חוזים (4)
-                                    <Plus className="ms-auto h-3 w-3 text-primary" />
-                                  </NavLink>
+                                  <div className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground">
+                                    <NavLink
+                                      to={`/broker/leases?property=${prop.id}`}
+                                      onClick={onClose}
+                                      className="flex-1"
+                                    >
+                                      חוזים (4)
+                                    </NavLink>
+                                    <button
+                                      type="button"
+                                      aria-label="הוסף חוזה"
+                                      className="grid h-5 w-5 place-items-center rounded text-primary hover:bg-primary/10"
+                                      onClick={(e) => handleQuickAdd(e, 'lease', prop.id)}
+                                    >
+                                      <Plus className="h-3 w-3" />
+                                    </button>
+                                  </div>
                                 </li>
                                 <li>
                                   <NavLink

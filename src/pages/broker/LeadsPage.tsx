@@ -1,5 +1,5 @@
 import { Phone, User } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { FilterBar } from '../../components/ui/FilterBar';
@@ -7,6 +7,7 @@ import { KanbanBoard } from '../../components/ui/KanbanBoard';
 import { Tabs, ViewToggle } from '../../components/ui/Tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { useAuth } from '../../contexts/AuthContext';
+import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { fetchClients, fetchLeads } from '../../lib/services';
 import { formatCurrency } from '../../lib/utils';
 import type { Client, Lead, LeadStatus } from '../../types/domain';
@@ -34,13 +35,20 @@ export function LeadsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setLoading(true);
     Promise.all([fetchLeads(user?.id), fetchClients(user?.id)]).then(([l, c]) => {
       setLeads(l);
       setClients(c);
       setLoading(false);
     });
   }, [user?.id]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useEntityCreated(['lead', 'client'], load);
 
   const filteredLeads = useMemo(
     () =>

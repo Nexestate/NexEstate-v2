@@ -1,6 +1,6 @@
 import { DEMO_TASKS } from '../../data/demoData';
-import type { Task, TaskStatus } from '../../types/domain';
-import { isDemoMode, requireSupabase, throwIfError } from './serviceHelpers';
+import type { Task, TaskPriority, TaskStatus } from '../../types/domain';
+import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
 export async function fetchTasks(userId?: string): Promise<Task[]> {
   if (isDemoMode()) return DEMO_TASKS;
@@ -20,6 +20,40 @@ export async function fetchTasks(userId?: string): Promise<Task[]> {
     due_date: row.due_date ?? undefined,
     created_at: row.created_at,
   }));
+}
+
+export async function createTask(
+  userId: string,
+  payload: { title: string; priority: TaskPriority; due_date?: string },
+): Promise<string> {
+  if (isDemoMode()) {
+    const id = `task-${Date.now()}`;
+    DEMO_TASKS.unshift({
+      id,
+      title: payload.title,
+      status: 'open',
+      priority: payload.priority,
+      due_date: payload.due_date,
+      created_at: new Date().toISOString(),
+    });
+    return id;
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('tasks')
+    .insert({
+      user_id: userId,
+      title: payload.title,
+      priority: payload.priority,
+      due_date: payload.due_date,
+      status: 'open',
+    })
+    .select('id')
+    .single();
+  throwIfError(error);
+  if (!data) throw new ServiceError('Task insert returned no data');
+  return data.id as string;
 }
 
 export async function updateTaskStatus(id: string, status: TaskStatus): Promise<void> {

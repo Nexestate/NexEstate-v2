@@ -5,8 +5,8 @@ import { PageLoader } from '../../components/ui/PageLoader';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
-import { CreateSigningLinkModal, type SigningLinkFormValues } from '../../components/property/CreateSigningLinkModal';
-import { useAuth } from '../../contexts/AuthContext';
+import { useQuickAdd } from '../../contexts/QuickAddContext';
+import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { useSigningLinks } from '../../hooks/useSigningLinks';
 import type { SigningLink } from '../../types/domain';
 import { SIGNING_STATUS_LABELS } from '../../types/domain';
@@ -20,40 +20,17 @@ const STATUS_VARIANT: Record<string, 'primary' | 'success' | 'warning' | 'outlin
 };
 
 export function AgreementsPage() {
-  const { user } = useAuth();
-  const { links, loading, createLink, fetchLinks } = useSigningLinks();
-  const [createOpen, setCreateOpen] = useState(false);
+  const { openQuickAdd } = useQuickAdd();
+  const { links, loading, fetchLinks } = useSigningLinks();
   const [copied, setCopied] = useState<string | null>(null);
+
+  useEntityCreated('agreement', fetchLinks);
 
   const copyLink = (token: string) => {
     const url = `${window.location.origin}/sign/${token}`;
     void navigator.clipboard.writeText(url);
     setCopied(token);
     setTimeout(() => setCopied(null), 2000);
-  };
-
-  const handleCreate = async (values: SigningLinkFormValues) => {
-    const created = await createLink({
-      client_name: values.client_name,
-      client_phone: values.client_phone,
-      client_email: values.client_email || undefined,
-      deal_type: values.deal_type,
-      agreement_type: values.agreement_type,
-      property_description: values.property_description || undefined,
-      exact_address: values.exact_address || undefined,
-      show_address_before_signing: values.show_address_before_signing,
-      price: values.price ? Number(values.price) : undefined,
-      commission_type: values.commission_type,
-      commission_percent: Number(values.commission_percent),
-      minimum_commission: values.minimum_commission
-        ? Number(values.minimum_commission)
-        : undefined,
-      valid_days: Number(values.valid_days),
-      payment_days: Number(values.payment_days),
-      broker_name: user?.full_name,
-    });
-    if (!created) throw new Error('create failed');
-    await fetchLinks();
   };
 
   if (loading) return <PageLoader />;
@@ -64,7 +41,7 @@ export function AgreementsPage() {
         title="הסכמים וחתימה דיגיטלית"
         description="יצירה וניהול קישורי חתימה ללקוחות"
         action={
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button onClick={() => openQuickAdd('agreement')}>
             <Plus className="h-4 w-4" />
             קישור חדש
           </Button>
@@ -125,12 +102,6 @@ export function AgreementsPage() {
           ))}
         </TableBody>
       </Table>
-
-      <CreateSigningLinkModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onSubmit={handleCreate}
-      />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { ViewToggle } from '../../components/ui/Tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAsyncData } from '../../hooks/useAsyncData';
+import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { fetchTasks } from '../../lib/services';
 import type { Task, TaskStatus } from '../../types/domain';
 import {
@@ -23,7 +24,9 @@ export function TasksPage() {
   const { user } = useAuth();
   const [view, setView] = useState<'table' | 'kanban'>('kanban');
   const [search, setSearch] = useState('');
-  const { data: tasks, loading } = useAsyncData(() => fetchTasks(user?.id), [user?.id]);
+  const { data: tasks, loading, reload } = useAsyncData(() => fetchTasks(user?.id), [user?.id]);
+
+  useEntityCreated('task', reload);
 
   const filtered = useMemo(
     () => tasks?.filter((t) => t.title.includes(search) || t.client_name?.includes(search)) ?? [],

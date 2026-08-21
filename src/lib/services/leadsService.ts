@@ -1,6 +1,6 @@
 import { DEMO_CLIENTS, DEMO_LEADS } from '../../data/demoData';
 import type { Client, Lead, LeadStatus } from '../../types/domain';
-import { isDemoMode, requireSupabase, throwIfError } from './serviceHelpers';
+import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
 export async function fetchLeads(brokerId?: string): Promise<Lead[]> {
   if (isDemoMode()) return DEMO_LEADS;
@@ -51,6 +51,76 @@ export async function fetchClients(brokerId?: string): Promise<Client[]> {
     preferred_cities: row.preferred_cities ?? undefined,
     created_at: row.created_at,
   }));
+}
+
+export async function createLead(
+  brokerId: string,
+  payload: { full_name: string; phone: string; source?: string },
+): Promise<string> {
+  if (isDemoMode()) {
+    const id = `lead-${Date.now()}`;
+    DEMO_LEADS.unshift({
+      id,
+      broker_id: brokerId,
+      full_name: payload.full_name,
+      phone: payload.phone,
+      source: payload.source,
+      status: 'new',
+      created_at: new Date().toISOString(),
+    });
+    return id;
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('leads')
+    .insert({
+      broker_id: brokerId,
+      full_name: payload.full_name,
+      phone: payload.phone,
+      source: payload.source,
+      status: 'new',
+    })
+    .select('id')
+    .single();
+  throwIfError(error);
+  if (!data) throw new ServiceError('Lead insert returned no data');
+  return data.id as string;
+}
+
+export async function createClient(
+  brokerId: string,
+  payload: { full_name: string; type: Client['type']; phone?: string; email?: string },
+): Promise<string> {
+  if (isDemoMode()) {
+    const id = `client-${Date.now()}`;
+    DEMO_CLIENTS.unshift({
+      id,
+      broker_id: brokerId,
+      full_name: payload.full_name,
+      type: payload.type,
+      phone: payload.phone,
+      email: payload.email,
+      created_at: new Date().toISOString(),
+    });
+    return id;
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('clients')
+    .insert({
+      broker_id: brokerId,
+      full_name: payload.full_name,
+      type: payload.type,
+      phone: payload.phone,
+      email: payload.email,
+    })
+    .select('id')
+    .single();
+  throwIfError(error);
+  if (!data) throw new ServiceError('Client insert returned no data');
+  return data.id as string;
 }
 
 export async function updateLeadStatus(id: string, status: LeadStatus): Promise<void> {

@@ -2,10 +2,10 @@ export { ServiceError, isDemoMode, getSupabaseClient, requireSupabase, throwIfEr
 
 export { fetchProperties, fetchProperty, createProperty, updateProperty } from './propertiesService';
 export type { PropertyInsert } from './propertiesService';
-export { fetchLeads, fetchClients, updateLeadStatus } from './leadsService';
-export { fetchLeases, fetchTenants } from './leasesService';
+export { fetchLeads, fetchClients, createLead, createClient, updateLeadStatus } from './leadsService';
+export { fetchLeases, fetchTenants, createTenant, createLease } from './leasesService';
 export { fetchSigningLink, completeSigning, fetchSigningLinks } from './signingService';
-export { fetchTasks, updateTaskStatus } from './tasksService';
+export { fetchTasks, createTask, updateTaskStatus } from './tasksService';
 export {
   fetchNotifications,
   markNotificationRead,

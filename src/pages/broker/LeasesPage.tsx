@@ -1,11 +1,12 @@
 import { Building2, Calendar, User } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { FilterBar } from '../../components/ui/FilterBar';
 import { Tabs } from '../../components/ui/Tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { useAuth } from '../../contexts/AuthContext';
+import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { fetchLeases, fetchTenants } from '../../lib/services';
 import { formatCurrency } from '../../lib/utils';
 import type { Lease, Tenant } from '../../types/domain';
@@ -32,13 +33,20 @@ export function LeasesPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setLoading(true);
     Promise.all([fetchLeases(user?.id), fetchTenants(user?.id)]).then(([l, t]) => {
       setLeases(l);
       setTenants(t);
       setLoading(false);
     });
   }, [user?.id]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useEntityCreated(['lease', 'tenant'], load);
 
   const filteredLeases = useMemo(
     () =>

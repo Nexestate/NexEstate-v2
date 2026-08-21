@@ -1,6 +1,6 @@
-import { DEMO_LEASES, DEMO_TENANTS } from '../../data/demoData';
+import { DEMO_LEASES, DEMO_MANAGED_PROPERTIES, DEMO_TENANTS } from '../../data/demoData';
 import type { Lease, Tenant } from '../../types/domain';
-import { isDemoMode, requireSupabase, throwIfError } from './serviceHelpers';
+import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
 export async function fetchLeases(managerId?: string): Promise<Lease[]> {
   if (isDemoMode()) return DEMO_LEASES;
@@ -30,6 +30,94 @@ export async function fetchLeases(managerId?: string): Promise<Lease[]> {
     deposit: row.deposit ?? undefined,
     is_active: row.is_active,
   }));
+}
+
+export async function createTenant(
+  managerId: string,
+  payload: { full_name: string; phone?: string; email?: string; property_id?: string },
+): Promise<string> {
+  const propertyTitle = payload.property_id
+    ? DEMO_MANAGED_PROPERTIES.find((p) => p.id === payload.property_id)?.title
+    : undefined;
+
+  if (isDemoMode()) {
+    const id = `tenant-${Date.now()}`;
+    DEMO_TENANTS.unshift({
+      id,
+      full_name: payload.full_name,
+      company_name: payload.full_name,
+      email: payload.email,
+      phone: payload.phone,
+      status: 'active',
+      property_title: propertyTitle,
+    });
+    return id;
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('tenants')
+    .insert({
+      manager_id: managerId,
+      full_name: payload.full_name,
+      company_name: payload.full_name,
+      email: payload.email,
+      phone: payload.phone,
+      status: 'active',
+      property_id: payload.property_id,
+    })
+    .select('id')
+    .single();
+  throwIfError(error);
+  if (!data) throw new ServiceError('Tenant insert returned no data');
+  return data.id as string;
+}
+
+export async function createLease(
+  managerId: string,
+  payload: {
+    property_id: string;
+    tenant_name: string;
+    monthly_rent: number;
+    start_date: string;
+    end_date: string;
+  },
+): Promise<string> {
+  const propertyTitle = DEMO_MANAGED_PROPERTIES.find((p) => p.id === payload.property_id)?.title;
+
+  if (isDemoMode()) {
+    const id = `lease-${Date.now()}`;
+    DEMO_LEASES.unshift({
+      id,
+      property_id: payload.property_id,
+      property_title: propertyTitle,
+      tenant_id: `tenant-${Date.now()}`,
+      tenant_name: payload.tenant_name,
+      start_date: payload.start_date,
+      end_date: payload.end_date,
+      monthly_rent: payload.monthly_rent,
+      is_active: true,
+    });
+    return id;
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('leases')
+    .insert({
+      manager_id: managerId,
+      property_id: payload.property_id,
+      tenant_name: payload.tenant_name,
+      monthly_rent: payload.monthly_rent,
+      start_date: payload.start_date,
+      end_date: payload.end_date,
+      is_active: true,
+    })
+    .select('id')
+    .single();
+  throwIfError(error);
+  if (!data) throw new ServiceError('Lease insert returned no data');
+  return data.id as string;
 }
 
 export async function fetchTenants(managerId?: string): Promise<Tenant[]> {
