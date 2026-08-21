@@ -1,11 +1,11 @@
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-10px); }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.05); }
 }
 
 @keyframes shimmer {
@@ -14,44 +14,68 @@
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(24px); }
+  from { opacity: 0; transform: translateY(28px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 40px -8px rgb(59 130 246 / 0.4); }
+  50% { box-shadow: 0 0 60px -4px rgb(59 130 246 / 0.65); }
+}
+
+@keyframes orb-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(20px, -15px) scale(1.05); }
+  66% { transform: translate(-15px, 10px) scale(0.95); }
 }
 
 @layer utilities {
   .animate-float {
-    animation: float 4s ease-in-out infinite;
+    animation: float 5s ease-in-out infinite;
   }
 
   .animate-pulse-glow {
-    animation: pulse-glow 3s ease-in-out infinite;
+    animation: pulse-glow 4s ease-in-out infinite;
   }
 
   .animate-fade-up {
-    animation: fade-up 0.6s ease-out forwards;
+    animation: fade-up 0.7s ease-out forwards;
+    opacity: 0;
   }
 
   .animate-shimmer {
-    background: linear-gradient(90deg, transparent, rgb(59 130 246 / 0.08), transparent);
+    background: linear-gradient(90deg, transparent, rgb(59 130 246 / 0.1), transparent);
     background-size: 200% 100%;
-    animation: shimmer 3s infinite;
+    animation: shimmer 4s infinite;
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  .animate-orb-drift {
+    animation: orb-drift 8s ease-in-out infinite;
   }
 
   .hero-gradient {
     background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, rgb(59 130 246 / 0.18) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 40% at 80% 20%, rgb(139 92 246 / 0.12) 0%, transparent 50%),
-      radial-gradient(ellipse 40% 30% at 20% 60%, rgb(16 185 129 / 0.08) 0%, transparent 50%);
+      radial-gradient(ellipse 90% 70% at 50% -10%, rgb(59 130 246 / 0.22) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 50% at 85% 15%, rgb(139 92 246 / 0.16) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 15% 50%, rgb(16 185 129 / 0.08) 0%, transparent 45%),
+      radial-gradient(ellipse 40% 30% at 50% 100%, rgb(59 130 246 / 0.06) 0%, transparent 50%);
   }
 
   .glass-panel {
-    background-color: rgb(17 24 39 / 0.6);
-    backdrop-filter: blur(24px);
-    border: 1px solid rgb(255 255 255 / 0.05);
+    background-color: rgb(10 15 26 / 0.75);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgb(255 255 255 / 0.06);
   }
 
   .search-bar-glow {
-    box-shadow: 0 0 60px -12px rgb(59 130 246 / 0.35);
+    box-shadow:
+      0 0 0 1px rgb(59 130 246 / 0.15),
+      0 0 80px -12px rgb(59 130 246 / 0.45),
+      0 8px 32px -8px rgb(0 0 0 / 0.5);
   }
 
   .typewriter-cursor {
@@ -64,19 +88,95 @@
   }
 
   .text-gradient {
-    background: linear-gradient(to left, #60a5fa, #3b82f6, #8b5cf6);
+    background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 25%, #3b82f6 50%, #8b5cf6 75%, #a78bfa 100%);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
+    filter: drop-shadow(0 0 30px rgb(59 130 246 / 0.35));
+  }
+
+  .text-glow {
+    text-shadow: 0 0 40px rgb(59 130 246 / 0.4), 0 0 80px rgb(139 92 246 / 0.2);
+  }
+
+  .stat-card-glow {
+    background: linear-gradient(180deg, rgb(59 130 246 / 0.08) 0%, rgb(17 24 39 / 0.6) 100%);
+    border: 1px solid rgb(59 130 246 / 0.2);
+    box-shadow:
+      0 0 0 1px rgb(59 130 246 / 0.05),
+      0 4px 24px -4px rgb(59 130 246 / 0.15),
+      inset 0 1px 0 rgb(255 255 255 / 0.04);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .stat-card-glow:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 0 1px rgb(59 130 246 / 0.15),
+      0 8px 32px -4px rgb(59 130 246 / 0.25),
+      inset 0 1px 0 rgb(255 255 255 / 0.06);
   }
 
   .category-glow {
-    transition: box-shadow 0.3s, transform 0.3s;
+    transition: box-shadow 0.35s, transform 0.35s, border-color 0.35s;
+    background: linear-gradient(180deg, rgb(17 24 39 / 0.8) 0%, rgb(10 15 26 / 0.9) 100%);
   }
 
   .category-glow:hover {
+    transform: translateY(-6px);
+    border-color: rgb(59 130 246 / 0.3);
+    box-shadow:
+      0 12px 40px -8px var(--glow-color, rgb(59 130 246 / 0.35)),
+      0 0 0 1px rgb(255 255 255 / 0.05);
+  }
+
+  .service-card {
+    transition: all 0.35s ease;
+    background: linear-gradient(180deg, rgb(17 24 39 / 0.9) 0%, rgb(10 15 26 / 0.95) 100%);
+  }
+
+  .service-card-active {
+    border-color: rgb(245 158 11 / 0.7) !important;
+    box-shadow:
+      0 0 0 1px rgb(245 158 11 / 0.3),
+      0 0 40px -8px rgb(245 158 11 / 0.35),
+      0 8px 32px -8px rgb(0 0 0 / 0.4);
+    background: linear-gradient(180deg, rgb(245 158 11 / 0.08) 0%, rgb(17 24 39 / 0.9) 100%);
+  }
+
+  .deal-card {
+    background: linear-gradient(180deg, rgb(17 24 39 / 0.95) 0%, rgb(10 15 26 / 1) 100%);
+    transition: all 0.3s ease;
+  }
+
+  .deal-card:hover {
+    border-color: rgb(59 130 246 / 0.4);
+    box-shadow: 0 12px 40px -8px rgb(59 130 246 / 0.2);
     transform: translateY(-4px);
-    box-shadow: 0 8px 32px -8px var(--glow-color, rgb(59 130 246 / 0.4));
+  }
+
+  .auction-card {
+    background: linear-gradient(180deg, rgb(17 24 39 / 0.95) 0%, rgb(10 15 26 / 1) 100%);
+    transition: all 0.3s ease;
+  }
+
+  .auction-card:hover {
+    border-color: rgb(245 158 11 / 0.5);
+    box-shadow: 0 12px 40px -8px rgb(245 158 11 / 0.2);
+    transform: translateY(-4px);
+  }
+
+  .mockup-glow {
+    box-shadow:
+      0 0 0 1px rgb(59 130 246 / 0.15),
+      0 0 80px -12px rgb(59 130 246 / 0.35),
+      0 24px 64px -16px rgb(0 0 0 / 0.6);
+  }
+
+  .cta-glow {
+    box-shadow:
+      0 0 0 1px rgb(59 130 246 / 0.2),
+      0 0 60px -8px rgb(59 130 246 / 0.25);
   }
 
   .scrollbar-hide {

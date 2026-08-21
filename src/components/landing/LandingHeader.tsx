@@ -49,7 +49,7 @@ export function LandingHeader() {
   const isActive = (to: string) => pathname === to || pathname.startsWith(`${to}/`);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-background/90 backdrop-blur-xl" dir="rtl">
+    <header className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-2xl" dir="rtl">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 lg:px-6">
         <Logo size="sm" className="shrink-0" />
 
@@ -62,7 +62,7 @@ export function LandingHeader() {
                   onClick={() => setSalesOpen(!salesOpen)}
                   className={cn(
                     'flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-colors',
-                    isActive(to) ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+                    isActive(to) ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground',
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -72,13 +72,13 @@ export function LandingHeader() {
                 {salesOpen && (
                   <>
                     <button type="button" className="fixed inset-0 z-40" onClick={() => setSalesOpen(false)} aria-label="סגור" />
-                    <div className="absolute start-0 top-full z-50 mt-1 min-w-[180px] rounded-xl border border-border bg-card py-1 shadow-xl">
+                    <div className="absolute start-0 top-full z-50 mt-1 min-w-[180px] rounded-xl border border-border/60 bg-card/95 py-1 shadow-2xl backdrop-blur-xl">
                       {children.map((child) => (
                         <Link
                           key={child.to}
                           to={child.to}
                           onClick={() => setSalesOpen(false)}
-                          className="block px-4 py-2.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                          className="block px-4 py-2.5 text-sm text-muted-foreground hover:bg-white/5 hover:text-foreground"
                         >
                           {child.label}
                         </Link>
@@ -93,7 +93,7 @@ export function LandingHeader() {
                 to={to}
                 className={cn(
                   'flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-colors',
-                  isActive(to) ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+                  isActive(to) ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground',
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -119,27 +119,27 @@ export function LandingHeader() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="hidden h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:grid"
+            className="hidden h-9 w-9 place-items-center rounded-full border border-border/50 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground md:grid"
             aria-label="החלף ערכת נושא"
           >
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
           <Link
             to="/login"
-            className="hidden h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:grid"
+            className="hidden h-9 w-9 place-items-center rounded-full border border-border/50 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground md:grid"
             aria-label="מועדפים"
           >
             <Heart className="h-4 w-4" />
           </Link>
           <Link to="/login" className="hidden md:block">
-            <Button size="sm" className="rounded-full px-4 shadow-lg shadow-primary/25 lg:px-5">
+            <Button size="sm" className="rounded-full px-4 shadow-lg shadow-primary/30 lg:px-5">
               <LogIn className="h-4 w-4 shrink-0" />
               <span className="hidden lg:inline">התחברות/הרשמה</span>
               <span className="lg:hidden">התחברות</span>
             </Button>
           </Link>
           <Link to="/register" className="hidden sm:block">
-            <Button variant="success" size="sm" className="rounded-full px-4 shadow-lg shadow-success/25 lg:px-5">
+            <Button variant="success" size="sm" className="rounded-full px-4 shadow-lg shadow-success/30 lg:px-5">
               <Plus className="h-4 w-4 shrink-0" />
               <span className="hidden lg:inline">פרסם מודעה</span>
               <span className="lg:hidden">פרסם</span>
@@ -147,7 +147,7 @@ export function LandingHeader() {
           </Link>
           <button
             type="button"
-            className="grid h-10 w-10 place-items-center rounded-lg border border-border lg:hidden"
+            className="grid h-10 w-10 place-items-center rounded-lg border border-border/50 lg:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="תפריט"
           >
@@ -157,21 +157,21 @@ export function LandingHeader() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-border bg-background px-4 py-4 lg:hidden">
+        <div className="border-t border-border/50 bg-background/95 px-4 py-4 backdrop-blur-xl lg:hidden">
           <nav className="flex flex-col gap-1">
             {NAV.map(({ to, label, icon: Icon }) => (
               <Link
                 key={label}
                 to={to}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm hover:bg-muted"
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm hover:bg-white/5"
               >
                 <Icon className="h-4 w-4 text-primary" />
                 {label}
               </Link>
             ))}
             {TEXT_LINKS.map(({ to, label }) => (
-              <Link key={label} to={to} onClick={() => setMobileOpen(false)} className="rounded-lg px-3 py-2.5 text-sm hover:bg-muted">
+              <Link key={label} to={to} onClick={() => setMobileOpen(false)} className="rounded-lg px-3 py-2.5 text-sm hover:bg-white/5">
                 {label}
               </Link>
             ))}
