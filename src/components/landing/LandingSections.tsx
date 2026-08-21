@@ -274,48 +274,57 @@ export function HeroSection() {
           שוק הנדל&quot;ן המוביל בישראל לנכסים, פרויקטים ומכירות פומביות
         </p>
 
-        <div className="mx-auto mt-10 max-w-2xl animate-fade-up" style={{ animationDelay: '0.2s' }}>
-          <div className="mb-4 flex justify-center gap-2">
-            {(['sale', 'rent'] as const).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setSearchTab(tab)}
-                className={cn(
-                  'rounded-full px-6 py-2.5 text-sm font-medium transition-all duration-300',
-                  searchTab === tab
-                    ? 'bg-primary text-white shadow-lg shadow-primary/40'
-                    : 'border border-border/50 bg-card/40 text-muted-foreground backdrop-blur-sm hover:bg-card/60 hover:text-foreground',
-                )}
-              >
-                {tab === 'sale' ? 'למכירה' : 'להשכרה'}
-              </button>
-            ))}
+        <div className="mx-auto mt-10 max-w-3xl animate-fade-up" style={{ animationDelay: '0.2s' }}>
+          <div className="mb-5 flex justify-center">
+            <div className="inline-flex rounded-full border border-border/40 bg-card/30 p-1 backdrop-blur-sm">
+              {(['sale', 'rent'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setSearchTab(tab)}
+                  className={cn(
+                    'rounded-full px-7 py-2 text-sm font-semibold transition-all duration-300',
+                    searchTab === tab
+                      ? 'bg-primary text-white shadow-md shadow-primary/30'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  {tab === 'sale' ? 'למכירה' : 'להשכרה'}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute -top-3.5 start-1/2 z-10 -translate-x-1/2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/15 px-3.5 py-1 text-[11px] font-semibold text-primary shadow-lg shadow-primary/20">
+          <div className="relative pt-2">
+            <div className="absolute -top-1 start-1/2 z-10 -translate-x-1/2">
+              <span className="hero-smart-badge inline-flex items-center gap-1.5 rounded-full px-4 py-1 text-[11px] font-bold text-primary">
                 <Wand2 className="h-3 w-3" />
                 חיפוש חכם
               </span>
             </div>
-            <div className="search-bar-glow animate-glow-pulse flex flex-col gap-2 rounded-2xl border border-primary/25 bg-card/60 p-2 backdrop-blur-xl sm:flex-row sm:items-center sm:rounded-full sm:ps-5">
+            <div className="hero-search-bar flex items-center gap-2 rounded-full border border-primary/20 bg-[#0a1020]/80 p-1.5 pe-2 backdrop-blur-xl sm:p-2 sm:pe-2.5">
               <AnimatedSearchInput
                 value={searchQuery}
                 onChange={setSearchQuery}
                 onSubmit={handleSearch}
               />
-              <Button className="h-11 w-full shrink-0 rounded-xl px-8 shadow-lg shadow-primary/30 sm:h-12 sm:w-auto sm:rounded-full" onClick={handleSearch}>
+              <Button
+                className="hero-search-btn h-11 shrink-0 rounded-full px-7 text-sm font-bold sm:h-12 sm:px-9"
+                onClick={handleSearch}
+              >
                 <Search className="h-4 w-4 shrink-0" />
                 חיפוש
               </Button>
             </div>
           </div>
 
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-primary/80 sm:text-sm">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             {QUICK_LINKS.map((link) => (
-              <Link key={link.label} to={link.href} className="transition-colors hover:text-primary hover:underline">
+              <Link
+                key={link.label}
+                to={link.href}
+                className="hero-quick-link rounded-full px-3.5 py-1.5 text-xs font-medium text-primary/90 transition-colors sm:text-sm"
+              >
                 {link.label}
               </Link>
             ))}

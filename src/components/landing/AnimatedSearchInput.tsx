@@ -70,7 +70,7 @@ export function AnimatedSearchInput({
         onBlur={() => setFocused(false)}
         onKeyDown={(e) => e.key === 'Enter' && onSubmit?.()}
         aria-label="חיפוש נכסים"
-        className="relative z-10 h-11 w-full bg-transparent px-4 text-start text-sm text-foreground outline-none sm:h-12 sm:text-base"
+        className="relative z-10 h-12 w-full bg-transparent px-5 text-start text-[15px] text-foreground outline-none sm:h-[52px] sm:text-base"
       />
 
       {showAnimation && (

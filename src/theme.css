@@ -3,14 +3,14 @@
 @theme {
   --font-sans: "Assistant", "Heebo", ui-sans-serif, system-ui, sans-serif;
 
-  --color-background: #050810;
-  --color-foreground: #f1f5f9;
-  --color-card: #111827;
-  --color-card-foreground: #f1f5f9;
-  --color-muted: #1e293b;
-  --color-muted-foreground: #94a3b8;
-  --color-border: #1e293b;
-  --color-input: #1e293b;
+  --color-background: #030712;
+  --color-foreground: #f8fafc;
+  --color-card: #0c1222;
+  --color-card-foreground: #f8fafc;
+  --color-muted: #151d2e;
+  --color-muted-foreground: #8b9cb3;
+  --color-border: #1a2332;
+  --color-input: #151d2e;
   --color-primary: #3b82f6;
   --color-primary-foreground: #ffffff;
   --color-success: #10b981;
