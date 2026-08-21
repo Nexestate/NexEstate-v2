@@ -8,9 +8,14 @@ import {
   type ReactNode,
 } from 'react';
 import { claimPendingInvites } from '../lib/claimPendingInvites';
+import { appUrl } from '../lib/appUrl';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { getDashboardPath } from '../lib/roles';
 import { logAuthError, normalizeSignupMetadata } from '../lib/authErrors';
+import {
+  updateProfile as updateProfileRecord,
+  type ProfileUpdatePayload,
+} from '../lib/services/profilesService';
 import type { Profile, UserRole } from '../types';
 
 interface SignUpData {
@@ -35,6 +40,7 @@ interface AuthContextValue {
   resetPassword: (email: string) => Promise<void>;
   resendConfirmationEmail: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
+  updateProfile: (payload: ProfileUpdatePayload) => Promise<void>;
   refreshProfile: () => Promise<void>;
   getRedirectPath: () => string;
 }
@@ -205,7 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
         options: {
           data: metadata,
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: appUrl('/auth/callback'),
         },
       });
 
@@ -251,7 +257,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!supabase) throw new Error('Supabase not configured');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: appUrl('/auth/callback') },
     });
     if (error) throw error;
   }, [isDemoMode]);
@@ -261,7 +267,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (isDemoMode) return;
       if (!supabase) throw new Error('Supabase not configured');
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: appUrl('/reset-password'),
       });
       if (error) throw error;
     },
@@ -276,7 +282,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         type: 'signup',
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: appUrl('/auth/callback'),
         },
       });
       if (error) throw error;
@@ -292,6 +298,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
     },
     [isDemoMode],
+  );
+
+  const updateProfile = useCallback(
+    async (payload: ProfileUpdatePayload) => {
+      if (!user) throw new Error('Not authenticated');
+      if (isDemoMode) {
+        const updated = { ...user, ...payload };
+        saveDemoUser(updated);
+        setUser(updated);
+        return;
+      }
+      const updated = await updateProfileRecord(user.id, payload);
+      setUser(updated);
+    },
+    [user, isDemoMode],
   );
 
   const signOut = useCallback(async () => {
@@ -321,6 +342,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       resetPassword,
       resendConfirmationEmail,
       updatePassword,
+      updateProfile,
       refreshProfile,
       getRedirectPath,
     }),
@@ -335,6 +357,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       resetPassword,
       resendConfirmationEmail,
       updatePassword,
+      updateProfile,
       refreshProfile,
       getRedirectPath,
     ],
