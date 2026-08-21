@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useQuickAdd, type QuickAddType } from '../../contexts/QuickAddContext';
-import { DEMO_MANAGED_PROPERTIES } from '../../data/demoData';
+import type { ManagedPropertySidebarItem } from '../../lib/services/brokerStatsService';
 import { ROLE_LABELS } from '../../lib/roles';
 import { cn, getInitials } from '../../lib/utils';
 import type { NavSection, PermissionLevel } from '../../types';
@@ -13,6 +13,7 @@ import { Logo } from './Logo';
 
 interface SidebarProps {
   sections: NavSection[];
+  managedProperties?: ManagedPropertySidebarItem[];
   sharedProperties?: Array<{
     id: string;
     title: string;
@@ -33,10 +34,10 @@ const PERMISSION_LABELS: Record<PermissionLevel, string> = {
   admin: 'מנהל',
 };
 
-export function Sidebar({ sections, sharedProperties = [], onClose }: SidebarProps) {
+export function Sidebar({ sections, managedProperties = [], sharedProperties = [], onClose }: SidebarProps) {
   const { user, signOut } = useAuth();
   const { openQuickAdd } = useQuickAdd();
-  const [expandedProperty, setExpandedProperty] = useState<string | null>(DEMO_MANAGED_PROPERTIES[0]?.id ?? null);
+  const [expandedProperty, setExpandedProperty] = useState<string | null>(managedProperties[0]?.id ?? null);
   const [sharedOpen, setSharedOpen] = useState(sharedProperties.length > 0);
 
   const handleQuickAdd = (e: React.MouseEvent, type: QuickAddType, propertyId?: string) => {
@@ -97,9 +98,9 @@ export function Sidebar({ sections, sharedProperties = [], onClose }: SidebarPro
                       )}
                     </div>
 
-                    {item.to === '/broker/properties' && DEMO_MANAGED_PROPERTIES.length > 0 && (
+                    {item.to === '/broker/properties' && managedProperties.length > 0 && (
                       <ul className="me-2 mt-1 space-y-0.5 border-s border-border ps-3">
-                        {DEMO_MANAGED_PROPERTIES.map((prop) => (
+                        {managedProperties.map((prop) => (
                           <li key={prop.id}>
                             <button
                               type="button"
@@ -126,7 +127,7 @@ export function Sidebar({ sections, sharedProperties = [], onClose }: SidebarPro
                                       onClick={onClose}
                                       className="flex-1"
                                     >
-                                      שוכרים (3)
+                                      שוכרים ({prop.tenantCount})
                                     </NavLink>
                                     <button
                                       type="button"
@@ -145,7 +146,7 @@ export function Sidebar({ sections, sharedProperties = [], onClose }: SidebarPro
                                       onClick={onClose}
                                       className="flex-1"
                                     >
-                                      חוזים (4)
+                                      חוזים ({prop.leaseCount})
                                     </NavLink>
                                     <button
                                       type="button"
@@ -162,7 +163,7 @@ export function Sidebar({ sections, sharedProperties = [], onClose }: SidebarPro
                                     to={`/broker/payments?property=${prop.id}`}
                                     className="flex items-center gap-2 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
                                   >
-                                    תשלומים (4)
+                                    תשלומים ({prop.paymentCount})
                                   </NavLink>
                                 </li>
                               </ul>

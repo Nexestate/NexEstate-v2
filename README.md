@@ -29,6 +29,15 @@ VITE_SUPABASE_ANON_KEY=...
 
 הרץ את `schema.sql` ב-Supabase SQL Editor.
 
+### Google OAuth
+
+1. Google Cloud → OAuth Client (Web) → redirect: `https://YOUR_PROJECT.supabase.co/auth/v1/callback`
+2. Supabase → Authentication → Providers → Google (Client ID + Secret)
+3. Supabase → URL Configuration → `https://nexestate.co/auth/callback` + `http://localhost:5173/auth/callback`
+4. SQL Editor: `fix_signup_trigger.sql` + `supabase/google_oauth_setup.sql`
+
+פרטים מלאים ב-`.env.example`.
+
 ## מסלולים
 
 | נתיב | תיאור |

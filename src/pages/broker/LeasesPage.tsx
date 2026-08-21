@@ -1,6 +1,6 @@
 import { Building2, Calendar, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { FilterBar } from '../../components/ui/FilterBar';
 import { Tabs } from '../../components/ui/Tabs';
@@ -25,6 +25,9 @@ function formatDate(date: string) {
 export function LeasesPage() {
   const { user } = useAuth();
   const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
+  const propertyFilter = searchParams.get('property');
+  const openId = searchParams.get('open');
   const [section, setSection] = useState<'leases' | 'tenants'>(
     pathname.includes('/tenants') ? 'tenants' : 'leases',
   );
@@ -50,24 +53,29 @@ export function LeasesPage() {
 
   const filteredLeases = useMemo(
     () =>
-      leases.filter(
-        (l) =>
+      leases.filter((l) => {
+        const matchesSearch =
           l.tenant_name.includes(search) ||
           (l.property_title?.includes(search) ?? false) ||
-          (l.unit_number?.includes(search) ?? false),
-      ),
-    [leases, search],
+          (l.unit_number?.includes(search) ?? false);
+        const matchesProperty = !propertyFilter || l.property_id === propertyFilter;
+        return matchesSearch && matchesProperty;
+      }),
+    [leases, search, propertyFilter],
   );
 
   const filteredTenants = useMemo(
     () =>
-      tenants.filter(
-        (t) =>
+      tenants.filter((t) => {
+        const matchesSearch =
           t.full_name.includes(search) ||
           (t.company_name?.includes(search) ?? false) ||
-          (t.property_title?.includes(search) ?? false),
-      ),
-    [tenants, search],
+          (t.property_title?.includes(search) ?? false);
+        const matchesProperty =
+          !propertyFilter || (t as { property_id?: string }).property_id === propertyFilter;
+        return matchesSearch && matchesProperty;
+      }),
+    [tenants, search, propertyFilter],
   );
 
   if (loading) {
@@ -143,7 +151,10 @@ export function LeasesPage() {
               </TableHeader>
               <TableBody>
                 {filteredLeases.map((lease) => (
-                  <TableRow key={lease.id}>
+                  <TableRow
+                    key={lease.id}
+                    className={openId === lease.id ? 'bg-primary/5 ring-1 ring-primary/30' : undefined}
+                  >
                     <TableCell className="font-medium">{lease.tenant_name}</TableCell>
                     <TableCell>{lease.property_title}</TableCell>
                     <TableCell>{lease.unit_number}</TableCell>
@@ -183,7 +194,10 @@ export function LeasesPage() {
           </TableHeader>
           <TableBody>
             {filteredTenants.map((tenant) => (
-              <TableRow key={tenant.id}>
+              <TableRow
+                key={tenant.id}
+                className={openId === tenant.id ? 'bg-primary/5 ring-1 ring-primary/30' : undefined}
+              >
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />

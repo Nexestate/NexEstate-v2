@@ -4,14 +4,17 @@ import {
   ClipboardList,
   CreditCard,
   FileText,
+  Gavel,
+  Heart,
   LayoutDashboard,
   LogOut,
   MoreHorizontal,
+  Search,
   Settings,
   Users,
 } from 'lucide-react';
-import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/Button';
@@ -28,29 +31,27 @@ interface NavItem {
 const BROKER_MAIN: NavItem[] = [
   { label: 'לוח בקרה', to: '/broker', icon: LayoutDashboard, end: true },
   { label: 'נכסים', to: '/broker/properties', icon: Building2 },
-  { label: 'מכירות', to: '/broker/agreements', icon: ClipboardList },
+  { label: 'מכירות', to: '/broker/auctions', icon: Gavel },
   { label: 'התראות', to: '/broker/notifications', icon: Bell },
 ];
 
 const BROKER_MORE: NavItem[] = [
-  { label: 'נכסים שלי', to: '/broker/my-properties', icon: Building2 },
   { label: 'שוכרים', to: '/broker/tenants', icon: Users },
   { label: 'חוזים', to: '/broker/leases', icon: FileText },
   { label: 'תשלומים', to: '/broker/payments', icon: CreditCard },
   { label: 'לקוחות', to: '/broker/clients', icon: Users },
   { label: 'משימות', to: '/broker/tasks', icon: ClipboardList },
-  { label: 'דוחות', to: '/broker/reports', icon: FileText },
 ];
 
 const BUYER_MAIN: NavItem[] = [
   { label: 'לוח בקרה', to: '/buyer', icon: LayoutDashboard, end: true },
-  { label: 'שותפו', to: '/buyer/shared', icon: Building2 },
-  { label: 'חיפוש', to: '/buyer/search', icon: Building2 },
+  { label: 'נכסים', to: '/buyer/shared', icon: Building2 },
+  { label: 'חיפוש', to: '/buyer/search', icon: Search },
   { label: 'התראות', to: '/buyer/notifications', icon: Bell },
 ];
 
 const BUYER_MORE: NavItem[] = [
-  { label: 'מועדפים', to: '/buyer/favorites', icon: Building2 },
+  { label: 'מועדפים', to: '/buyer/favorites', icon: Heart },
   { label: 'הגדרות', to: '/buyer/settings', icon: Settings },
 ];
 
@@ -81,9 +82,32 @@ interface MobileBottomNavProps {
 
 export function MobileBottomNav({ variant }: MobileBottomNavProps) {
   const [moreOpen, setMoreOpen] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const lastScrollY = useRef(0);
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const config = CONFIG[variant];
+
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setVisible(false);
+        setMoreOpen(false);
+      } else {
+        setVisible(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <>
@@ -104,7 +128,7 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
               ✕
             </button>
           </div>
-          <ul className="space-y-1">
+          <ul className="grid grid-cols-3 gap-2">
             {config.more.map((item) => {
               const Icon = item.icon;
               return (
@@ -112,7 +136,7 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
                   <NavLink
                     to={item.to}
                     onClick={() => setMoreOpen(false)}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm hover:bg-muted"
+                    className="flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-center text-xs hover:bg-muted"
                   >
                     <Icon className="h-5 w-5 text-primary" />
                     {item.label}
@@ -122,21 +146,13 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
             })}
           </ul>
           <hr className="my-3 border-border" />
-          <NavLink
-            to={`/${variant}/settings`}
-            onClick={() => setMoreOpen(false)}
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm hover:bg-muted"
-          >
-            <Settings className="h-5 w-5" />
-            הגדרות
-          </NavLink>
           <button
             type="button"
             onClick={() => {
               signOut();
               navigate('/login');
             }}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-destructive hover:bg-muted"
+            className="flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm text-destructive hover:bg-muted"
           >
             <LogOut className="h-5 w-5" />
             התנתקות
@@ -144,7 +160,12 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
         </div>
       )}
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur lg:hidden">
+      <nav
+        className={cn(
+          'fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur transition-transform duration-300 lg:hidden',
+          visible ? 'translate-y-0' : 'translate-y-full',
+        )}
+      >
         <div className="flex items-center justify-around px-2 py-2">
           {config.main.map((item) => {
             const Icon = item.icon;
@@ -169,7 +190,7 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="flex flex-col items-center gap-0.5 h-auto py-1.5 text-[10px] text-muted-foreground"
+              className="flex h-auto flex-col items-center gap-0.5 py-1.5 text-[10px] text-muted-foreground"
               onClick={() => setMoreOpen(true)}
             >
               <MoreHorizontal className="h-5 w-5" />

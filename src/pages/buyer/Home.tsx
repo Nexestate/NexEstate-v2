@@ -1,19 +1,38 @@
+import { useBuyerSharedProperties } from '../../hooks/useBuyerSharedProperties';
+import { useAuth } from '../../contexts/AuthContext';
+import { getUnreadCount, fetchNotifications } from '../../lib/services';
 import { Building2, Eye, Heart, Pencil, Search, Share2, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { StatCard, StatCardGrid } from '../../components/dashboard/StatCard';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { DEMO_BUYER_NOTIFICATIONS, DEMO_FAVORITES, DEMO_SHARED_PROPERTIES } from '../../data/demoData';
+import { DEMO_FAVORITES } from '../../data/demoData';
 
 const PERMISSION_LABELS = { view: 'צפייה', edit: 'עריכה', admin: 'מנהל' } as const;
 const PERMISSION_VARIANTS = { view: 'primary', edit: 'warning', admin: 'success' } as const;
 
 export function BuyerHome() {
-  const sharedCount = DEMO_SHARED_PROPERTIES.length;
+  const { user } = useAuth();
+  const { properties, loading } = useBuyerSharedProperties();
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const favoritesCount = DEMO_FAVORITES.length;
-  const unreadNotifications = DEMO_BUYER_NOTIFICATIONS.filter((n) => !n.is_read).length;
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchNotifications(user.id).then((list) => setUnreadNotifications(getUnreadCount(list)));
+    }
+  }, [user?.id]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -24,12 +43,12 @@ export function BuyerHome() {
 
       <StatCardGrid className="lg:grid-cols-4">
         <StatCard label="נכסים במועדפים" value={favoritesCount} icon={Heart} color="#ef4444" to="/buyer/favorites" />
-        <StatCard label="נכסים ששותפו" value={sharedCount} icon={Share2} color="#8b5cf6" to="/buyer/shared" />
+        <StatCard label="נכסים ששותפו" value={properties.length} icon={Share2} color="#8b5cf6" to="/buyer/shared" />
         <StatCard label="נכסים מתאימים" value={0} icon={Building2} color="#10b981" to="/buyer/search" />
         <StatCard label="התראות חדשות" value={unreadNotifications} icon={TrendingUp} color="#f59e0b" to="/buyer/notifications" />
       </StatCardGrid>
 
-      {sharedCount > 0 ? (
+      {properties.length > 0 ? (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">נכסים ששותפו איתך</CardTitle>
@@ -39,7 +58,7 @@ export function BuyerHome() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {DEMO_SHARED_PROPERTIES.slice(0, 3).map((property) => (
+              {properties.slice(0, 3).map((property) => (
                 <div
                   key={property.id}
                   className="rounded-2xl border border-border p-4 transition-colors hover:border-primary/50"
@@ -55,10 +74,14 @@ export function BuyerHome() {
                   </div>
                   <h3 className="font-semibold">{property.title}</h3>
                   <p className="text-sm text-muted-foreground">{property.city}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">שותף ע&quot;י: {property.sharedByName}</p>
-                  <p className="text-xs text-muted-foreground">{property.address}</p>
+                  {property.sharedByName && (
+                    <p className="mt-1 text-xs text-muted-foreground">שותף ע&quot;י: {property.sharedByName}</p>
+                  )}
+                  {property.address && (
+                    <p className="text-xs text-muted-foreground">{property.address}</p>
+                  )}
                   <Link
-                    to={`/buyer/shared/${property.id}`}
+                    to={`/broker/properties/${property.id}`}
                     className="mt-3 inline-flex text-sm text-primary hover:underline"
                   >
                     צפייה בנכס ←

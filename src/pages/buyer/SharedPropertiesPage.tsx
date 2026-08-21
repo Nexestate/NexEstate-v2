@@ -3,21 +3,31 @@ import { Link } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { PageHeader } from '../../components/ui/PageHeader';
-import { DEMO_SHARED_PROPERTIES } from '../../data/demoData';
+import { useBuyerSharedProperties } from '../../hooks/useBuyerSharedProperties';
 
 const PERMISSION_LABELS = { view: 'צפייה', edit: 'עריכה', admin: 'מנהל' } as const;
 const PERMISSION_VARIANTS = { view: 'primary', edit: 'warning', admin: 'success' } as const;
 
 export function SharedPropertiesPage() {
+  const { properties, loading } = useBuyerSharedProperties();
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="נכסים ששותפו"
-        description={`${DEMO_SHARED_PROPERTIES.length} נכסים שותפו איתך`}
+        description={`${properties.length} נכסים שותפו איתך`}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {DEMO_SHARED_PROPERTIES.map((property) => (
+        {properties.map((property) => (
           <Card key={property.id} className="transition-colors hover:border-primary/50">
             <CardHeader className="pb-2">
               <div className="flex items-start justify-between">
@@ -40,12 +50,14 @@ export function SharedPropertiesPage() {
                 <MapPin className="h-3.5 w-3.5" />
                 {property.city} · {property.address}
               </p>
-              <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Share2 className="h-3 w-3" />
-                שותף ע&quot;י {property.sharedByName}
-              </p>
+              {property.sharedByName && (
+                <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Share2 className="h-3 w-3" />
+                  שותף ע&quot;י {property.sharedByName}
+                </p>
+              )}
               <Link
-                to={`/buyer/shared/${property.id}`}
+                to={`/broker/properties/${property.id}`}
                 className="mt-2 inline-flex text-sm font-medium text-primary hover:underline"
               >
                 צפייה בנכס ←

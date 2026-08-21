@@ -10,6 +10,7 @@ import { Sidebar, SidebarOverlay, MobileSidebarDrawer } from './Sidebar';
 
 interface DashboardLayoutProps {
   sections: NavSection[];
+  managedProperties?: import('../../lib/services/brokerStatsService').ManagedPropertySidebarItem[];
   sharedProperties?: Array<{ id: string; title: string; permissionLevel: PermissionLevel }>;
   mobileNav?: 'broker' | 'buyer' | 'admin';
   headerSubtitle?: string;
@@ -18,6 +19,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({
   sections,
+  managedProperties,
   sharedProperties,
   mobileNav = 'broker',
   headerSubtitle,
@@ -29,13 +31,14 @@ export function DashboardLayout({
     <QuickAddProvider>
       <div className="flex min-h-screen bg-background">
         <div className="hidden lg:block">
-          <Sidebar sections={sections} sharedProperties={sharedProperties} />
+          <Sidebar sections={sections} managedProperties={managedProperties} sharedProperties={sharedProperties} />
         </div>
 
         <SidebarOverlay open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <MobileSidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)}>
           <Sidebar
             sections={sections}
+            managedProperties={managedProperties}
             sharedProperties={sharedProperties}
             onClose={() => setSidebarOpen(false)}
           />

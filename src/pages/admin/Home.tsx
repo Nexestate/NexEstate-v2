@@ -7,21 +7,72 @@ import {
   Users,
   XCircle,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { StatCard, StatCardGrid } from '../../components/dashboard/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { DEMO_ADMIN_STATS, DEMO_ADMIN_USERS, DEMO_PROPERTY_REVIEWS, DEMO_ROLE_DISTRIBUTION } from '../../data/demoData';
+import {
+  fetchAdminDashboardStats,
+  fetchPendingReviews,
+  fetchRecentUsers,
+  fetchRoleDistribution,
+} from '../../lib/services';
+import type { RoleDistributionItem } from '../../lib/services/adminStatsService';
 
 const WEEKLY_ACTIVITY = [2, 4, 1, 3, 5, 2, 4];
 const DAYS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
 
 export function AdminHome() {
-  const stats = DEMO_ADMIN_STATS;
-  const pendingReviews = DEMO_PROPERTY_REVIEWS.filter((r) => r.status === 'pending');
-  const recentUsers = DEMO_ADMIN_USERS.slice(0, 4);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalProperties: 0,
+    newUsersToday: 0,
+    newPropertiesToday: 0,
+    rejectedProperties: 0,
+    approvedProperties: 0,
+    pendingProperties: 0,
+    suspendedUsers: 0,
+    activeShares: 0,
+    openSupportTickets: 0,
+    approvedToday: 0,
+    rejectedToday: 0,
+  });
+  const [roleDistribution, setRoleDistribution] = useState<RoleDistributionItem[]>([]);
+  const [pendingReviews, setPendingReviews] = useState<
+    Array<{ id: string; title: string; city?: string }>
+  >([]);
+  const [recentUsers, setRecentUsers] = useState<
+    Array<{ id: string; full_name: string; email: string; role: string }>
+  >([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetchAdminDashboardStats(),
+      fetchRoleDistribution(),
+      fetchPendingReviews(),
+      fetchRecentUsers(4),
+    ]).then(([s, roles, pending, users]) => {
+      setStats(s);
+      setRoleDistribution(roles);
+      setPendingReviews(pending);
+      setRecentUsers(users as typeof recentUsers);
+      setLoading(false);
+    });
+  }, []);
+
   const maxActivity = Math.max(...WEEKLY_ACTIVITY);
-  const maxRoleCount = Math.max(...DEMO_ROLE_DISTRIBUTION.map((r) => r.count));
+  const maxRoleCount = Math.max(...roleDistribution.map((r) => r.count), 1);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -45,10 +96,10 @@ export function AdminHome() {
       </StatCardGrid>
 
       <StatCardGrid className="sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="שיתופי נכסים" value={3} icon={Home} color="#8b5cf6" to="/admin/shares" />
-        <StatCard label="פניות תמיכה" value={2} icon={Bell} color="#ef4444" to="/admin/support" />
-        <StatCard label="מאושרים היום" value={2} icon={CheckCircle} color="#10b981" to="/admin/approved" />
-        <StatCard label="דחויים היום" value={1} icon={XCircle} color="#ef4444" to="/admin/rejected" />
+        <StatCard label="שיתופי נכסים פעילים" value={stats.activeShares} icon={Home} color="#8b5cf6" to="/admin/shares" />
+        <StatCard label="פניות חדשות" value={stats.openSupportTickets} icon={Bell} color="#ef4444" to="/admin/support" />
+        <StatCard label="מאושרים היום" value={stats.approvedToday} icon={CheckCircle} color="#10b981" to="/admin/approved" />
+        <StatCard label="דחויים היום" value={stats.rejectedToday} icon={XCircle} color="#ef4444" to="/admin/rejected" />
       </StatCardGrid>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -67,7 +118,7 @@ export function AdminHome() {
                 נכסים חדשים
               </div>
             </div>
-            <div className="flex items-end justify-between gap-2 h-24">
+            <div className="flex h-24 items-end justify-between gap-2">
               {WEEKLY_ACTIVITY.map((value, i) => (
                 <div key={DAYS[i]} className="flex flex-1 flex-col items-center gap-1">
                   <div
@@ -86,7 +137,7 @@ export function AdminHome() {
             <CardTitle className="text-base">התפלגות לפי תפקיד</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {DEMO_ROLE_DISTRIBUTION.map((role) => (
+            {roleDistribution.map((role) => (
               <div key={role.key} className="flex items-center gap-3">
                 <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: role.color }} />
                 <span className="flex-1 text-sm">{role.label}</span>
@@ -118,27 +169,16 @@ export function AdminHome() {
           </CardHeader>
           <CardContent>
             {pendingReviews.length === 0 ? (
-              <EmptyState
-                icon={CheckCircle}
-                title="אין נכסים ממתינים לאישור"
-                description="כל הנכסים אושרו"
-              />
+              <EmptyState icon={Clock} title="אין ממתינים" description="כל הנכסים אושרו" />
             ) : (
-              <div className="space-y-3">
-                {pendingReviews.map((review) => (
-                  <Link
-                    key={review.id}
-                    to="/admin/pending"
-                    className="flex items-center justify-between rounded-xl border border-border p-3 transition-colors hover:border-primary/50"
-                  >
-                    <div>
-                      <p className="font-medium">{review.title}</p>
-                      <p className="text-xs text-muted-foreground">{review.city} · {review.broker_name}</p>
-                    </div>
-                    <Clock className="h-4 w-4 text-warning" />
-                  </Link>
+              <ul className="space-y-2">
+                {pendingReviews.map((item) => (
+                  <li key={item.id} className="flex items-center justify-between rounded-lg border border-border p-3 text-sm">
+                    <span className="font-medium">{item.title}</span>
+                    <span className="text-muted-foreground">{item.city}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
           </CardContent>
         </Card>
@@ -152,29 +192,19 @@ export function AdminHome() {
           </CardHeader>
           <CardContent>
             {recentUsers.length === 0 ? (
-              <EmptyState
-                icon={Users}
-                title="אין משתמשים עדיין"
-                description="משתמשים חדשים יופיעו כאן"
-              />
+              <EmptyState icon={Users} title="אין משתמשים" description="" />
             ) : (
-              <div className="space-y-3">
+              <ul className="space-y-2">
                 {recentUsers.map((u) => (
-                  <Link
-                    key={u.id}
-                    to="/admin/users"
-                    className="flex items-center justify-between rounded-xl border border-border p-3 transition-colors hover:border-primary/50"
-                  >
+                  <li key={u.id} className="flex items-center justify-between rounded-lg border border-border p-3 text-sm">
                     <div>
                       <p className="font-medium">{u.full_name}</p>
                       <p className="text-xs text-muted-foreground">{u.email}</p>
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(u.created_at).toLocaleDateString('he-IL')}
-                    </span>
-                  </Link>
+                    <span className="text-xs text-primary">{u.role}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
           </CardContent>
         </Card>

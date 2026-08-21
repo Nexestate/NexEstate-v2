@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthShell } from '../../components/auth/AuthShell';
+import { claimPendingInvites } from '../../lib/claimPendingInvites';
 import { supabase } from '../../lib/supabase';
 import { getDashboardPath } from '../../lib/roles';
 import type { UserRole } from '../../types';
@@ -68,6 +69,10 @@ export function AuthCallbackPage() {
         if (!session?.user) {
           navigate('/login', { replace: true });
           return;
+        }
+
+        if (session.user.email) {
+          await claimPendingInvites(session.user.id, session.user.email);
         }
 
         const { data: profile } = await supabase

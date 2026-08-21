@@ -1,6 +1,15 @@
 # A string used to distinguish different Supabase projects on the same host
 project_id = "nexestate-v2"
 
+# Auth redirect URLs — mirror these in Supabase Dashboard → Authentication → URL Configuration
+# when using hosted Supabase (not only local CLI).
+[auth]
+site_url = "https://nexestate.co"
+additional_redirect_urls = [
+  "https://nexestate.co/auth/callback",
+  "http://localhost:5173/auth/callback",
+]
+
 [functions.send-email]
 verify_jwt = true
 

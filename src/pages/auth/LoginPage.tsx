@@ -20,13 +20,21 @@ export function LoginPage() {
   const [errorDetail, setErrorDetail] = useState('');
   const [needsConfirm, setNeedsConfirm] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleGoogle = async () => {
+    setError('');
+    setErrorDetail('');
+    setGoogleLoading(true);
     try {
       await signInWithGoogle();
       if (isDemoMode) navigate(getRedirectPath());
-    } catch {
-      setError('שגיאה בהתחברות עם Google');
+    } catch (err) {
+      const { message, detail } = getAuthErrorDisplay(err);
+      setError(message || 'שגיאה בהתחברות עם Google');
+      setErrorDetail(detail ?? '');
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -75,6 +83,7 @@ export function LoginPage() {
     <AuthShell
       showGoogle
       googleLabel="המשך עם גוגל"
+      googleLoading={googleLoading}
       onGoogleClick={handleGoogle}
       demoHint={
         isDemoMode

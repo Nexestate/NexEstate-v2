@@ -55,6 +55,7 @@ import { ReportsPage } from './pages/broker/ReportsPage';
 import { SettingsPage } from './pages/broker/SettingsPage';
 
 import { TasksPage } from './pages/broker/TasksPage';
+import { UnitsPage } from './pages/broker/UnitsPage';
 
 import { BuyerDashboard } from './pages/buyer/Dashboard';
 
@@ -152,6 +153,8 @@ export function App() {
           <Route path="properties" element={<PropertiesPage />} />
 
           <Route path="properties/:id" element={<PropertyDetailPage />} />
+
+          <Route path="units" element={<UnitsPage />} />
 
           <Route path="reports" element={<ReportsPage />} />
 

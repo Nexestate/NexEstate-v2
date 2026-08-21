@@ -14,6 +14,20 @@ export {
 } from './notificationsService';
 export { fetchAuctions, fetchPayments, createAuction } from './auctionsService';
 export type { AuctionInsert } from './auctionsService';
+export { fetchSharedWithUser } from './sharedPropertiesService';
+export type { SharedPropertySummary } from './sharedPropertiesService';
+export {
+  fetchBrokerDashboardStats,
+  fetchManagedPropertySidebar,
+} from './brokerStatsService';
+export type { BrokerDashboardStats, ManagedPropertySidebarItem } from './brokerStatsService';
+export {
+  fetchAdminDashboardStats,
+  fetchRoleDistribution,
+  fetchRecentUsers,
+  fetchPendingReviews,
+} from './adminStatsService';
+export type { AdminDashboardStats, RoleDistributionItem } from './adminStatsService';
 
 export {
   STORAGE_BUCKETS,

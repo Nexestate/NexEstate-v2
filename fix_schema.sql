@@ -595,7 +595,12 @@ BEGIN
   INSERT INTO public.profiles (id, email, full_name, role)
   VALUES (
     NEW.id, NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    COALESCE(
+      NULLIF(TRIM(NEW.raw_user_meta_data->>'full_name'), ''),
+      NULLIF(TRIM(NEW.raw_user_meta_data->>'name'), ''),
+      NULLIF(TRIM(NEW.raw_user_meta_data->>'given_name'), ''),
+      ''
+    ),
     COALESCE((NEW.raw_user_meta_data->>'role')::user_role, 'buyer')
   )
   ON CONFLICT (id) DO UPDATE SET

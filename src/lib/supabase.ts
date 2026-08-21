@@ -10,8 +10,15 @@ export const isSupabaseConfigured = Boolean(
   supabaseUrl &&
     supabaseAnonKey &&
     !supabaseUrl.includes('your_supabase') &&
+    !supabaseUrl.includes('YOUR_PROJECT') &&
     !supabaseAnonKey.includes('your_supabase'),
 );
+
+if (import.meta.env.DEV && !isSupabaseConfigured) {
+  console.info(
+    '[NexEstate] Demo mode — set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY in .env.local for real auth (incl. Google OAuth). See .env.example',
+  );
+}
 
 export const supabase: SupabaseClient | null = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey!)

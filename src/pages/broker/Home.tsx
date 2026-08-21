@@ -6,35 +6,66 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { useAuth } from '../../contexts/AuthContext';
-import { calculateDemoStats, DEMO_MANAGED_PROPERTIES } from '../../data/demoData';
-import { fetchSigningLinks, fetchTasks } from '../../lib/services';
+import { fetchBrokerDashboardStats, fetchManagedPropertySidebar, fetchSigningLinks, fetchTasks } from '../../lib/services';
 import { formatCurrency, getOccupancyPercent } from '../../lib/utils';
+import type { PropertyWithUnits } from '../../types/domain';
 import type { SigningLink, Task } from '../../types/domain';
 import { SIGNING_STATUS_LABELS, TASK_PRIORITY_COLORS, TASK_PRIORITY_LABELS } from '../../types/domain';
 
 export function BrokerHome() {
   const { user } = useAuth();
-  const stats = calculateDemoStats();
+  const [stats, setStats] = useState({
+    properties: 0,
+    units: 0,
+    tenants: 0,
+    clients: 0,
+    leads: 0,
+    tasks: 0,
+    monthlyIncome: 0,
+    occupancyPercent: 0,
+    myListings: 0,
+  });
+  const [properties, setProperties] = useState<PropertyWithUnits[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [links, setLinks] = useState<SigningLink[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTasks(user?.id).then(setTasks);
-    fetchSigningLinks(user?.id).then(setLinks);
+    if (!user?.id) return;
+    setLoading(true);
+    Promise.all([
+      fetchBrokerDashboardStats(user.id),
+      fetchManagedPropertySidebar(user.id),
+      fetchTasks(user.id),
+      fetchSigningLinks(user.id),
+    ]).then(([s, { properties: props }, t, l]) => {
+      setStats(s);
+      setProperties(props);
+      setTasks(t);
+      setLinks(l);
+      setLoading(false);
+    });
   }, [user?.id]);
 
   const upcomingTasks = tasks.filter((t) => t.status !== 'done').slice(0, 3);
 
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <StatCardGrid>
-        <StatCard label="משימות" value={stats.tasks} icon={ClipboardList} color="#06b6d4" to="/broker/tasks" />
-        <StatCard label="לידים" value={stats.leads} icon={TrendingUp} color="#ec4899" to="/broker/leads" />
-        <StatCard label="לקוחות" value={stats.clients} icon={Users} color="#8b5cf6" to="/broker/clients" />
-        <StatCard label="שוכרים" value={stats.tenants} icon={Users} color="#f59e0b" to="/broker/tenants" />
-        <StatCard label="יחידות" value={stats.units} icon={Layers} color="#10b981" to="/broker/properties" />
         <StatCard label="נכסים מנוהלים" value={stats.properties} icon={Building2} color="#3b82f6" to="/broker/properties" />
-        <StatCard label="נכסים שלי" value={3} icon={Building2} color="#6366f1" to="/broker/my-properties" />
+        <StatCard label="יחידות" value={stats.units} icon={Layers} color="#10b981" to="/broker/units" />
+        <StatCard label="שוכרים" value={stats.tenants} icon={Users} color="#f59e0b" to="/broker/tenants" />
+        <StatCard label="לקוחות" value={stats.clients} icon={Users} color="#8b5cf6" to="/broker/clients" />
+        <StatCard label="לידים" value={stats.leads} icon={TrendingUp} color="#ec4899" to="/broker/leads" />
+        <StatCard label="משימות" value={stats.tasks} icon={ClipboardList} color="#06b6d4" to="/broker/tasks" />
       </StatCardGrid>
 
       <Card className="overflow-hidden">
@@ -97,27 +128,31 @@ export function BrokerHome() {
             <Link to="/broker/properties" className="text-sm text-primary hover:underline">הכל ←</Link>
           </CardHeader>
           <CardContent className="space-y-3">
-            {DEMO_MANAGED_PROPERTIES.map((property) => {
-              const occupancy = getOccupancyPercent(property.occupiedUnits, property.totalUnits);
-              return (
-                <Link
-                  key={property.id}
-                  to={`/broker/properties/${property.id}`}
-                  className="flex items-center gap-4 rounded-xl border border-border p-4 transition-colors hover:border-primary/50 hover:bg-muted/30"
-                >
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                    <Building2 className="h-5 w-5" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium">{property.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {property.occupiedUnits}/{property.totalUnits} מושכרות • {formatCurrency(property.monthlyIncome)}/חודש
-                    </p>
-                  </div>
-                  <Badge variant="success">{occupancy}%</Badge>
-                </Link>
-              );
-            })}
+            {properties.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">אין נכסים מנוהלים</p>
+            ) : (
+              properties.slice(0, 4).map((property) => {
+                const occupancy = getOccupancyPercent(property.occupiedUnits, property.totalUnits);
+                return (
+                  <Link
+                    key={property.id}
+                    to={`/broker/properties/${property.id}`}
+                    className="flex items-center gap-4 rounded-xl border border-border p-4 transition-colors hover:border-primary/50 hover:bg-muted/30"
+                  >
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                      <Building2 className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium">{property.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {property.occupiedUnits}/{property.totalUnits} מושכרות • {formatCurrency(property.monthlyIncome)}/חודש
+                      </p>
+                    </div>
+                    <Badge variant="success">{occupancy}%</Badge>
+                  </Link>
+                );
+              })
+            )}
           </CardContent>
         </Card>
       </div>
@@ -125,31 +160,28 @@ export function BrokerHome() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">קישורי חתימה אחרונים</CardTitle>
-          <Link to="/broker/agreements" className="text-sm text-primary hover:underline">הכל ←</Link>
+          <Link to="/broker/agreements">
+            <Button size="sm" variant="outline">קישור חדש</Button>
+          </Link>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-2">
           {links.length === 0 ? (
-            <div className="py-6 text-center">
-              <FileSignature className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">אין קישורי חתימה</p>
-              <Link to="/broker/agreements">
-                <Button className="mt-3" size="sm">+ קישור חדש</Button>
-              </Link>
-            </div>
+            <p className="py-6 text-center text-sm text-muted-foreground">אין קישורי חתימה</p>
           ) : (
-            <div className="space-y-2">
-              {links.slice(0, 3).map((link) => (
-                <div key={link.id} className="flex items-center justify-between rounded-xl border border-border p-3">
+            links.slice(0, 4).map((link) => (
+              <div key={link.id} className="flex items-center justify-between rounded-xl border border-border p-3">
+                <div className="flex items-center gap-3">
+                  <FileSignature className="h-4 w-4 text-primary" />
                   <div>
-                    <p className="font-medium text-sm">{link.client_name}</p>
-                    <p className="text-xs text-muted-foreground">{link.property_title}</p>
+                    <p className="text-sm font-medium">{link.client_name}</p>
+                    <p className="text-xs text-muted-foreground">{link.client_phone}</p>
                   </div>
-                  <Badge variant={link.status === 'signed' ? 'success' : 'primary'}>
-                    {SIGNING_STATUS_LABELS[link.status]}
-                  </Badge>
                 </div>
-              ))}
-            </div>
+                <Badge variant={link.status === 'signed' ? 'success' : 'warning'}>
+                  {SIGNING_STATUS_LABELS[link.status]}
+                </Badge>
+              </div>
+            ))
           )}
         </CardContent>
       </Card>
