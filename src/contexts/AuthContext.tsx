@@ -304,7 +304,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (payload: ProfileUpdatePayload) => {
       if (!user) throw new Error('Not authenticated');
       if (isDemoMode) {
-        const updated = { ...user, ...payload };
+        const updated: Profile = {
+          ...user,
+          full_name: payload.full_name ?? user.full_name,
+          phone: payload.phone ?? undefined,
+          company: payload.company ?? undefined,
+          license_number: payload.license_number ?? undefined,
+        };
         saveDemoUser(updated);
         setUser(updated);
         return;

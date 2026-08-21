@@ -58,7 +58,7 @@ function mapRow(row: Record<string, unknown>): FavoriteProperty | null {
 
 export async function fetchFavorites(userId: string): Promise<FavoriteProperty[]> {
   if (isDemoMode()) {
-    return DEMO_FAVORITES.filter((f) => demoFavoriteIds.has(f.id));
+    return DEMO_FAVORITES.filter((f) => demoFavoriteIds.has(f.id)) as FavoriteProperty[];
   }
 
   const client = requireSupabase();

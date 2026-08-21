@@ -1,15 +1,6 @@
-import type { AppNotification } from '../types/domain';
+import type { AppNotification, FavoriteProperty } from '../types/domain';
 
-export interface FavoriteProperty {
-  id: string;
-  title: string;
-  city: string;
-  address: string;
-  price: number;
-  kind: string;
-  rooms?: number;
-  added_at: string;
-}
+export type { FavoriteProperty };
 
 export const DEMO_FAVORITES: FavoriteProperty[] = [
   {
