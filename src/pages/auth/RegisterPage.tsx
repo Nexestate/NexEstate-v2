@@ -1,10 +1,11 @@
 import { Mail, User } from 'lucide-react';
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthShell } from '../../components/auth/AuthShell';
 import { RoleSelector } from '../../components/auth/RoleSelector';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAuthErrorDisplay } from '../../lib/authErrors';
+import { parseRegisterRoleParam } from '../../lib/publishAd';
 import { validateEmail, validatePassword, validateRequired } from '../../lib/validation';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -13,10 +14,19 @@ import type { UserRole } from '../../types';
 export function RegisterPage() {
   const { signUp, getRedirectPath, isDemoMode, resendConfirmationEmail } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const defaultRole = useMemo(
+    () => parseRegisterRoleParam(searchParams.get('role'), searchParams.get('intent')),
+    [searchParams],
+  );
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('broker');
+  const [role, setRole] = useState<UserRole>(defaultRole);
+
+  useEffect(() => {
+    setRole(defaultRole);
+  }, [defaultRole]);
   const [terms, setTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

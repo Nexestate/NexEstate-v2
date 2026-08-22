@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
 
-export type QuickAddType = 'client' | 'lead' | 'task' | 'agreement' | 'property' | 'tenant' | 'lease';
+export type QuickAddType = 'client' | 'lead' | 'task' | 'agreement' | 'property' | 'tenant' | 'lease' | 'unit';
 
 export interface QuickAddState {
   type: QuickAddType | null;

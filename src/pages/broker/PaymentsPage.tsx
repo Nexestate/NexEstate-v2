@@ -1,3 +1,4 @@
+import { Link, useSearchParams } from 'react-router-dom';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { PageLoader } from '../../components/ui/PageLoader';
 import { Badge } from '../../components/ui/Badge';
@@ -5,7 +6,7 @@ import { FilterBar } from '../../components/ui/FilterBar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { useAsyncData } from '../../hooks/useAsyncData';
 import { fetchPayments } from '../../lib/services';
-import { formatCurrency } from '../../lib/utils';
+import { formatCurrency, formatDate } from '../../lib/utils';
 import { PAYMENT_STATUS_LABELS } from '../../types/domain';
 import { useMemo, useState } from 'react';
 
@@ -18,11 +19,18 @@ const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'destructive' | 'ou
 
 export function PaymentsPage() {
   const [search, setSearch] = useState('');
+  const [searchParams] = useSearchParams();
+  const propertyFilter = searchParams.get('property');
   const { data: payments, loading } = useAsyncData(() => fetchPayments(), []);
 
   const filtered = useMemo(
-    () => payments?.filter((p) => p.tenant_name.includes(search) || p.property_title.includes(search)) ?? [],
-    [payments, search],
+    () =>
+      payments?.filter((p) => {
+        const matchesSearch = p.tenant_name.includes(search) || p.property_title.includes(search);
+        const matchesProperty = !propertyFilter || p.property_id === propertyFilter;
+        return matchesSearch && matchesProperty;
+      }) ?? [],
+    [payments, search, propertyFilter],
   );
 
   const totals = useMemo(() => {
@@ -70,11 +78,35 @@ export function PaymentsPage() {
         <TableBody>
           {filtered.map((p) => (
             <TableRow key={p.id}>
-              <TableCell className="font-medium">{p.tenant_name}</TableCell>
-              <TableCell>{p.property_title}</TableCell>
-              <TableCell>{p.unit_number}</TableCell>
+              <TableCell className="font-medium">
+                {p.tenant_id ? (
+                  <Link to={`/broker/tenants/${p.tenant_id}`} className="text-primary hover:underline">
+                    {p.tenant_name || 'שוכר'}
+                  </Link>
+                ) : (
+                  p.tenant_name || '—'
+                )}
+              </TableCell>
+              <TableCell>
+                {p.property_id ? (
+                  <Link to={`/broker/properties/${p.property_id}`} className="hover:text-primary hover:underline">
+                    {p.property_title}
+                  </Link>
+                ) : (
+                  p.property_title
+                )}
+              </TableCell>
+              <TableCell>
+                {p.lease_id ? (
+                  <Link to={`/broker/leases/${p.lease_id}`} className="hover:text-primary hover:underline">
+                    {p.unit_number || 'חוזה'}
+                  </Link>
+                ) : (
+                  p.unit_number
+                )}
+              </TableCell>
               <TableCell className="font-medium">{formatCurrency(p.amount)}</TableCell>
-              <TableCell>{new Date(p.due_date).toLocaleDateString('he-IL')}</TableCell>
+              <TableCell>{formatDate(p.due_date)}</TableCell>
               <TableCell>
                 <Badge variant={STATUS_VARIANT[p.status]}>{PAYMENT_STATUS_LABELS[p.status]}</Badge>
               </TableCell>

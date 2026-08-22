@@ -1,9 +1,21 @@
 export { ServiceError, isDemoMode, getSupabaseClient, requireSupabase, throwIfError } from './serviceHelpers';
 
-export { fetchProperties, fetchProperty, createProperty, updateProperty } from './propertiesService';
-export type { PropertyInsert } from './propertiesService';
+export { fetchProperties, fetchProperty, fetchUnit, createProperty, updateProperty, createUnit } from './propertiesService';
+export type { PropertyInsert, UnitInsert } from './propertiesService';
 export { fetchLeads, fetchClients, createLead, createClient, updateLeadStatus } from './leadsService';
-export { fetchLeases, fetchTenants, createTenant, createLease } from './leasesService';
+export {
+  fetchLeases,
+  fetchLease,
+  fetchTenants,
+  fetchTenant,
+  createTenant,
+  updateTenant,
+  deleteTenant,
+  createLease,
+  updateLease,
+  deleteLease,
+} from './leasesService';
+export type { TenantWrite, LeaseWrite } from './leasesService';
 export { fetchSigningLink, completeSigning, fetchSigningLinks } from './signingService';
 export { fetchTasks, createTask, updateTaskStatus } from './tasksService';
 export {

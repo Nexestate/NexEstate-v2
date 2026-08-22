@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useEntityCreated } from './useEntityCreated';
 import {
   fetchManagedPropertySidebar,
   type ManagedPropertySidebarItem,
@@ -44,6 +45,10 @@ export function useBrokerSidebarData() {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  useEntityCreated(['property', 'unit', 'tenant', 'lease'], () => {
+    void refresh();
+  });
 
   return { managedProperties, sharedProperties, loading, refresh };
 }

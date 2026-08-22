@@ -85,7 +85,11 @@ export interface PropertyUnit {
   area_sqm?: number;
   monthly_rent?: number;
   unit_status: UnitStatus;
+  tenant_id?: string;
   tenant_name?: string;
+  floor?: number;
+  notes?: string;
+  description?: string;
 }
 
 export interface PropertyWithUnits extends Property {
@@ -129,13 +133,24 @@ export interface Client {
 export interface Tenant {
   id: string;
   full_name: string;
+  first_name?: string;
+  last_name?: string;
   tenant_type?: TenantType;
   company_name?: string;
+  company_number?: string;
+  contact_name?: string;
+  id_number?: string;
   email?: string;
   phone?: string;
+  mobile?: string;
+  city?: string;
+  address?: string;
+  notes?: string;
   status: TenantStatus;
   rating?: TenantRating;
+  unit_id?: string;
   unit_number?: string;
+  property_id?: string;
   property_title?: string;
 }
 
@@ -145,12 +160,18 @@ export interface Lease {
   property_title?: string;
   unit_id?: string;
   unit_number?: string;
+  unit_name?: string;
   tenant_id: string;
   tenant_name: string;
+  tenant_company?: string;
   start_date: string;
   end_date: string;
   monthly_rent: number;
   deposit?: number;
+  notes?: string;
+  include_vat?: boolean;
+  payment_day?: number;
+  payment_method?: string;
   is_active: boolean;
 }
 
@@ -244,6 +265,28 @@ export const TENANT_STATUS_LABELS: Record<TenantStatus, string> = {
   ended: 'הסתיים',
 };
 
+export const TENANT_TYPE_LABELS: Record<TenantType, string> = {
+  sole_proprietor: 'עוסק מורשה',
+  company: 'חברה',
+};
+
+export const TENANT_RATING_LABELS: Record<TenantRating, string> = {
+  new: 'חדש',
+  good: 'טוב',
+  excellent: 'מצוין',
+  warning: 'אזהרה',
+  bad: 'גרוע',
+};
+
+export const UNIT_TYPE_LABELS: Record<UnitType, string> = {
+  office: 'משרד',
+  industrial: 'תעשייה',
+  storage: 'מחסן',
+  residential: 'מגורים',
+  commercial: 'מסחרי',
+  other: 'אחר',
+};
+
 export interface Task {
   id: string;
   title: string;
@@ -286,6 +329,9 @@ export interface Payment {
   amount: number;
   due_date: string;
   status: PaymentStatus;
+  lease_id?: string;
+  tenant_id?: string;
+  property_id?: string;
 }
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {

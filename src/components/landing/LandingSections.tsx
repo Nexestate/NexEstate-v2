@@ -28,6 +28,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { cn, formatCurrency } from '../../lib/utils';
 import { AnimatedSearchInput } from './AnimatedSearchInput';
+import { PublishAdLink } from './PublishAdLink';
 import { DashboardMockup } from './DashboardMockup';
 import { SigningMockup } from './SigningMockup';
 
@@ -488,11 +489,11 @@ export function FeaturesSection() {
                 </div>
               </div>
             ))}
-            <Link to="/register">
+            <PublishAdLink>
               <Button size="lg" className="mt-4 w-full shadow-lg shadow-primary/30 sm:w-auto">
                 פרסם מודעה חדשה
               </Button>
-            </Link>
+            </PublishAdLink>
           </div>
 
           <div className="relative">
@@ -569,11 +570,11 @@ export function CtaSection() {
                 חפש נכסים עכשיו
               </Button>
             </Link>
-            <Link to="/register">
+            <PublishAdLink>
               <Button size="lg" variant="outline" className="rounded-full border-primary/30 px-10 hover:bg-primary/10">
                 הוסף נכס
               </Button>
-            </Link>
+            </PublishAdLink>
           </div>
         </div>
       </div>

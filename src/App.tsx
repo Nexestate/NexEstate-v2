@@ -36,6 +36,8 @@ import { BrokerHome } from './pages/broker/Home';
 
 import { LeadsPage } from './pages/broker/LeadsPage';
 
+import { LeaseDetailPage } from './pages/broker/LeaseDetailPage';
+
 import { LeasesPage } from './pages/broker/LeasesPage';
 
 import { MyPropertiesPage } from './pages/broker/MyPropertiesPage';
@@ -55,6 +57,12 @@ import { ReportsPage } from './pages/broker/ReportsPage';
 import { SettingsPage } from './pages/broker/SettingsPage';
 
 import { TasksPage } from './pages/broker/TasksPage';
+import { TenantDetailPage } from './pages/broker/TenantDetailPage';
+
+import { TenantsPage } from './pages/broker/TenantsPage';
+
+import { UnitDetailPage } from './pages/broker/UnitDetailPage';
+
 import { UnitsPage } from './pages/broker/UnitsPage';
 
 import { BuyerDashboard } from './pages/buyer/Dashboard';
@@ -156,15 +164,21 @@ export function App() {
 
           <Route path="units" element={<UnitsPage />} />
 
+          <Route path="units/:id" element={<UnitDetailPage />} />
+
           <Route path="reports" element={<ReportsPage />} />
 
           <Route path="profile" element={<ProfilePage />} />
 
           <Route path="settings" element={<SettingsPage />} />
 
-          <Route path="tenants" element={<LeasesPage />} />
+          <Route path="tenants" element={<TenantsPage />} />
+
+          <Route path="tenants/:id" element={<TenantDetailPage />} />
 
           <Route path="leases" element={<LeasesPage />} />
+
+          <Route path="leases/:id" element={<LeaseDetailPage />} />
 
           <Route path="payments" element={<PaymentsPage />} />
 

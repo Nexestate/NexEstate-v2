@@ -2,6 +2,7 @@ import { Clock, Gavel, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PublicLayout } from '../../components/layout/PublicLayout';
+import { PublishAdLink } from '../../components/landing/PublishAdLink';
 import { PageHero } from '../../components/market/PageHero';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -82,9 +83,9 @@ export function AuctionsPublicPage() {
         </div>
         <div className="mt-10 rounded-2xl border border-border bg-card/50 p-6 text-center">
           <p className="text-muted-foreground">רוצה לפרסם מכירה פומבית?</p>
-          <Link to="/register" className="mt-4 inline-block">
+          <PublishAdLink className="mt-4 inline-block">
             <Button className="rounded-full px-8">פרסם מודעה</Button>
-          </Link>
+          </PublishAdLink>
         </div>
       </div>
     </PublicLayout>

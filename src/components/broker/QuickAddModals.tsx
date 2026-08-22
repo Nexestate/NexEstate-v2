@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   notifyEntityCreated,
@@ -13,6 +13,9 @@ import {
   createProperty,
   createTask,
   createTenant,
+  createUnit,
+  fetchProperties,
+  fetchTenants,
 } from '../../lib/services';
 import { CLIENT_TYPE_LABELS, TASK_PRIORITY_LABELS } from '../../types/domain';
 import type { ClientType, TaskPriority } from '../../types/domain';
@@ -132,11 +135,23 @@ export function QuickAddModals() {
 
       <LeaseFormModal
         open={state.type === 'lease'}
+        propertyId={state.propertyId}
         onClose={closeQuickAdd}
         onSubmit={async (values) => {
           if (!user) throw new Error('not auth');
-          await createLease(user.id, { ...values, property_id: state.propertyId ?? '' });
+          await createLease(user.id, values);
           closeAfterSuccess('lease', closeQuickAdd);
+        }}
+      />
+
+      <UnitFormModal
+        open={state.type === 'unit'}
+        propertyId={state.propertyId}
+        onClose={closeQuickAdd}
+        onSubmit={async (values) => {
+          if (!user) throw new Error('not auth');
+          await createUnit({ ...values, broker_id: user.id });
+          closeAfterSuccess('unit', closeQuickAdd);
         }}
       />
     </>
@@ -377,28 +392,44 @@ function TenantFormModal({ open, onClose, onSubmit }: TenantFormModalProps) {
 
 interface LeaseFormModalProps {
   open: boolean;
+  propertyId?: string;
   onClose: () => void;
   onSubmit: (values: {
-    tenant_name: string;
+    property_id: string;
+    tenant_id?: string;
+    tenant_name?: string;
     monthly_rent: number;
     start_date: string;
     end_date: string;
   }) => Promise<void>;
 }
 
-function LeaseFormModal({ open, onClose, onSubmit }: LeaseFormModalProps) {
-  const [tenantName, setTenantName] = useState('');
+function LeaseFormModal({ open, propertyId, onClose, onSubmit }: LeaseFormModalProps) {
+  const { user } = useAuth();
+  const [properties, setProperties] = useState<Array<{ id: string; title: string }>>([]);
+  const [tenants, setTenants] = useState<Array<{ id: string; full_name: string; company_name?: string }>>([]);
+  const [selectedProperty, setSelectedProperty] = useState(propertyId ?? '');
+  const [tenantId, setTenantId] = useState('');
   const [monthlyRent, setMonthlyRent] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    if (!open || !user?.id) return;
+    setSelectedProperty(propertyId ?? '');
+    Promise.all([fetchProperties(user.id), fetchTenants(user.id)]).then(([props, t]) => {
+      setProperties(props.map((p) => ({ id: p.id, title: p.title })));
+      setTenants(t);
+      if (!propertyId && props[0]) setSelectedProperty(props[0].id);
+    });
+  }, [open, propertyId, user?.id]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next: Record<string, string> = {};
-    const name = validateName(tenantName);
-    if (!name.isValid) next.tenant_name = name.error!;
+    if (!selectedProperty) next.property_id = 'יש לבחור נכס';
     const rent = validatePositiveNumber(monthlyRent, true);
     if (!rent.isValid) next.monthly_rent = rent.error!;
     const start = validateRequired(startDate, 'תאריך התחלה');
@@ -408,15 +439,18 @@ function LeaseFormModal({ open, onClose, onSubmit }: LeaseFormModalProps) {
     setErrors(next);
     if (Object.keys(next).length) return;
 
+    const tenant = tenants.find((t) => t.id === tenantId);
     setSaving(true);
     try {
       await onSubmit({
-        tenant_name: tenantName.trim(),
+        property_id: selectedProperty,
+        tenant_id: tenantId || undefined,
+        tenant_name: tenant?.company_name || tenant?.full_name,
         monthly_rent: Number(monthlyRent),
         start_date: startDate,
         end_date: endDate,
       });
-      setTenantName('');
+      setTenantId('');
       setMonthlyRent('');
       setStartDate('');
       setEndDate('');
@@ -428,13 +462,116 @@ function LeaseFormModal({ open, onClose, onSubmit }: LeaseFormModalProps) {
   return (
     <Modal open={open} onClose={onClose} title="חוזה חדש">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="שם שוכר" value={tenantName} onChange={(e) => setTenantName(e.target.value)} error={errors.tenant_name} required />
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">נכס</label>
+          <select className={SELECT_CLASS} value={selectedProperty} onChange={(e) => setSelectedProperty(e.target.value)}>
+            <option value="">בחר נכס</option>
+            {properties.map((p) => (
+              <option key={p.id} value={p.id}>{p.title}</option>
+            ))}
+          </select>
+          {errors.property_id && <p className="text-xs text-destructive">{errors.property_id}</p>}
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">שוכר</label>
+          <select className={SELECT_CLASS} value={tenantId} onChange={(e) => setTenantId(e.target.value)}>
+            <option value="">בחר שוכר</option>
+            {tenants.map((t) => (
+              <option key={t.id} value={t.id}>{t.company_name || t.full_name}</option>
+            ))}
+          </select>
+        </div>
         <Input label='שכ"ד חודשי (₪)' value={monthlyRent} onChange={(e) => setMonthlyRent(e.target.value)} error={errors.monthly_rent} required />
         <Input label="תאריך התחלה" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} error={errors.start_date} required />
         <Input label="תאריך סיום" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} error={errors.end_date} required />
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose}>ביטול</Button>
           <Button type="submit" disabled={saving}>{saving ? 'שומר...' : 'הוסף חוזה'}</Button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+interface UnitFormModalProps {
+  open: boolean;
+  propertyId?: string;
+  onClose: () => void;
+  onSubmit: (values: {
+    property_id: string;
+    unit_number: string;
+    unit_name?: string;
+    monthly_rent?: number;
+    area_sqm?: number;
+  }) => Promise<void>;
+}
+
+function UnitFormModal({ open, propertyId, onClose, onSubmit }: UnitFormModalProps) {
+  const { user } = useAuth();
+  const [properties, setProperties] = useState<Array<{ id: string; title: string }>>([]);
+  const [selectedProperty, setSelectedProperty] = useState(propertyId ?? '');
+  const [unitNumber, setUnitNumber] = useState('');
+  const [unitName, setUnitName] = useState('');
+  const [monthlyRent, setMonthlyRent] = useState('');
+  const [area, setArea] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!open || !user?.id) return;
+    setSelectedProperty(propertyId ?? '');
+    fetchProperties(user.id).then((props) => {
+      setProperties(props.map((p) => ({ id: p.id, title: p.title })));
+      if (!propertyId && props[0]) setSelectedProperty(props[0].id);
+    });
+  }, [open, propertyId, user?.id]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const next: Record<string, string> = {};
+    if (!selectedProperty) next.property_id = 'יש לבחור נכס';
+    const numberResult = validateRequired(unitNumber, 'מספר יחידה');
+    if (!numberResult.isValid) next.unit_number = numberResult.error!;
+    setErrors(next);
+    if (Object.keys(next).length) return;
+
+    setSaving(true);
+    try {
+      await onSubmit({
+        property_id: selectedProperty,
+        unit_number: unitNumber.trim(),
+        unit_name: unitName.trim() || undefined,
+        monthly_rent: monthlyRent ? Number(monthlyRent) : undefined,
+        area_sqm: area ? Number(area) : undefined,
+      });
+      setUnitNumber('');
+      setUnitName('');
+      setMonthlyRent('');
+      setArea('');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal open={open} onClose={onClose} title="יחידה חדשה">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">נכס</label>
+          <select className={SELECT_CLASS} value={selectedProperty} onChange={(e) => setSelectedProperty(e.target.value)}>
+            <option value="">בחר נכס</option>
+            {properties.map((p) => (
+              <option key={p.id} value={p.id}>{p.title}</option>
+            ))}
+          </select>
+        </div>
+        <Input label="מספר יחידה" value={unitNumber} onChange={(e) => setUnitNumber(e.target.value)} error={errors.unit_number} required />
+        <Input label="שם יחידה" value={unitName} onChange={(e) => setUnitName(e.target.value)} />
+        <Input label="שטח (מ״ר)" value={area} onChange={(e) => setArea(e.target.value)} />
+        <Input label='שכ"ד חודשי' value={monthlyRent} onChange={(e) => setMonthlyRent(e.target.value)} />
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onClose}>ביטול</Button>
+          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : 'הוסף יחידה'}</Button>
         </div>
       </form>
     </Modal>

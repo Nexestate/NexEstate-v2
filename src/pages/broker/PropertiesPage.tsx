@@ -1,6 +1,6 @@
 import { Building2, ChevronDown, ChevronUp, Layers, MapPin, Plus } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
@@ -24,6 +24,7 @@ const STATUS_VARIANT: Record<string, 'success' | 'primary' | 'warning' | 'outlin
 export function PropertiesPage() {
   const { user } = useAuth();
   const { openQuickAdd } = useQuickAdd();
+  const navigate = useNavigate();
   const [properties, setProperties] = useState<PropertyWithUnits[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -93,7 +94,15 @@ export function PropertiesPage() {
                     <Building2 className="h-6 w-6" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <CardTitle className="text-base">{property.title}</CardTitle>
+                    <CardTitle className="text-base">
+                      <Link
+                        to={`/broker/properties/${property.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="hover:text-primary"
+                      >
+                        {property.title}
+                      </Link>
+                    </CardTitle>
                     <p className="flex items-center gap-1 text-sm text-muted-foreground">
                       <MapPin className="h-3.5 w-3.5" />
                       {property.address}, {property.city}
@@ -142,8 +151,16 @@ export function PropertiesPage() {
                     </TableHeader>
                     <TableBody>
                       {property.units.map((unit) => (
-                        <TableRow key={unit.id}>
-                          <TableCell className="font-medium">{unit.unit_number}</TableCell>
+                        <TableRow
+                          key={unit.id}
+                          className="cursor-pointer"
+                          onClick={() => navigate(`/broker/units/${unit.id}`)}
+                        >
+                          <TableCell className="font-medium">
+                            <Link to={`/broker/units/${unit.id}`} className="text-primary hover:underline">
+                              {unit.unit_number}
+                            </Link>
+                          </TableCell>
                           <TableCell>{unit.unit_name ?? '—'}</TableCell>
                           <TableCell>{unit.area_sqm ? `${unit.area_sqm} מ"ר` : '—'}</TableCell>
                           <TableCell>
@@ -154,8 +171,18 @@ export function PropertiesPage() {
                               {UNIT_STATUS_LABELS[unit.unit_status]}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-muted-foreground">
-                            {unit.tenant_name ?? '—'}
+                          <TableCell>
+                            {unit.tenant_id ? (
+                              <Link
+                                to={`/broker/tenants/${unit.tenant_id}`}
+                                className="text-primary hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {unit.tenant_name}
+                              </Link>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}

@@ -1,0 +1,2 @@
+﻿id,owner_id,broker_id,title,description,kind,status,visibility,price,city,address,rooms,bathrooms,area_sqm,floor,total_floors,year_built,parking_spots,lat,lng,images,documents,features,featured,created_at,updated_at
+a0000001-0000-0000-0000-000000000001,,4541644f-349a-4b83-b852-8ac5305f86df,בניין שקטל ,"מרכז עסקים מרכזי עם משרדים, תעשייה ומחסנים",commercial,for_rent,private,0.00,כרמיאל,המתכת 34,0,,5861.00,,,,0,,,,,[object Object],false,2026-08-02 09:22:04.407109+00,2026-08-03 19:46:06.668937+00

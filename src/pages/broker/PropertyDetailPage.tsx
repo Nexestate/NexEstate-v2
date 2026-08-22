@@ -1,6 +1,7 @@
-import { ArrowRight, Building2, MapPin, Pencil, Share2 } from 'lucide-react';
+import { ArrowRight, Building2, MapPin, Pencil, Plus, Share2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useQuickAdd } from '../../contexts/QuickAddContext';
 import {
   PropertyFormModal,
   propertyFormToPayload,
@@ -10,8 +11,7 @@ import { SharePropertyModal } from '../../components/property/SharePropertyModal
 import { PageLoader } from '../../components/ui/PageLoader';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
+import { Card, CardContent } from '../../components/ui/Card';
 import { useAuth } from '../../contexts/AuthContext';
 import { fetchProperty, updateProperty } from '../../lib/services';
 import { supabase } from '../../lib/supabase';
@@ -30,6 +30,8 @@ const STATUS_VARIANT: Record<string, 'success' | 'primary' | 'warning' | 'outlin
 export function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const { openQuickAdd } = useQuickAdd();
+  const navigate = useNavigate();
   const [property, setProperty] = useState<PropertyWithUnits | null>(null);
   const [loading, setLoading] = useState(true);
   const [shareOpen, setShareOpen] = useState(false);
@@ -146,57 +148,61 @@ export function PropertyDetailPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-6">
         {[
-          { label: 'תפוסה', value: `${occupancy}%`, variant: 'success' as const },
-          { label: 'הכנסה חודשית', value: formatCurrency(property.monthlyIncome), variant: 'primary' as const },
-          { label: 'יחידות', value: `${property.occupiedUnits}/${property.totalUnits}`, variant: 'outline' as const },
-          { label: 'שטח', value: property.area_sqm ? `${property.area_sqm} מ"ר` : '—', variant: 'outline' as const },
-        ].map(({ label, value, variant }) => (
+          { label: 'הכנסה שנתית', value: formatCurrency(property.monthlyIncome * 12) },
+          { label: 'ממוצע ליחידה', value: formatCurrency(property.occupiedUnits ? property.monthlyIncome / property.occupiedUnits : 0) },
+          { label: 'הכנסה חודשית', value: formatCurrency(property.monthlyIncome) },
+          { label: 'תפוסה', value: `${occupancy}%` },
+          { label: 'שוכרים', value: String(property.occupiedUnits) },
+          { label: 'יחידות', value: String(property.totalUnits) },
+        ].map(({ label, value }) => (
           <Card key={label}>
             <CardContent className="py-4 text-center">
-              <Badge variant={variant} className="mb-2">{label}</Badge>
-              <p className="text-xl font-bold">{value}</p>
+              <p className="text-lg font-bold">{value}</p>
+              <p className="text-xs text-muted-foreground">{label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">יחידות ({property.units.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>#</TableHead>
-                <TableHead>שם</TableHead>
-                <TableHead>שטח</TableHead>
-                <TableHead>שכ&quot;ד</TableHead>
-                <TableHead>סטטוס</TableHead>
-                <TableHead>שוכר</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {property.units.map((unit) => (
-                <TableRow key={unit.id}>
-                  <TableCell className="font-medium">{unit.unit_number}</TableCell>
-                  <TableCell>{unit.unit_name ?? '—'}</TableCell>
-                  <TableCell>{unit.area_sqm ? `${unit.area_sqm} מ"ר` : '—'}</TableCell>
-                  <TableCell>{unit.monthly_rent ? formatCurrency(unit.monthly_rent) : '—'}</TableCell>
-                  <TableCell>
-                    <Badge variant={STATUS_VARIANT[unit.unit_status] ?? 'outline'}>
-                      {UNIT_STATUS_LABELS[unit.unit_status]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{unit.tenant_name ?? '—'}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">יחידות בנכס</h3>
+        <Button size="sm" onClick={() => openQuickAdd('unit', { propertyId: property.id })}>
+          <Plus className="h-4 w-4" />
+          יחידה חדשה
+        </Button>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {property.units.map((unit) => (
+          <button
+            key={unit.id}
+            type="button"
+            onClick={() => navigate(`/broker/units/${unit.id}`)}
+            className="rounded-xl border border-border bg-card p-4 text-start transition-colors hover:border-primary/50 hover:bg-muted/30"
+          >
+            <div className="mb-2 flex items-start justify-between gap-2">
+              <div>
+                <p className="font-semibold">יחידה #{unit.unit_number}</p>
+                <p className="text-sm text-muted-foreground">{unit.unit_name || unit.tenant_name || '—'}</p>
+              </div>
+              <Badge variant={STATUS_VARIANT[unit.unit_status] ?? 'outline'}>
+                {unit.unit_status === 'occupied' ? 'מושכרת' : UNIT_STATUS_LABELS[unit.unit_status]}
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              קומה {unit.floor ?? '—'} • {unit.area_sqm ? `${unit.area_sqm} מ"ר` : 'ללא שטח'}
+            </p>
+            <div className="mt-3 flex items-end justify-between">
+              <p className="text-lg font-bold text-primary">
+                {unit.monthly_rent ? formatCurrency(unit.monthly_rent) : '₪0'}
+              </p>
+              <p className="text-xs text-muted-foreground">שכירות חודשית</p>
+            </div>
+          </button>
+        ))}
+      </div>
 
       <SharePropertyModal
         open={shareOpen}

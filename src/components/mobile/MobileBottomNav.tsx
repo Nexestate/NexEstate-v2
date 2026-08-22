@@ -36,6 +36,7 @@ const BROKER_MAIN: NavItem[] = [
 ];
 
 const BROKER_MORE: NavItem[] = [
+  { label: 'יחידות', to: '/broker/units', icon: Building2 },
   { label: 'שוכרים', to: '/broker/tenants', icon: Users },
   { label: 'חוזים', to: '/broker/leases', icon: FileText },
   { label: 'תשלומים', to: '/broker/payments', icon: CreditCard },

@@ -6,6 +6,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { useAuth } from '../../contexts/AuthContext';
+import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { fetchBrokerDashboardStats, fetchManagedPropertySidebar, fetchSigningLinks, fetchTasks } from '../../lib/services';
 import { formatCurrency, getOccupancyPercent } from '../../lib/utils';
 import type { PropertyWithUnits } from '../../types/domain';
@@ -14,6 +15,7 @@ import { SIGNING_STATUS_LABELS, TASK_PRIORITY_COLORS, TASK_PRIORITY_LABELS } fro
 
 export function BrokerHome() {
   const { user } = useAuth();
+  const { openQuickAdd } = useQuickAdd();
   const [stats, setStats] = useState({
     properties: 0,
     units: 0,
@@ -160,9 +162,7 @@ export function BrokerHome() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">קישורי חתימה אחרונים</CardTitle>
-          <Link to="/broker/agreements">
-            <Button size="sm" variant="outline">קישור חדש</Button>
-          </Link>
+          <Button size="sm" onClick={() => openQuickAdd('agreement')}>קישור חדש</Button>
         </CardHeader>
         <CardContent className="space-y-2">
           {links.length === 0 ? (
