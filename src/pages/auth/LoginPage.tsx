@@ -2,7 +2,6 @@ import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthShell } from '../../components/auth/AuthShell';
-import { GoogleOAuthHint } from '../../components/auth/GoogleOAuthHint';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAuthErrorDisplay } from '../../lib/authErrors';
 import { Button } from '../../components/ui/Button';

@@ -1,1 +1,0 @@
-0000000000000000000000000000000000000000 93337dc4991b0a976dc75482c9e3c0c878e5e306 Michael Wiener <nexuservice@gmail.com> 1787408712 +0300	commit (initial): Improve managed properties UX - unit editing, cross-links, property cards, sidebar hierarchy
