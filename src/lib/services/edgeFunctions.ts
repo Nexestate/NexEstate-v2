@@ -44,6 +44,7 @@ export async function notifyShare(payload: {
   entityName: string;
   permissionLevel: string;
   isInvitation?: boolean;
+  intendedRole?: string;
 }): Promise<void> {
   if (isDemoMode()) return;
   try {

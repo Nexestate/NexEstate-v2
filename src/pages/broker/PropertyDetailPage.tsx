@@ -7,6 +7,7 @@ import {
   propertyFormToPayload,
   type PropertyFormValues,
 } from '../../components/property/PropertyFormModal';
+import { PropertySharesPanel } from '../../components/property/PropertySharesPanel';
 import { SharePropertyModal } from '../../components/property/SharePropertyModal';
 import { PageLoader } from '../../components/ui/PageLoader';
 import { Badge } from '../../components/ui/Badge';
@@ -203,6 +204,8 @@ export function PropertyDetailPage() {
           </button>
         ))}
       </div>
+
+      <PropertySharesPanel propertyId={property.id} onInvite={() => setShareOpen(true)} />
 
       <SharePropertyModal
         open={shareOpen}

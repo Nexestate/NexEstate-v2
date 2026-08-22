@@ -11,8 +11,11 @@ export function getAppOrigin(): string {
 
   if (typeof window !== 'undefined' && window.location?.origin) {
     const origin = window.location.origin.replace(/\/$/, '');
-    // Always canonicalize to apex — www serves HTML but asset redirects break (CORS).
     if (origin === 'https://www.nexestate.co') return DEFAULT_PRODUCTION_ORIGIN;
+    const isLocal =
+      origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1');
+    // Preview / staging hosts must use the production callback registered in Google + Supabase.
+    if (!isLocal && !origin.includes('nexestate.co')) return DEFAULT_PRODUCTION_ORIGIN;
     return origin;
   }
 

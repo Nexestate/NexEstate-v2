@@ -78,16 +78,26 @@ export function getShareAccessEmail(data: {
   permissionLevel: string;
   accessLink: string;
   expiresAt?: string;
+  intendedRole?: string;
+  isInvitation?: boolean;
 }): string {
+  const title = data.isInvitation ? 'הוזמנת ל-NexEstate' : 'שותף איתך נכס';
+  const action = data.isInvitation ? 'להרשמה והצטרפות' : 'לכניסה למערכת';
   return wrap(
-    'הוזמנת לשתף נכס',
+    title,
     `<p>שלום ${data.recipientName || data.recipientEmail},</p>
     <p><strong>${data.sharedByName}</strong> שיתף איתך ${data.entityType}: <strong>${data.entityName}</strong>.</p>
     <div class="highlight-box">
-      <p>רמת הרשאה: ${data.permissionLevel}</p>
+      <p>רמת הרשאה: <strong>${data.permissionLevel}</strong></p>
+      ${data.intendedRole ? `<p>תפקיד מיועד: <strong>${data.intendedRole}</strong></p>` : ''}
       ${data.expiresAt ? `<p>תוקף עד: ${data.expiresAt}</p>` : ''}
     </div>
-    <p style="text-align:center"><a class="button" href="${data.accessLink}">כניסה למערכת</a></p>`,
+    ${
+      data.isInvitation
+        ? '<p>עדיין אין לך חשבון? ההרשמה חינמית. אחרי ההרשמה הגישה לנכס תתווסף אוטומטית.</p>'
+        : '<p>אפשר להיכנס עם אותו אימייל ולראות את הנכס תחת הנכסים ששותפו איתך.</p>'
+    }
+    <p style="text-align:center"><a class="button" href="${data.accessLink}">${action}</a></p>`,
   );
 }
 
