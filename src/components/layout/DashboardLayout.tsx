@@ -41,7 +41,11 @@ export function DashboardLayout({
     <QuickAddProvider>
       <div className="flex min-h-[100dvh] min-w-0 bg-background">
         <div className="hidden lg:block">
-          <Sidebar sections={sections} managedProperties={managedProperties} sharedProperties={sharedProperties} />
+          <Sidebar
+            sections={sections}
+            managedProperties={managedProperties}
+            sharedProperties={sharedProperties}
+          />
         </div>
 
         <SidebarOverlay open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
