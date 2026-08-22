@@ -1,4 +1,5 @@
 import { useBuyerSharedProperties } from '../../hooks/useBuyerSharedProperties';
+import { useFavorites } from '../../hooks/useFavorites';
 import { useAuth } from '../../contexts/AuthContext';
 import { getUnreadCount, fetchNotifications } from '../../lib/services';
 import { Building2, Eye, Heart, Pencil, Search, Share2, TrendingUp } from 'lucide-react';
@@ -9,7 +10,6 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { DEMO_FAVORITES } from '../../data/demoData';
 
 const PERMISSION_LABELS = { view: 'צפייה', edit: 'עריכה', admin: 'מנהל' } as const;
 const PERMISSION_VARIANTS = { view: 'primary', edit: 'warning', admin: 'success' } as const;
@@ -17,8 +17,8 @@ const PERMISSION_VARIANTS = { view: 'primary', edit: 'warning', admin: 'success'
 export function BuyerHome() {
   const { user } = useAuth();
   const { properties, loading } = useBuyerSharedProperties();
+  const { count: favoritesCount } = useFavorites();
   const [unreadNotifications, setUnreadNotifications] = useState(0);
-  const favoritesCount = DEMO_FAVORITES.length;
 
   useEffect(() => {
     if (user?.id) {
@@ -81,7 +81,7 @@ export function BuyerHome() {
                     <p className="text-xs text-muted-foreground">{property.address}</p>
                   )}
                   <Link
-                    to={`/broker/properties/${property.id}`}
+                    to={`/buyer/shared/${property.id}`}
                     className="mt-3 inline-flex text-sm text-primary hover:underline"
                   >
                     צפייה בנכס ←

@@ -266,18 +266,22 @@ export function MobileSidebarDrawer({
   return (
     <div
       className={cn(
-        'fixed inset-y-0 end-0 z-50 w-64 transform transition-transform duration-200 lg:hidden',
-        open ? 'translate-x-0' : 'translate-x-full',
+        'fixed inset-y-0 start-0 z-50 w-[min(100vw-3rem,16rem)] transform transition-transform duration-200 lg:hidden',
+        open ? 'pointer-events-auto translate-x-0' : 'pointer-events-none translate-x-full',
       )}
+      aria-hidden={!open}
     >
       {children}
-      <button
-        type="button"
-        onClick={onClose}
-        className="absolute top-4 start-[-2.5rem] grid h-8 w-8 place-items-center rounded-lg bg-card text-muted-foreground"
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </button>
+      {open && (
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 end-[-2.75rem] grid h-10 w-10 place-items-center rounded-lg bg-card text-muted-foreground shadow-md"
+          aria-label="סגור תפריט"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+      )}
     </div>
   );
 }

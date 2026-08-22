@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { AppInstallBanner } from '../pwa/AppInstallBanner';
 import { Logo } from '../layout/Logo';
 
 interface AuthShellProps {
@@ -19,8 +20,11 @@ export function AuthShell({
   onGoogleClick,
 }: AuthShellProps) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-10" dir="rtl">
-      <div className="mb-8 w-full max-w-lg text-center">
+    <div
+      className="flex min-h-[100dvh] flex-col items-center justify-center overflow-x-hidden bg-background px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:py-10"
+      dir="rtl"
+    >
+      <div className="mb-6 w-full max-w-lg text-center sm:mb-8">
         <Logo size="lg" className="justify-center" />
         <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
           שוק נכסים, פרויקטים ומכירות. מצא. פרסם. סגור עסקה.
@@ -32,13 +36,15 @@ export function AuthShell({
         )}
       </div>
 
+      <AppInstallBanner />
+
       {showGoogle && (
         <>
           <button
             type="button"
             onClick={onGoogleClick}
             disabled={googleLoading}
-            className="mb-6 flex h-12 w-full max-w-lg items-center justify-center gap-3 rounded-full border border-white/10 bg-white text-sm font-medium text-gray-900 shadow-lg transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mb-6 flex h-12 w-full max-w-lg touch-manipulation items-center justify-center gap-3 rounded-full border border-white/10 bg-white text-sm font-medium text-gray-900 shadow-lg transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

@@ -23,6 +23,36 @@ export type PropertyKind =
 export type PropertyStatus = 'for_sale' | 'for_rent' | 'sold' | 'rented';
 export type PermissionLevel = 'view' | 'edit' | 'admin';
 
+export interface FavoriteProperty {
+  id: string;
+  title: string;
+  city: string;
+  address: string;
+  price: number;
+  kind: string;
+  rooms?: number;
+  added_at: string;
+}
+
+export interface PropertyListing {
+  id: string;
+  title: string;
+  city: string;
+  address: string;
+  price: number;
+  kind: string;
+  kindKey?: PropertyKind;
+  status: string;
+  statusLabel?: string;
+  rooms?: number | null;
+  area_sqm?: number | null;
+}
+
+export interface PropertySearchParams {
+  query?: string;
+  listingType?: 'sale' | 'rent';
+}
+
 export interface Property {
   id: string;
   title: string;

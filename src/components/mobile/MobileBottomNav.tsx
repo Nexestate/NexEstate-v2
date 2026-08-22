@@ -41,6 +41,7 @@ const BROKER_MORE: NavItem[] = [
   { label: 'תשלומים', to: '/broker/payments', icon: CreditCard },
   { label: 'לקוחות', to: '/broker/clients', icon: Users },
   { label: 'משימות', to: '/broker/tasks', icon: ClipboardList },
+  { label: 'הגדרות', to: '/broker/settings', icon: Settings },
 ];
 
 const BUYER_MAIN: NavItem[] = [
@@ -94,8 +95,9 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
   }, [location.pathname]);
 
   useEffect(() => {
+    const scrollRoot = document.querySelector('main');
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = scrollRoot?.scrollTop ?? window.scrollY;
       if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
         setVisible(false);
         setMoreOpen(false);
@@ -105,9 +107,13 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
       lastScrollY.current = currentScrollY;
     };
 
+    scrollRoot?.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    return () => {
+      scrollRoot?.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [location.pathname]);
 
   return (
     <>
@@ -163,10 +169,11 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
       <nav
         className={cn(
           'fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur transition-transform duration-300 lg:hidden',
+          'pb-[max(0.5rem,env(safe-area-inset-bottom))]',
           visible ? 'translate-y-0' : 'translate-y-full',
         )}
       >
-        <div className="flex items-center justify-around px-2 py-2">
+        <div className="flex items-center justify-around px-1 py-2">
           {config.main.map((item) => {
             const Icon = item.icon;
             return (
@@ -176,7 +183,7 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
                 end={item.end}
                 className={({ isActive }) =>
                   cn(
-                    'flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-[10px]',
+                    'flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 text-[10px] touch-manipulation',
                     isActive ? 'text-primary' : 'text-muted-foreground',
                   )
                 }

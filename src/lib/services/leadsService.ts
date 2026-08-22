@@ -1,5 +1,8 @@
 import { DEMO_CLIENTS, DEMO_LEADS } from '../../data/demoData';
 import type { Client, Lead, LeadStatus } from '../../types/domain';
+import { loadNotificationPrefs } from '../notificationPrefs';
+import { showBrowserNotification } from '../pushNotifications';
+import { createNotification } from './notificationsService';
 import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
 export async function fetchLeads(brokerId?: string): Promise<Lead[]> {
@@ -55,7 +58,7 @@ export async function fetchClients(brokerId?: string): Promise<Client[]> {
 
 export async function createLead(
   brokerId: string,
-  payload: { full_name: string; phone: string; source?: string },
+  payload: { full_name: string; phone: string; source?: string; property_title?: string },
 ): Promise<string> {
   if (isDemoMode()) {
     const id = `lead-${Date.now()}`;
@@ -65,9 +68,11 @@ export async function createLead(
       full_name: payload.full_name,
       phone: payload.phone,
       source: payload.source,
+      property_title: payload.property_title,
       status: 'new',
       created_at: new Date().toISOString(),
     });
+    await notifyLeadCreated(brokerId, payload.full_name, payload.property_title);
     return id;
   }
 
@@ -85,7 +90,41 @@ export async function createLead(
     .single();
   throwIfError(error);
   if (!data) throw new ServiceError('Lead insert returned no data');
+
+  await notifyLeadCreated(brokerId, payload.full_name, payload.property_title);
   return data.id as string;
+}
+
+async function notifyLeadCreated(
+  brokerId: string,
+  leadName: string,
+  propertyTitle?: string,
+): Promise<void> {
+  const prefs = loadNotificationPrefs();
+  if (!prefs.leadAlerts) return;
+
+  const message = propertyTitle
+    ? `${leadName} השאיר/ה פרטים לגבי ${propertyTitle}`
+    : `${leadName} השאיר/ה פרטים — ליד חדש`;
+
+  const notification = await createNotification({
+    userId: brokerId,
+    type: 'lead',
+    title: 'ליד חדש',
+    message,
+    severity: 'info',
+    link: '/broker/leads',
+  });
+
+  if (notification && prefs.pushEnabled) {
+    showBrowserNotification({
+      title: notification.title,
+      body: notification.message,
+      tag: notification.id,
+      url: '/broker/leads',
+      type: 'lead',
+    });
+  }
 }
 
 export async function createClient(

@@ -1,27 +1,27 @@
 import { Building2, Heart, MapPin, Search, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useFavorites } from '../../hooks/useFavorites';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
-import { DEMO_FAVORITES } from '../../data/demoData';
+import { PageLoader } from '../../components/ui/PageLoader';
 import { formatCurrency } from '../../lib/utils';
-import { useState } from 'react';
 
 export function FavoritesPage() {
-  const [favorites, setFavorites] = useState(DEMO_FAVORITES);
+  const { favorites, loading, error, removeFavorite, count } = useFavorites();
 
-  const removeFavorite = (id: string) => {
-    setFavorites((prev) => prev.filter((f) => f.id !== id));
-  };
+  if (loading) return <PageLoader />;
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="מועדפים"
-        description={favorites.length > 0 ? `${favorites.length} נכסים שמורים` : 'אין נכסים במועדפים'}
+        description={count > 0 ? `${count} נכסים שמורים` : 'אין נכסים במועדפים'}
       />
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       {favorites.length === 0 ? (
         <Card>
@@ -62,8 +62,9 @@ export function FavoritesPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => removeFavorite(fav.id)}
+                    onClick={() => void removeFavorite(fav.id)}
                     className="text-muted-foreground hover:text-destructive"
+                    title="הסר ממועדפים"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -72,15 +73,14 @@ export function FavoritesPage() {
                   <span className="text-lg font-bold text-primary">{formatCurrency(fav.price)}</span>
                   <div className="flex gap-1">
                     <Badge variant="outline">{fav.kind}</Badge>
-                    {fav.rooms && <Badge variant="primary">{fav.rooms} חדרים</Badge>}
+                    {fav.rooms != null && fav.rooms > 0 && (
+                      <Badge variant="primary">{fav.rooms} חדרים</Badge>
+                    )}
                   </div>
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
                   נוסף {new Date(fav.added_at).toLocaleDateString('he-IL')}
                 </p>
-                <Link to="/buyer/search" className="mt-3 inline-flex text-sm text-primary hover:underline">
-                  צפייה בנכס ←
-                </Link>
               </CardContent>
             </Card>
           ))}
