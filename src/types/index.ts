@@ -16,10 +16,10 @@ export interface Profile {
   id: string;
   email: string;
   full_name: string;
-  phone?: string;
+  phone?: string | null;
   role: UserRole;
-  company?: string;
-  license_number?: string;
+  company?: string | null;
+  license_number?: string | null;
   avatar_url?: string;
   created_at?: string;
 }
