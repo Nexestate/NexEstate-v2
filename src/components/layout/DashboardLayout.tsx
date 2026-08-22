@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { QuickAddProvider } from '../../contexts/QuickAddContext';
 import { cn } from '../../lib/utils';
 import type { NavSection, PermissionLevel } from '../../types';
@@ -26,10 +28,18 @@ export function DashboardLayout({
   notificationsPath,
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useAuth();
+  useRealtimeNotifications(user?.id);
+
+  useEffect(() => {
+    if (sidebarOpen) document.body.classList.add('mobile-menu-open');
+    else document.body.classList.remove('mobile-menu-open');
+    return () => document.body.classList.remove('mobile-menu-open');
+  }, [sidebarOpen]);
 
   return (
     <QuickAddProvider>
-      <div className="flex min-h-screen bg-background">
+      <div className="flex min-h-[100dvh] min-w-0 bg-background">
         <div className="hidden lg:block">
           <Sidebar sections={sections} managedProperties={managedProperties} sharedProperties={sharedProperties} />
         </div>
@@ -44,8 +54,10 @@ export function DashboardLayout({
           />
         </MobileSidebarDrawer>
 
-        <div className="flex flex-1 flex-col">
-          <main className={cn('flex-1 overflow-y-auto p-4 pb-24 lg:p-8 lg:pb-8')}>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <main
+            className={cn('flex min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto p-4 pb-24 lg:p-8 lg:pb-8')}
+          >
             <Header
               subtitle={headerSubtitle}
               onMenuClick={() => setSidebarOpen(true)}

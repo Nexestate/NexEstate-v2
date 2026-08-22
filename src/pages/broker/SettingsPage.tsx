@@ -1,13 +1,27 @@
 import { Bell, Lock, Palette, Shield, User } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getAuthErrorDisplay } from '../../lib/authErrors';
+import {
+  DEFAULT_NOTIFICATION_PREFS,
+  loadNotificationPrefs,
+  saveNotificationPrefs,
+  type NotificationPrefs,
+} from '../../lib/notificationPrefs';
+import {
+  getPushPermission,
+  isPushSupported,
+  requestPushPermission,
+} from '../../lib/pushNotifications';
 import { ROLE_LABELS } from '../../lib/roles';
+import { validatePassword, validatePasswordMatch, validateRequired } from '../../lib/validation';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardTitle } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { PageLoader } from '../../components/ui/PageLoader';
 import { cn } from '../../lib/utils';
 
 const TABS = [
@@ -23,23 +37,130 @@ interface SettingsPageProps {
 }
 
 export function SettingsPage({ variant = 'broker' }: SettingsPageProps) {
-  const { user } = useAuth();
+  const { user, updateProfile, updatePassword } = useAuth();
   const { theme, setTheme } = useTheme();
   const [active, setActive] = useState('profile');
   const [saved, setSaved] = useState(false);
-  const [password, setPassword] = useState({ new: '', confirm: '' });
-  const [prefs, setPrefs] = useState({
-    emailAlerts: true,
-    leadAlerts: true,
-    leaseExpiry: true,
-    leaseDays: 7,
-    weeklyDigest: false,
-  });
+  const [error, setError] = useState('');
+  const [errorDetail, setErrorDetail] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
+  const [profileForm, setProfileForm] = useState({
+    full_name: '',
+    phone: '',
+    company: '',
+    license_number: '',
+  });
+  const [password, setPassword] = useState({ new: '', confirm: '' });
+  const [prefs, setPrefs] = useState<NotificationPrefs>(DEFAULT_NOTIFICATION_PREFS);
+  const [pushStatus, setPushStatus] = useState(getPushPermission());
+
+  useEffect(() => {
+    setPrefs(loadNotificationPrefs());
+    setPushStatus(getPushPermission());
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    setProfileForm({
+      full_name: user.full_name ?? '',
+      phone: user.phone ?? '',
+      company: user.company ?? '',
+      license_number: user.license_number ?? '',
+    });
+  }, [user]);
+
+  const flashSaved = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
+
+  const handleSaveProfile = async () => {
+    const nameCheck = validateRequired(profileForm.full_name, 'שם מלא');
+    if (!nameCheck.isValid) {
+      setError(nameCheck.error ?? '');
+      return;
+    }
+    setError('');
+    setErrorDetail('');
+    setSaving(true);
+    try {
+      await updateProfile({
+        full_name: profileForm.full_name.trim(),
+        phone: profileForm.phone.trim() || null,
+        ...(variant !== 'buyer'
+          ? {
+              company: profileForm.company.trim() || null,
+              license_number: profileForm.license_number.trim() || null,
+            }
+          : {}),
+      });
+      flashSaved();
+    } catch (err) {
+      const display = getAuthErrorDisplay(err);
+      setError(display.message);
+      setErrorDetail(display.detail ?? '');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSavePassword = async () => {
+    const p1 = validatePassword(password.new);
+    if (!p1.isValid) {
+      setError(p1.error ?? '');
+      return;
+    }
+    const p2 = validatePasswordMatch(password.new, password.confirm);
+    if (!p2.isValid) {
+      setError(p2.error ?? '');
+      return;
+    }
+    setError('');
+    setErrorDetail('');
+    setSaving(true);
+    try {
+      await updatePassword(password.new);
+      setPassword({ new: '', confirm: '' });
+      flashSaved();
+    } catch (err) {
+      const display = getAuthErrorDisplay(err);
+      setError(display.message);
+      setErrorDetail(display.detail ?? '');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSavePrefs = async () => {
+    setError('');
+    saveNotificationPrefs(prefs);
+    flashSaved();
+  };
+
+  const handleEnablePush = async () => {
+    setError('');
+    if (!isPushSupported()) {
+      setError('הדפדפן שלך לא תומך בהתראות Push. התקן את האפליקציה או השתמש ב-Chrome/Safari עדכני.');
+      return;
+    }
+    const permission = await requestPushPermission();
+    setPushStatus(permission);
+    if (permission === 'granted') {
+      setPrefs((current) => {
+        const next = { ...current, pushEnabled: true };
+        saveNotificationPrefs(next);
+        return next;
+      });
+      flashSaved();
+      return;
+    }
+    if (permission === 'denied') {
+      setError('ההרשאה להתראות נחסמה. אפשר/י אותה בהגדרות הדפדפן / הנייד.');
+    }
+  };
+
+  if (!user) return <PageLoader />;
 
   return (
     <div className="space-y-6">
@@ -51,7 +172,11 @@ export function SettingsPage({ variant = 'broker' }: SettingsPageProps) {
             <button
               key={id}
               type="button"
-              onClick={() => setActive(id)}
+              onClick={() => {
+                setActive(id);
+                setError('');
+                setErrorDetail('');
+              }}
               className={cn(
                 'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
                 active === id ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted',
@@ -65,37 +190,108 @@ export function SettingsPage({ variant = 'broker' }: SettingsPageProps) {
 
         <Card className="flex-1">
           <CardContent className="p-6">
-            {active === 'profile' && user && (
+            {error && <p className="mb-4 text-sm text-destructive">{error}</p>}
+            {errorDetail && (
+              <p className="mb-4 rounded-lg bg-destructive/10 px-3 py-2 font-mono text-xs text-destructive/90 break-all">
+                {errorDetail}
+              </p>
+            )}
+
+            {active === 'profile' && (
               <div className="space-y-4">
                 <CardTitle className="text-base">פרופיל אישי</CardTitle>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Input label="שם מלא" defaultValue={user.full_name} />
-                  <Input label='דוא"ל' defaultValue={user.email} disabled />
-                  <Input label="טלפון" defaultValue={user.phone ?? ''} />
+                  <Input
+                    label="שם מלא"
+                    value={profileForm.full_name}
+                    onChange={(e) => setProfileForm((f) => ({ ...f, full_name: e.target.value }))}
+                  />
+                  <Input label='דוא"ל' value={user.email} disabled />
+                  <Input
+                    label="טלפון"
+                    value={profileForm.phone}
+                    onChange={(e) => setProfileForm((f) => ({ ...f, phone: e.target.value }))}
+                  />
                   {variant !== 'buyer' && (
                     <>
-                      <Input label="שם חברה" defaultValue={user.company ?? ''} />
-                      <Input label="מספר רישיון תיווך" defaultValue={user.license_number ?? ''} className="sm:col-span-2" />
+                      <Input
+                        label="שם חברה"
+                        value={profileForm.company}
+                        onChange={(e) => setProfileForm((f) => ({ ...f, company: e.target.value }))}
+                      />
+                      <Input
+                        label="מספר רישיון תיווך"
+                        value={profileForm.license_number}
+                        onChange={(e) =>
+                          setProfileForm((f) => ({ ...f, license_number: e.target.value }))
+                        }
+                        className="sm:col-span-2"
+                      />
                     </>
                   )}
                 </div>
                 <Badge variant="primary">{ROLE_LABELS[user.role]}</Badge>
-                <Button onClick={handleSave}>{saved ? 'נשמר!' : 'שמור שינויים'}</Button>
+                <Button onClick={() => void handleSaveProfile()} disabled={saving}>
+                  {saved ? 'נשמר!' : saving ? 'שומר...' : 'שמור שינויים'}
+                </Button>
               </div>
             )}
 
             {active === 'security' && (
               <div className="space-y-4">
                 <CardTitle className="text-base">שינוי סיסמא</CardTitle>
-                <Input label="סיסמא חדשה" type="password" value={password.new} onChange={(e) => setPassword({ ...password, new: e.target.value })} />
-                <Input label="אימות סיסמא" type="password" value={password.confirm} onChange={(e) => setPassword({ ...password, confirm: e.target.value })} />
-                <Button onClick={handleSave}>עדכן סיסמא</Button>
+                <Input
+                  label="סיסמא חדשה"
+                  type="password"
+                  value={password.new}
+                  onChange={(e) => setPassword({ ...password, new: e.target.value })}
+                />
+                <Input
+                  label="אימות סיסמא"
+                  type="password"
+                  value={password.confirm}
+                  onChange={(e) => setPassword({ ...password, confirm: e.target.value })}
+                />
+                <Button onClick={() => void handleSavePassword()} disabled={saving}>
+                  {saved ? 'עודכן!' : saving ? 'שומר...' : 'עדכן סיסמא'}
+                </Button>
               </div>
             )}
 
             {active === 'notifications' && (
               <div className="space-y-4">
                 <CardTitle className="text-base">התראות כלליות</CardTitle>
+
+                <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
+                  <input
+                    type="checkbox"
+                    checked={prefs.pushEnabled}
+                    onChange={(e) => setPrefs({ ...prefs, pushEnabled: e.target.checked })}
+                    className="mt-1"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">התראות Push לנייד</p>
+                    <p className="text-sm text-muted-foreground">
+                      קבל/י התראה מיידית על לידים חדשים (דורש הרשאה בדפדפן).
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      סטטוס:{' '}
+                      {pushStatus === 'granted'
+                        ? 'מאושר'
+                        : pushStatus === 'denied'
+                          ? 'חסום'
+                          : pushStatus === 'unsupported'
+                            ? 'לא נתמך'
+                            : 'ממתין לאישור'}
+                    </p>
+                    {pushStatus !== 'granted' && (
+                      <Button type="button" size="sm" className="mt-2" onClick={() => void handleEnablePush()}>
+                        אפשר התראות Push
+                      </Button>
+                    )}
+                  </div>
+                </label>
+
                 {[
                   { key: 'emailAlerts', label: 'קבל התראות במייל', desc: 'התראות דחופות יישלחו גם למייל' },
                   ...(variant !== 'buyer'
@@ -139,7 +335,7 @@ export function SettingsPage({ variant = 'broker' }: SettingsPageProps) {
                     </div>
                   </div>
                 )}
-                <Button onClick={handleSave}>שמור העדפות</Button>
+                <Button onClick={() => void handleSavePrefs()}>שמור העדפות</Button>
               </div>
             )}
 

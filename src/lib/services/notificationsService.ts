@@ -1,6 +1,15 @@
 import { DEMO_NOTIFICATIONS } from '../../data/demoData';
-import type { AppNotification } from '../../types/domain';
+import type { AppNotification, NotificationSeverity } from '../../types/domain';
 import { isDemoMode, requireSupabase, throwIfError } from './serviceHelpers';
+
+export type CreateNotificationPayload = {
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  severity?: NotificationSeverity;
+  link?: string;
+};
 
 export async function fetchNotifications(userId?: string): Promise<AppNotification[]> {
   if (isDemoMode()) return DEMO_NOTIFICATIONS;
@@ -52,4 +61,48 @@ export async function markAllNotificationsRead(userId?: string): Promise<void> {
 
 export function getUnreadCount(notifications: AppNotification[]): number {
   return notifications.filter((n) => !n.is_read).length;
+}
+
+export async function createNotification(payload: CreateNotificationPayload): Promise<AppNotification | null> {
+  if (isDemoMode()) {
+    const notification: AppNotification = {
+      id: `notif-${Date.now()}`,
+      type: payload.type,
+      title: payload.title,
+      message: payload.message,
+      severity: payload.severity ?? 'info',
+      is_read: false,
+      created_at: new Date().toISOString(),
+    };
+    DEMO_NOTIFICATIONS.unshift(notification);
+    return notification;
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('notifications')
+    .insert({
+      user_id: payload.userId,
+      type: payload.type,
+      title: payload.title,
+      message: payload.message,
+      severity: payload.severity ?? 'info',
+      link: payload.link,
+      is_read: false,
+    })
+    .select('*')
+    .single();
+
+  throwIfError(error);
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    type: data.type,
+    title: data.title,
+    message: data.message ?? '',
+    severity: data.severity,
+    is_read: data.is_read,
+    created_at: data.created_at,
+  };
 }

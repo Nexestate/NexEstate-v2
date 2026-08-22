@@ -55,17 +55,28 @@ html.dark {
 
   html {
     @apply scroll-smooth;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     margin: 0;
     min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
     text-align: right;
+    touch-action: manipulation;
+  }
+
+  body.mobile-menu-open {
+    overflow: hidden;
   }
 
   #root {
     min-height: 100vh;
+    min-height: 100dvh;
+    min-width: 0;
   }
 }
 
@@ -79,5 +90,9 @@ html.dark {
 
   .glow-primary {
     box-shadow: 0 0 40px -10px rgb(59 130 246 / 0.3);
+  }
+
+  .touch-manipulation {
+    touch-action: manipulation;
   }
 }

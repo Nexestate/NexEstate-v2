@@ -11,7 +11,9 @@ export {
   markNotificationRead,
   markAllNotificationsRead,
   getUnreadCount,
+  createNotification,
 } from './notificationsService';
+export type { CreateNotificationPayload } from './notificationsService';
 export { fetchAuctions, fetchPayments, createAuction } from './auctionsService';
 export type { AuctionInsert } from './auctionsService';
 export { fetchSharedWithUser } from './sharedPropertiesService';
