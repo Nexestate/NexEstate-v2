@@ -1,9 +1,10 @@
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthShell } from '../../components/auth/AuthShell';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAuthErrorDisplay } from '../../lib/authErrors';
+import { clearSavedLogin, loadSavedLogin, saveLogin } from '../../lib/rememberLogin';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 
@@ -21,6 +22,15 @@ export function LoginPage() {
   const [needsConfirm, setNeedsConfirm] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    const saved = loadSavedLogin();
+    if (saved) {
+      setEmail(saved.email);
+      setPassword(saved.password);
+      setRemember(true);
+    }
+  }, []);
 
   const handleGoogle = async () => {
     setError('');
@@ -46,6 +56,11 @@ export function LoginPage() {
     setLoading(true);
     try {
       await signIn(email, password);
+      if (remember) {
+        saveLogin(email, password);
+      } else {
+        clearSavedLogin();
+      }
       navigate(getRedirectPath());
     } catch (err) {
       const { message, detail } = getAuthErrorDisplay(err);
@@ -137,7 +152,11 @@ export function LoginPage() {
               <input
                 type="checkbox"
                 checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setRemember(checked);
+                  if (!checked) clearSavedLogin();
+                }}
                 className="rounded border-border"
               />
               זכור אותי

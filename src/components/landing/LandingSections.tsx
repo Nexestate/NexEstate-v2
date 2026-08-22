@@ -264,8 +264,8 @@ export function HeroSection() {
 
       <div className="relative mx-auto max-w-4xl text-center">
         <h1 className="animate-fade-up text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-[4.5rem]">
-          <span className="text-foreground">מצא. פרסם. סגור </span>
-          <span className="text-primary">עסקה.</span>
+          <span className="text-[#60a5fa]">מצא.</span>
+          <span className="text-white"> פרסם. סגור עסקה.</span>
         </h1>
 
         <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg animate-fade-up" style={{ animationDelay: '0.1s' }}>
