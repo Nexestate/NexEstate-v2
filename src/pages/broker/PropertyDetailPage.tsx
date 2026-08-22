@@ -93,7 +93,8 @@ export function PropertyDetailPage() {
   const handleEdit = async (values: PropertyFormValues) => {
     if (!user || !id) throw new Error('not auth');
     const payload = propertyFormToPayload(values, user.id);
-    const { broker_id: _broker, ...rest } = payload;
+    const rest = { ...payload };
+    delete rest.broker_id;
     await updateProperty(id, rest);
     load();
   };

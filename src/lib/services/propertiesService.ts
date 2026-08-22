@@ -71,23 +71,24 @@ async function fetchLeasesByUnitForProperties(
   return byProperty;
 }
 
-function mapProperty(row: Record<string, unknown>, units: PropertyWithUnits['units']): PropertyWithUnits {
+function mapProperty(row: unknown, units: PropertyWithUnits['units']): PropertyWithUnits {
+  const data = row as Record<string, unknown>;
   const occupied = units.filter((u) => u.unit_status === 'occupied').length;
   const income = units
     .filter((u) => u.unit_status === 'occupied')
     .reduce((sum, u) => sum + (u.monthly_rent ?? 0), 0);
 
   return {
-    id: row.id as string,
-    title: row.title as string,
-    address: row.address as string,
-    city: row.city as string,
-    kind: row.kind as string,
-    status: row.status as string,
-    price: row.price as number | undefined,
-    area_sqm: row.area_sqm as number | undefined,
-    broker_id: row.broker_id as string | undefined,
-    created_at: row.created_at as string | undefined,
+    id: data.id as string,
+    title: data.title as string,
+    address: data.address as string,
+    city: data.city as string,
+    kind: data.kind as string,
+    status: data.status as string,
+    price: data.price as number | undefined,
+    area_sqm: data.area_sqm as number | undefined,
+    broker_id: data.broker_id as string | undefined,
+    created_at: data.created_at as string | undefined,
     units,
     totalUnits: units.length,
     occupiedUnits: occupied,
