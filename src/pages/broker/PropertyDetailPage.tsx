@@ -1,57 +1,52 @@
 import { ArrowRight, Building2, MapPin, Pencil, Plus, Share2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useQuickAdd } from '../../contexts/QuickAddContext';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { ManagedUnitsTable } from '../../components/broker/ManagedUnitsTable';
 import {
   PropertyFormModal,
   propertyFormToPayload,
   type PropertyFormValues,
 } from '../../components/property/PropertyFormModal';
-import { PropertySharesPanel } from '../../components/property/PropertySharesPanel';
 import { SharePropertyModal } from '../../components/property/SharePropertyModal';
+import { UnitFormModal, type UnitFormValues } from '../../components/property/UnitFormModal';
 import { PageLoader } from '../../components/ui/PageLoader';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import { Card, CardContent } from '../../components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { notifyEntityCreated } from '../../contexts/QuickAddContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { fetchProperty, updateProperty } from '../../lib/services';
+import { useEntityCreated } from '../../hooks/useEntityCreated';
+import { createUnit, fetchProperty, updateProperty, updateUnit } from '../../lib/services';
 import { supabase } from '../../lib/supabase';
 import { formatCurrency, getOccupancyPercent } from '../../lib/utils';
 import type { PropertyKind, PropertyStatus, PropertyVisibility } from '../../types';
-import type { PropertyWithUnits } from '../../types/domain';
-import { UNIT_STATUS_LABELS } from '../../types/domain';
-
-const STATUS_VARIANT: Record<string, 'success' | 'primary' | 'warning' | 'outline'> = {
-  occupied: 'success',
-  available: 'primary',
-  maintenance: 'warning',
-  reserved: 'outline',
-};
+import type { PropertyUnit, PropertyWithUnits } from '../../types/domain';
 
 export function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const { openQuickAdd } = useQuickAdd();
-  const navigate = useNavigate();
   const [property, setProperty] = useState<PropertyWithUnits | null>(null);
   const [loading, setLoading] = useState(true);
   const [shareOpen, setShareOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editInitial, setEditInitial] = useState<Partial<PropertyFormValues> | undefined>();
+  const [unitModalOpen, setUnitModalOpen] = useState(false);
+  const [editingUnit, setEditingUnit] = useState<PropertyUnit | null>(null);
 
-  const load = () => {
+  const load = useCallback(() => {
     if (!id) return;
     setLoading(true);
     fetchProperty(id).then((p) => {
       setProperty(p ?? null);
       setLoading(false);
     });
-  };
+  }, [id]);
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [load]);
+
+  useEntityCreated(['unit', 'tenant', 'lease'], load);
 
   const openEdit = async () => {
     if (!id || !property) return;
@@ -103,6 +98,38 @@ export function PropertyDetailPage() {
     load();
   };
 
+  const openUnitCreate = () => {
+    setEditingUnit(null);
+    setUnitModalOpen(true);
+  };
+
+  const openUnitEdit = (unit: PropertyUnit) => {
+    setEditingUnit(unit);
+    setUnitModalOpen(true);
+  };
+
+  const handleUnitSubmit = async (values: UnitFormValues) => {
+    if (!id || !user) throw new Error('not auth');
+    const payload = {
+      unit_number: values.unit_number.trim(),
+      unit_name: values.unit_name.trim() || undefined,
+      area_sqm: values.area_sqm ? Number(values.area_sqm) : undefined,
+      monthly_rent: values.monthly_rent ? Number(values.monthly_rent) : undefined,
+      unit_status: values.unit_status,
+      floor: values.floor ? Number(values.floor) : undefined,
+    };
+
+    if (editingUnit) {
+      await updateUnit(editingUnit.id, payload);
+    } else {
+      await createUnit({ ...payload, property_id: id, broker_id: user.id });
+      notifyEntityCreated('unit');
+    }
+    setUnitModalOpen(false);
+    setEditingUnit(null);
+    load();
+  };
+
   if (loading) return <PageLoader />;
   if (!property) {
     return (
@@ -149,63 +176,65 @@ export function PropertyDetailPage() {
         </div>
       </div>
 
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-6">
+      <div className="grid gap-4 sm:grid-cols-4">
         {[
-          { label: 'הכנסה שנתית', value: formatCurrency(property.monthlyIncome * 12) },
-          { label: 'ממוצע ליחידה', value: formatCurrency(property.occupiedUnits ? property.monthlyIncome / property.occupiedUnits : 0) },
-          { label: 'הכנסה חודשית', value: formatCurrency(property.monthlyIncome) },
-          { label: 'תפוסה', value: `${occupancy}%` },
-          { label: 'שוכרים', value: String(property.occupiedUnits) },
-          { label: 'יחידות', value: String(property.totalUnits) },
-        ].map(({ label, value }) => (
+          { label: 'תפוסה', value: `${occupancy}%`, variant: 'success' as const },
+          { label: 'הכנסה חודשית', value: formatCurrency(property.monthlyIncome), variant: 'primary' as const },
+          { label: 'יחידות', value: `${property.occupiedUnits}/${property.totalUnits}`, variant: 'outline' as const },
+          { label: 'שטח', value: property.area_sqm ? `${property.area_sqm} מ"ר` : '—', variant: 'outline' as const },
+        ].map(({ label, value, variant }) => (
           <Card key={label}>
             <CardContent className="py-4 text-center">
-              <p className="text-lg font-bold">{value}</p>
-              <p className="text-xs text-muted-foreground">{label}</p>
+              <Badge variant={variant} className="mb-2">{label}</Badge>
+              <p className="text-xl font-bold">{value}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">יחידות בנכס</h3>
-        <Button size="sm" onClick={() => openQuickAdd('unit', { propertyId: property.id })}>
-          <Plus className="h-4 w-4" />
-          יחידה חדשה
-        </Button>
+      <div className="flex flex-wrap gap-2">
+        <Link
+          to={`/broker/units?property=${property.id}`}
+          className="inline-flex h-10 items-center justify-center rounded-xl border border-border px-4 text-sm font-medium hover:bg-muted"
+        >
+          כל היחידות
+        </Link>
+        <Link
+          to={`/broker/tenants?property=${property.id}`}
+          className="inline-flex h-10 items-center justify-center rounded-xl border border-border px-4 text-sm font-medium hover:bg-muted"
+        >
+          שוכרים
+        </Link>
+        <Link
+          to={`/broker/leases?property=${property.id}`}
+          className="inline-flex h-10 items-center justify-center rounded-xl border border-border px-4 text-sm font-medium hover:bg-muted"
+        >
+          חוזים
+        </Link>
+        <Link
+          to={`/broker/payments?property=${property.id}`}
+          className="inline-flex h-10 items-center justify-center rounded-xl border border-border px-4 text-sm font-medium hover:bg-muted"
+        >
+          תשלומים
+        </Link>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {property.units.map((unit) => (
-          <button
-            key={unit.id}
-            type="button"
-            onClick={() => navigate(`/broker/units/${unit.id}`)}
-            className="rounded-xl border border-border bg-card p-4 text-start transition-colors hover:border-primary/50 hover:bg-muted/30"
-          >
-            <div className="mb-2 flex items-start justify-between gap-2">
-              <div>
-                <p className="font-semibold">יחידה #{unit.unit_number}</p>
-                <p className="text-sm text-muted-foreground">{unit.unit_name || unit.tenant_name || '—'}</p>
-              </div>
-              <Badge variant={STATUS_VARIANT[unit.unit_status] ?? 'outline'}>
-                {unit.unit_status === 'occupied' ? 'מושכרת' : UNIT_STATUS_LABELS[unit.unit_status]}
-              </Badge>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              קומה {unit.floor ?? '—'} • {unit.area_sqm ? `${unit.area_sqm} מ"ר` : 'ללא שטח'}
-            </p>
-            <div className="mt-3 flex items-end justify-between">
-              <p className="text-lg font-bold text-primary">
-                {unit.monthly_rent ? formatCurrency(unit.monthly_rent) : '₪0'}
-              </p>
-              <p className="text-xs text-muted-foreground">שכירות חודשית</p>
-            </div>
-          </button>
-        ))}
-      </div>
-
-      <PropertySharesPanel propertyId={property.id} onInvite={() => setShareOpen(true)} />
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle className="text-base">יחידות ({property.units.length})</CardTitle>
+          <Button size="sm" onClick={openUnitCreate}>
+            <Plus className="h-4 w-4" />
+            יחידה חדשה
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <ManagedUnitsTable
+            propertyId={property.id}
+            units={property.units}
+            onEdit={openUnitEdit}
+          />
+        </CardContent>
+      </Card>
 
       <SharePropertyModal
         open={shareOpen}
@@ -220,6 +249,28 @@ export function PropertyDetailPage() {
         onSubmit={handleEdit}
         initial={editInitial}
         title="עריכת נכס"
+      />
+
+      <UnitFormModal
+        open={unitModalOpen}
+        onClose={() => {
+          setUnitModalOpen(false);
+          setEditingUnit(null);
+        }}
+        onSubmit={handleUnitSubmit}
+        title={editingUnit ? `עריכת יחידה ${editingUnit.unit_number}` : 'יחידה חדשה'}
+        initial={
+          editingUnit
+            ? {
+                unit_number: editingUnit.unit_number,
+                unit_name: editingUnit.unit_name ?? '',
+                area_sqm: editingUnit.area_sqm != null ? String(editingUnit.area_sqm) : '',
+                monthly_rent: editingUnit.monthly_rent != null ? String(editingUnit.monthly_rent) : '',
+                unit_status: editingUnit.unit_status,
+                floor: '',
+              }
+            : undefined
+        }
       />
     </div>
   );

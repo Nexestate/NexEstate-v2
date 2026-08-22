@@ -91,30 +91,22 @@ export async function fetchManagedPropertySidebar(
     fetchLeases(brokerId),
   ]);
 
-  const tenantByProperty = new Map<string, Set<string>>();
+  const tenantByProperty = new Map<string, number>();
   const leaseByProperty = new Map<string, number>();
 
-  for (const l of leases) {
-    if (!l.property_id) continue;
-    leaseByProperty.set(l.property_id, (leaseByProperty.get(l.property_id) ?? 0) + 1);
-    if (l.tenant_id) {
-      const set = tenantByProperty.get(l.property_id) ?? new Set<string>();
-      set.add(l.tenant_id);
-      tenantByProperty.set(l.property_id, set);
-    }
-  }
   for (const t of tenants) {
-    if (!t.property_id) continue;
-    const set = tenantByProperty.get(t.property_id) ?? new Set<string>();
-    set.add(t.id);
-    tenantByProperty.set(t.property_id, set);
+    const pid = (t as { property_id?: string }).property_id;
+    if (pid) tenantByProperty.set(pid, (tenantByProperty.get(pid) ?? 0) + 1);
+  }
+  for (const l of leases) {
+    if (l.property_id) leaseByProperty.set(l.property_id, (leaseByProperty.get(l.property_id) ?? 0) + 1);
   }
 
   const sidebar: ManagedPropertySidebarItem[] = properties.map((p) => ({
     id: p.id,
     title: p.title,
     totalUnits: p.totalUnits,
-    tenantCount: tenantByProperty.get(p.id)?.size ?? 0,
+    tenantCount: tenantByProperty.get(p.id) ?? 0,
     leaseCount: leaseByProperty.get(p.id) ?? 0,
     paymentCount: leaseByProperty.get(p.id) ?? 0,
   }));

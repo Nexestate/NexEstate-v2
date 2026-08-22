@@ -98,7 +98,7 @@ export function AuthCallbackPage() {
   }, [navigate]);
 
   return (
-    <AuthShell showGoogle={false} hideInstallBanner>
+    <AuthShell showGoogle={false}>
       <div className="rounded-2xl border border-border bg-card/80 p-8 text-center shadow-xl">
         {error ? (
           <p className="text-sm text-destructive">{error}</p>

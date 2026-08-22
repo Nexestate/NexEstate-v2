@@ -1,0 +1,1 @@
+﻿Reinitialized existing Git repository in C:/Users/office/Projects/NexEstate-v2/.git/

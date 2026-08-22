@@ -178,7 +178,7 @@ export function usePropertyShares(propertyId: string | undefined) {
           email: email.toLowerCase(),
           permission_level: permissionLevel,
           status: 'pending',
-          intended_role: intendedRole || 'partner',
+          intended_role: intendedRole || 'owner',
         });
 
         if (inviteError) {
@@ -191,19 +191,18 @@ export function usePropertyShares(propertyId: string | undefined) {
             recipientEmail: email.toLowerCase(),
             recipientName: recipientName || '',
             sharedByUserId: sharedBy,
-            entityType: 'נכס מנוהל',
+            entityType: 'נכס',
             entityId: propertyId,
             entityName: propertyData?.title || 'נכס',
             permissionLevel,
             isInvitation: true,
-            intendedRole: intendedRole || 'partner',
           });
         } catch {
           // Edge function may not be deployed yet — invite still created
         }
 
         await fetchShares();
-        return { success: true, isInvitation: true, message: 'הזמנה נשלחה למייל. כשיתיישם — הגישה תתווסף אוטומטית.' };
+        return { success: true, isInvitation: true, message: 'הזמנה נשלחה למייל' };
       }
 
       const { data: existing } = await supabase
@@ -229,30 +228,8 @@ export function usePropertyShares(propertyId: string | undefined) {
         return { success: false, error: 'שגיאה ביצירת שיתוף' };
       }
 
-      try {
-        const { data: propertyData } = await supabase
-          .from('properties')
-          .select('title')
-          .eq('id', propertyId)
-          .maybeSingle();
-        const { notifyShare } = await import('../lib/services/edgeFunctions');
-        await notifyShare({
-          recipientEmail: email.toLowerCase(),
-          recipientName: recipientName || userProfile.full_name || '',
-          sharedByUserId: sharedBy,
-          entityType: 'נכס מנוהל',
-          entityId: propertyId,
-          entityName: propertyData?.title || 'נכס',
-          permissionLevel,
-          isInvitation: false,
-          intendedRole: intendedRole || 'partner',
-        });
-      } catch {
-        // Share already created
-      }
-
       await fetchShares();
-      return { success: true, message: 'הנכס שותף והמייל נשלח' };
+      return { success: true, message: 'הנכס שותף בהצלחה' };
     } catch {
       return { success: false, error: 'שגיאה בלתי צפויה' };
     }
@@ -318,37 +295,6 @@ export function usePropertyShares(propertyId: string | undefined) {
     return { success: true };
   };
 
-  const resendInvite = async (inviteId: string, sharedBy: string) => {
-    if (isDemoMode() || !supabase || !propertyId) {
-      return { success: false, error: 'המערכת לא מחוברת' };
-    }
-    const invite = pendingInvites.find((i) => i.id === inviteId);
-    if (!invite) return { success: false, error: 'הזמנה לא נמצאה' };
-
-    const { data: propertyData } = await supabase
-      .from('properties')
-      .select('title')
-      .eq('id', propertyId)
-      .maybeSingle();
-
-    try {
-      const { notifyShare } = await import('../lib/services/edgeFunctions');
-      await notifyShare({
-        recipientEmail: invite.email,
-        sharedByUserId: sharedBy,
-        entityType: 'נכס מנוהל',
-        entityId: propertyId,
-        entityName: propertyData?.title || 'נכס',
-        permissionLevel: invite.permission_level,
-        isInvitation: true,
-        intendedRole: invite.intended_role,
-      });
-      return { success: true, message: 'המייל נשלח שוב' };
-    } catch {
-      return { success: false, error: 'שגיאה בשליחת המייל' };
-    }
-  };
-
   return {
     shares,
     pendingInvites,
@@ -361,7 +307,6 @@ export function usePropertyShares(propertyId: string | undefined) {
     cancelInvite,
     updateInvitePermission,
     updateInviteRole,
-    resendInvite,
     refresh: fetchShares,
   };
 }

@@ -21,19 +21,21 @@ function isIos(): boolean {
 }
 
 export function AppInstallBanner() {
+  const [visible, setVisible] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [iosHelp, setIosHelp] = useState(false);
+  const [showIosHelp, setShowIosHelp] = useState(false);
 
   useEffect(() => {
     if (isStandalone() || localStorage.getItem(DISMISS_KEY) === '1') return;
+    setVisible(true);
+    setShowIosHelp(isIos());
+  }, []);
 
-    if (isIos()) {
-      setIosHelp(true);
-    }
-
+  useEffect(() => {
     const onInstall = (event: Event) => {
       event.preventDefault();
       setDeferredPrompt(event as BeforeInstallPromptEvent);
+      setVisible(true);
     };
     window.addEventListener('beforeinstallprompt', onInstall);
     return () => window.removeEventListener('beforeinstallprompt', onInstall);
@@ -41,8 +43,7 @@ export function AppInstallBanner() {
 
   const dismiss = useCallback(() => {
     localStorage.setItem(DISMISS_KEY, '1');
-    setDeferredPrompt(null);
-    setIosHelp(false);
+    setVisible(false);
   }, []);
 
   const install = useCallback(async () => {
@@ -53,8 +54,7 @@ export function AppInstallBanner() {
     dismiss();
   }, [deferredPrompt, dismiss]);
 
-  if (isStandalone() || localStorage.getItem(DISMISS_KEY) === '1') return null;
-  if (!deferredPrompt && !iosHelp) return null;
+  if (!visible || isStandalone()) return null;
 
   return (
     <div className="mb-6 w-full max-w-lg rounded-2xl border border-primary/30 bg-primary/5 p-4 text-start shadow-sm">
@@ -67,7 +67,7 @@ export function AppInstallBanner() {
           <p className="mt-1 text-sm text-muted-foreground">
             גישה מהירה מהנייד, התראות על לידים חדשים, וחוויית שימוש מותאמת.
           </p>
-          {iosHelp && !deferredPrompt && (
+          {showIosHelp && !deferredPrompt && (
             <p className="mt-2 text-xs text-muted-foreground">
               ב-iPhone/iPad: לחץ על «שיתוף» בתחתית Safari ← «הוסף למסך הבית».
             </p>

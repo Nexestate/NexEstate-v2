@@ -1,4 +1,3 @@
-import { Link, useSearchParams } from 'react-router-dom';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { PageLoader } from '../../components/ui/PageLoader';
 import { Badge } from '../../components/ui/Badge';
@@ -6,9 +5,10 @@ import { FilterBar } from '../../components/ui/FilterBar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { useAsyncData } from '../../hooks/useAsyncData';
 import { fetchPayments } from '../../lib/services';
-import { formatCurrency, formatDate } from '../../lib/utils';
+import { formatCurrency } from '../../lib/utils';
 import { PAYMENT_STATUS_LABELS } from '../../types/domain';
 import { useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'destructive' | 'outline'> = {
   paid: 'success',
@@ -18,35 +18,54 @@ const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'destructive' | 'ou
 };
 
 export function PaymentsPage() {
-  const [search, setSearch] = useState('');
   const [searchParams] = useSearchParams();
   const propertyFilter = searchParams.get('property');
+  const [search, setSearch] = useState('');
   const { data: payments, loading } = useAsyncData(() => fetchPayments(), []);
+
+  const scoped = useMemo(
+    () =>
+      payments?.filter((p) => !propertyFilter || p.property_id === propertyFilter) ?? [],
+    [payments, propertyFilter],
+  );
 
   const filtered = useMemo(
     () =>
-      payments?.filter((p) => {
-        const matchesSearch = p.tenant_name.includes(search) || p.property_title.includes(search);
-        const matchesProperty = !propertyFilter || p.property_id === propertyFilter;
-        return matchesSearch && matchesProperty;
-      }) ?? [],
-    [payments, search, propertyFilter],
+      scoped.filter(
+        (p) =>
+          p.tenant_name.includes(search) ||
+          p.property_title.includes(search) ||
+          p.unit_number.includes(search),
+      ),
+    [scoped, search],
   );
 
   const totals = useMemo(() => {
-    if (!payments) return { pending: 0, overdue: 0, paid: 0 };
     return {
-      pending: payments.filter((p) => p.status === 'pending').reduce((s, p) => s + p.amount, 0),
-      overdue: payments.filter((p) => p.status === 'overdue').reduce((s, p) => s + p.amount, 0),
-      paid: payments.filter((p) => p.status === 'paid').reduce((s, p) => s + p.amount, 0),
+      pending: scoped.filter((p) => p.status === 'pending').reduce((s, p) => s + p.amount, 0),
+      overdue: scoped.filter((p) => p.status === 'overdue').reduce((s, p) => s + p.amount, 0),
+      paid: scoped.filter((p) => p.status === 'paid').reduce((s, p) => s + p.amount, 0),
     };
-  }, [payments]);
+  }, [scoped]);
 
   if (loading || !payments) return <PageLoader />;
 
   return (
     <div className="space-y-6">
-      <PageHeader title="תשלומים" description="מעקב תשלומי שכירות וצ'קים" />
+      <PageHeader
+        title="תשלומים"
+        description={
+          propertyFilter
+            ? 'תשלומים עבור הנכס שנבחר'
+            : "מעקב תשלומי שכירות וצ'קים"
+        }
+      />
+
+      {propertyFilter && (
+        <Link to="/broker/payments" className="text-sm text-primary hover:underline">
+          הצג את כל התשלומים
+        </Link>
+      )}
 
       <div className="grid grid-cols-3 gap-3">
         {[
@@ -62,7 +81,7 @@ export function PaymentsPage() {
         ))}
       </div>
 
-      <FilterBar search={search} onSearchChange={setSearch} placeholder="חיפוש שוכר..." />
+      <FilterBar search={search} onSearchChange={setSearch} placeholder="חיפוש שוכר, נכס או יחידה..." />
 
       <Table>
         <TableHeader>
@@ -73,23 +92,27 @@ export function PaymentsPage() {
             <TableHead>סכום</TableHead>
             <TableHead>תאריך יעד</TableHead>
             <TableHead>סטטוס</TableHead>
+            <TableHead>חוזה</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filtered.map((p) => (
             <TableRow key={p.id}>
               <TableCell className="font-medium">
-                {p.tenant_id ? (
-                  <Link to={`/broker/tenants/${p.tenant_id}`} className="text-primary hover:underline">
-                    {p.tenant_name || 'שוכר'}
+                {p.tenant_id && p.property_id ? (
+                  <Link
+                    to={`/broker/tenants?property=${p.property_id}&open=${p.tenant_id}`}
+                    className="text-primary hover:underline"
+                  >
+                    {p.tenant_name}
                   </Link>
                 ) : (
-                  p.tenant_name || '—'
+                  p.tenant_name
                 )}
               </TableCell>
               <TableCell>
                 {p.property_id ? (
-                  <Link to={`/broker/properties/${p.property_id}`} className="hover:text-primary hover:underline">
+                  <Link to={`/broker/properties/${p.property_id}`} className="text-primary hover:underline">
                     {p.property_title}
                   </Link>
                 ) : (
@@ -97,18 +120,33 @@ export function PaymentsPage() {
                 )}
               </TableCell>
               <TableCell>
-                {p.lease_id ? (
-                  <Link to={`/broker/leases/${p.lease_id}`} className="hover:text-primary hover:underline">
-                    {p.unit_number || 'חוזה'}
+                {p.unit_id && p.property_id ? (
+                  <Link
+                    to={`/broker/units?property=${p.property_id}&open=${p.unit_id}`}
+                    className="text-primary hover:underline"
+                  >
+                    {p.unit_number}
                   </Link>
                 ) : (
                   p.unit_number
                 )}
               </TableCell>
               <TableCell className="font-medium">{formatCurrency(p.amount)}</TableCell>
-              <TableCell>{formatDate(p.due_date)}</TableCell>
+              <TableCell>{new Date(p.due_date).toLocaleDateString('he-IL')}</TableCell>
               <TableCell>
                 <Badge variant={STATUS_VARIANT[p.status]}>{PAYMENT_STATUS_LABELS[p.status]}</Badge>
+              </TableCell>
+              <TableCell>
+                {p.lease_id && p.property_id ? (
+                  <Link
+                    to={`/broker/leases?property=${p.property_id}&open=${p.lease_id}`}
+                    className="text-primary hover:underline"
+                  >
+                    צפייה
+                  </Link>
+                ) : (
+                  '—'
+                )}
               </TableCell>
             </TableRow>
           ))}

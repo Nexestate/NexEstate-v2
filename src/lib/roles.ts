@@ -26,16 +26,6 @@ export const ROLE_DASHBOARD_PATH: Record<UserRole, string> = {
   partner: '/broker',
 };
 
-/** Roles a broker can assign when sharing a managed property with someone who may not be registered yet. */
-export const SHARE_INVITE_ROLES = ['partner', 'manager', 'owner'] as const;
-export type ShareInviteRole = (typeof SHARE_INVITE_ROLES)[number];
-
-export const SHARE_INVITE_ROLE_HINTS: Record<ShareInviteRole, string> = {
-  partner: 'גישה לנכס המנוהל כשותף — מתאים לצפייה ועבודה משותפת',
-  manager: 'מנהל נכס — שוכרים, חוזים ותשלומים של הנכס',
-  owner: 'בעל הנכס — שיוך מלא לנכס בדשבורד המתווך',
-};
-
 export function getDashboardPath(role: UserRole): string {
   return ROLE_DASHBOARD_PATH[role] ?? '/broker';
 }

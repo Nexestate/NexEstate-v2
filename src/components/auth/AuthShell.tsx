@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { AppInstallBanner } from '../pwa/AppInstallBanner';
+import { GoogleOAuthHint } from './GoogleOAuthHint';
 import { Logo } from '../layout/Logo';
+import { isSupabaseConfigured } from '../../lib/supabase';
 
 interface AuthShellProps {
   children: ReactNode;
@@ -8,7 +10,6 @@ interface AuthShellProps {
   googleLabel?: string;
   googleLoading?: boolean;
   demoHint?: string;
-  hideInstallBanner?: boolean;
   onGoogleClick?: () => void;
 }
 
@@ -18,7 +19,6 @@ export function AuthShell({
   googleLabel = 'הירשם עם גוגל',
   googleLoading = false,
   demoHint,
-  hideInstallBanner = false,
   onGoogleClick,
 }: AuthShellProps) {
   return (
@@ -38,7 +38,7 @@ export function AuthShell({
         )}
       </div>
 
-      {!hideInstallBanner && <AppInstallBanner />}
+      <AppInstallBanner />
 
       {showGoogle && (
         <>
@@ -69,6 +69,8 @@ export function AuthShell({
       )}
 
       <div className="w-full max-w-lg">{children}</div>
+
+      {showGoogle && isSupabaseConfigured && <GoogleOAuthHint />}
     </div>
   );
 }

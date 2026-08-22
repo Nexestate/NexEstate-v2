@@ -1,0 +1,11 @@
+﻿git : fatal: 'origin' does not appear to be a git repository
+At C:\Users\office\AppData\Local\Temp\ps-script-82e88256-5c6d-4b11-95ff-18b618a74645.ps1:7 char:55
++ ... sers\office\Projects\NexEstate-v2'; git push origin HEAD 2>&1 | Out-F ...
++                                         ~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: 'origin'... git repository:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.

@@ -5,7 +5,6 @@ import {
   ChevronDown,
   HardHat,
   Heart,
-  LayoutDashboard,
   LayoutGrid,
   LogIn,
   Map,
@@ -22,10 +21,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { getPublishAdPath } from '../../lib/publishAd';
-import { ROLE_LABELS } from '../../lib/roles';
 import { Logo } from '../layout/Logo';
 import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
@@ -78,9 +74,7 @@ export function LandingHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<DropdownId | null>(null);
   const { theme, toggleTheme } = useTheme();
-  const { user, loading, getRedirectPath } = useAuth();
   const { pathname } = useLocation();
-  const publishPath = getPublishAdPath(user);
 
   const isActive = (to: string) => {
     const base = to.split('?')[0];
@@ -92,9 +86,9 @@ export function LandingHeader() {
   };
 
   return (
-    <header className="landing-header sticky top-0 z-50 border-b border-white/5 bg-[#070b14]/90 backdrop-blur-xl" dir="rtl">
+    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-xl" dir="rtl">
       <div className="mx-auto grid h-14 max-w-[1400px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 lg:h-16 lg:gap-4 lg:px-6">
-        <Logo size="sm" variant="onDark" className="shrink-0" />
+        <Logo size="sm" className="shrink-0" />
 
         <nav className="hidden min-w-0 items-center justify-center lg:flex">
           <ul className="flex items-center gap-0.5 whitespace-nowrap xl:gap-1">
@@ -109,7 +103,7 @@ export function LandingHeader() {
                       onClick={() => toggleDropdown(item.dropdown!)}
                       className={cn(
                         'inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] font-semibold transition-colors xl:px-2.5 xl:text-sm',
-                        isOpen ? 'text-[#60a5fa]' : 'text-slate-300 hover:text-white',
+                        isOpen ? 'text-primary' : 'text-foreground/80 hover:text-foreground',
                       )}
                     >
                       <Icon className="h-4 w-4 shrink-0 opacity-80" />
@@ -151,7 +145,7 @@ export function LandingHeader() {
                     to={item.to!}
                     className={cn(
                       'inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] font-semibold transition-colors xl:px-2.5 xl:text-sm',
-                      isActive(item.to!) ? 'text-[#60a5fa]' : 'text-slate-300 hover:text-white',
+                      isActive(item.to!) ? 'text-primary' : 'text-foreground/80 hover:text-foreground',
                     )}
                   >
                     <Icon className="h-4 w-4 shrink-0 opacity-80" />
@@ -179,37 +173,15 @@ export function LandingHeader() {
           >
             <Heart className="h-3.5 w-3.5" />
           </Link>
-          {loading ? (
-            <div className="hidden h-8 w-28 animate-pulse rounded-lg bg-white/10 md:block lg:w-36" />
-          ) : user ? (
-            <div className="hidden items-center gap-2 md:flex">
-              <span className="hidden max-w-[120px] truncate text-xs text-slate-400 lg:inline xl:max-w-[160px]">
-                {user.full_name}
-                <span className="mx-1 text-slate-600">·</span>
-                <span className="text-slate-500">{ROLE_LABELS[user.role]}</span>
-              </span>
-              <Link to={getRedirectPath()}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 rounded-lg border-white/15 bg-white/5 px-3.5 text-xs text-white hover:bg-white/10 lg:h-9 lg:px-4 lg:text-sm"
-                >
-                  <LayoutDashboard className="h-3.5 w-3.5 shrink-0" />
-                  <span>לוח בקרה</span>
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <Link to="/login" className="hidden md:inline-flex">
-              <Button size="sm" className="h-8 rounded-lg px-3.5 text-xs shadow-lg shadow-primary/30 lg:h-9 lg:px-4 lg:text-sm">
-                <LogIn className="h-3.5 w-3.5 shrink-0" />
-                <span className="hidden xl:inline">התחברות/הרשמה</span>
-                <span className="xl:hidden">התחברות</span>
-              </Button>
-            </Link>
-          )}
-          <Link to={publishPath} className="hidden sm:block">
-            <Button variant="success" size="sm" className="h-8 rounded-lg px-3.5 text-xs shadow-lg shadow-success/30 lg:h-9 lg:px-4 lg:text-sm">
+          <Link to="/login" className="hidden md:block">
+            <Button size="sm" className="h-8 rounded-full px-3.5 text-xs shadow-lg shadow-primary/25 lg:h-9 lg:px-4 lg:text-sm">
+              <LogIn className="h-3.5 w-3.5 shrink-0" />
+              <span className="hidden xl:inline">התחברות/הרשמה</span>
+              <span className="xl:hidden">התחברות</span>
+            </Button>
+          </Link>
+          <Link to="/register" className="hidden sm:block">
+            <Button variant="success" size="sm" className="h-8 rounded-full px-3.5 text-xs shadow-lg shadow-success/25 lg:h-9 lg:px-4 lg:text-sm">
               <Plus className="h-3.5 w-3.5 shrink-0" />
               <span className="hidden xl:inline">פרסם מודעה</span>
               <span className="xl:hidden">פרסם</span>
@@ -269,26 +241,10 @@ export function LandingHeader() {
             })}
           </nav>
           <div className="mt-4 flex flex-col gap-2">
-            {loading ? (
-              <div className="h-10 w-full animate-pulse rounded-full bg-muted" />
-            ) : user ? (
-              <>
-                <p className="px-1 text-center text-sm text-muted-foreground">
-                  מחובר/ת כ־<span className="font-medium text-foreground">{user.full_name}</span>
-                </p>
-                <Link to={getRedirectPath()} onClick={() => setMobileOpen(false)}>
-                  <Button variant="outline" className="w-full rounded-full">
-                    <LayoutDashboard className="h-4 w-4" />
-                    לוח בקרה
-                  </Button>
-                </Link>
-              </>
-            ) : (
-              <Link to="/login" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full rounded-full">התחברות/הרשמה</Button>
-              </Link>
-            )}
-            <Link to={publishPath} onClick={() => setMobileOpen(false)}>
+            <Link to="/login" onClick={() => setMobileOpen(false)}>
+              <Button className="w-full rounded-full">התחברות/הרשמה</Button>
+            </Link>
+            <Link to="/register" onClick={() => setMobileOpen(false)}>
               <Button variant="success" className="w-full rounded-full">פרסם מודעה</Button>
             </Link>
           </div>

@@ -1,0 +1,15 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> nexestate@0.1.0 build
+> tsc -b && vite build
+
+src/contexts/AuthContext.tsx(308,22): error TS2345: Argument of type '{ full_name: string; phone?: string | null | undefined; company?: string | null | undefined; license_number?: string | null | undefined; id: string; email: string; role: UserRole; avatar_url?: string; created_at?: string; }' is not assignable to parameter of type 'Profile'.
+  Types of property 'phone' are incompatible.
+    Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+      Type 'null' is not assignable to type 'string | undefined'.
+src/contexts/AuthContext.tsx(309,17): error TS2345: Argument of type '{ full_name: string; phone?: string | null | undefined; company?: string | null | undefined; license_number?: string | null | undefined; id: string; email: string; role: UserRole; avatar_url?: string; created_at?: string; }' is not assignable to parameter of type 'SetStateAction<Profile | null>'.
+  Type '{ full_name: string; phone?: string | null | undefined; company?: string | null | undefined; license_number?: string | null | undefined; id: string; email: string; role: UserRole; avatar_url?: string; created_at?: string; }' is not assignable to type 'Profile'.
+    Types of property 'phone' are incompatible.
+      Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+        Type 'null' is not assignable to type 'string | undefined'.
+FAILED:0 

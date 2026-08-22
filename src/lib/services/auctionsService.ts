@@ -1,4 +1,4 @@
-import { DEMO_AUCTIONS, DEMO_PAYMENTS } from '../../data/demoData';
+import { DEMO_AUCTIONS, DEMO_LEASES, DEMO_PAYMENTS } from '../../data/demoData';
 import type { Auction, Payment } from '../../types/domain';
 import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
@@ -26,62 +26,51 @@ export async function fetchAuctions(): Promise<Auction[]> {
 }
 
 export async function fetchPayments(): Promise<Payment[]> {
-  if (isDemoMode()) return DEMO_PAYMENTS;
-
-  const client = requireSupabase();
-  const { data, error } = await client
-    .from('lease_payments')
-    .select('*, leases(id, property_id, tenant_id, monthly_rent, tenants(full_name, company_name), properties(title), property_units(unit_number))')
-    .order('due_date', { ascending: false });
-
-  if (!error && data?.length) {
-    return data.map((row) => {
-      const lease = row.leases as {
-        id?: string;
-        property_id?: string;
-        tenant_id?: string;
-        tenants?: { full_name?: string; company_name?: string } | null;
-        properties?: { title?: string } | null;
-        property_units?: { unit_number?: string } | null;
-      } | null;
-
+  if (isDemoMode()) {
+    return DEMO_PAYMENTS.map((payment) => {
+      const lease = DEMO_LEASES.find((l) => l.tenant_name === payment.tenant_name && l.is_active);
       return {
-        id: row.id,
-        tenant_name: lease?.tenants?.company_name || lease?.tenants?.full_name || '',
-        property_title: lease?.properties?.title ?? '',
-        unit_number: lease?.property_units?.unit_number ?? '',
-        amount: row.amount,
-        due_date: row.due_date ?? row.payment_date,
-        status: (row.payment_status as Payment['status']) ?? 'pending',
-        lease_id: lease?.id,
-        tenant_id: lease?.tenant_id,
+        ...payment,
         property_id: lease?.property_id,
+        unit_id: lease?.unit_id,
+        tenant_id: lease?.tenant_id,
+        lease_id: lease?.id,
       };
     });
   }
 
-  const { data: leases, error: leaseError } = await client
-    .from('leases')
-    .select('id, property_id, tenant_id, monthly_rent, payment_day, is_active, tenants(full_name, company_name), properties(title), property_units(unit_number)')
-    .eq('is_active', true);
-  throwIfError(leaseError);
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('lease_payments')
+    .select('*, leases(id, property_id, unit_id, tenant_id, tenants(full_name), properties(title), property_units(unit_number))')
+    .order('due_date', { ascending: false });
 
-  const today = new Date();
-  return (leases ?? []).map((row) => {
-    const tenant = row.tenants as { full_name?: string; company_name?: string } | null;
-    const due = new Date(today.getFullYear(), today.getMonth(), Number(row.payment_day ?? 1));
+  throwIfError(error);
+
+  return (data ?? []).map((row) => {
+    const lease = row.leases as {
+      id?: string;
+      property_id?: string;
+      unit_id?: string;
+      tenant_id?: string;
+      tenants?: { full_name?: string } | null;
+      properties?: { title?: string } | null;
+      property_units?: { unit_number?: string } | null;
+    } | null;
+
     return {
-      id: `lease-pay-${row.id}`,
-      tenant_name: tenant?.company_name || tenant?.full_name || '',
-      property_title: (row.properties as { title?: string } | null)?.title ?? '',
-      unit_number: (row.property_units as { unit_number?: string } | null)?.unit_number ?? '',
-      amount: Number(row.monthly_rent ?? 0),
-      due_date: due.toISOString(),
-      status: due < today ? 'overdue' : 'pending',
-      lease_id: row.id as string,
-      tenant_id: (row.tenant_id as string | undefined) ?? undefined,
-      property_id: (row.property_id as string | undefined) ?? undefined,
-    } satisfies Payment;
+      id: row.id,
+      tenant_name: lease?.tenants?.full_name ?? '',
+      property_title: lease?.properties?.title ?? '',
+      property_id: lease?.property_id,
+      unit_number: lease?.property_units?.unit_number ?? '',
+      unit_id: lease?.unit_id,
+      tenant_id: lease?.tenant_id,
+      lease_id: lease?.id,
+      amount: row.amount,
+      due_date: row.due_date ?? row.payment_date,
+      status: (row.payment_status as Payment['status']) ?? 'pending',
+    };
   });
 }
 

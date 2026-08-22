@@ -1,0 +1,1 @@
+﻿93337dc Improve managed properties UX - unit editing, cross-links, property cards, sidebar hierarchy

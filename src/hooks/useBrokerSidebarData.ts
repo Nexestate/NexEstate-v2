@@ -46,9 +46,7 @@ export function useBrokerSidebarData() {
     void refresh();
   }, [refresh]);
 
-  useEntityCreated(['property', 'unit', 'tenant', 'lease'], () => {
-    void refresh();
-  });
+  useEntityCreated(['property', 'unit', 'tenant', 'lease'], refresh);
 
   return { managedProperties, sharedProperties, loading, refresh };
 }

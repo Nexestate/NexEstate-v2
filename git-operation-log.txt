@@ -1,0 +1,370 @@
+--- status ---
+On branch master
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.cursorrules
+	.env.example
+	.git-init-log.txt
+	.git-report.txt
+	.git-status-log.txt
+	.git-status-tmp.txt
+	.gitignore
+	EXACT-TS-ERRORS.txt
+	README.md
+	build-capture.txt
+	build-err.txt
+	build-errors-stderr.txt
+	build-errors.txt
+	build-exit-code.txt
+	build-exit.txt
+	build-full.log
+	build-log.txt
+	build-out.log
+	build-out.txt
+	build-output.txt
+	build-result-for-agent.txt
+	build-status.txt
+	diff-files.txt
+	fix_enums.sql
+	fix_schema.sql
+	fix_signup_trigger.sql
+	git-operation-log.txt
+	git-out.txt
+	git-status-out.txt
+	git-untracked.txt
+	index.html
+	line0-exact.txt
+	line1-exact.txt
+	package-lock.json
+	package.json
+	public/
+	schema.migration.lead_notifications.sql
+	schema.migration.v2.sql
+	schema.sql
+	src/App.tsx
+	src/_build_diag.txt
+	src/_tsc.log
+	src/components/ProtectedRoute.tsx
+	src/components/admin/
+	src/components/auth/
+	src/components/dashboard/
+	src/components/landing/
+	src/components/layout/DashboardLayout.tsx
+	src/components/layout/Header.tsx
+	src/components/layout/Logo.tsx
+	src/components/layout/PublicLayout.tsx
+	src/components/market/
+	src/components/mobile/
+	src/components/property/CreateAuctionModal.tsx
+	src/components/property/CreateSigningLinkModal.tsx
+	src/components/property/PropertyFormModal.tsx
+	src/components/property/SharePropertyModal.tsx
+	src/components/pwa/
+	src/components/ui/
+	src/config/
+	src/contexts/AccessibilityContext.tsx
+	src/contexts/AuthContext.tsx
+	src/contexts/ThemeContext.tsx
+	src/data/
+	src/hooks/useAsyncData.ts
+	src/hooks/useBodyScrollLock.ts
+	src/hooks/useBuyerSharedProperties.ts
+	src/hooks/useEntityCreated.ts
+	src/hooks/useFavorites.ts
+	src/hooks/usePropertySearch.ts
+	src/hooks/usePropertyShares.ts
+	src/hooks/useRealtimeNotifications.ts
+	src/hooks/useSigningLinks.ts
+	src/index.css
+	src/lib/appUrl.ts
+	src/lib/authErrors.ts
+	src/lib/claimPendingInvites.ts
+	src/lib/constants.ts
+	src/lib/csvExport.ts
+	src/lib/notificationPrefs.ts
+	src/lib/permissions.ts
+	src/lib/pushNotifications.ts
+	src/lib/registerServiceWorker.ts
+	src/lib/roles.ts
+	src/lib/services/adminStatsService.ts
+	src/lib/services/brokerStatsService.ts
+	src/lib/services/buyerSearchService.ts
+	src/lib/services/edgeFunctions.ts
+	src/lib/services/favoritesService.ts
+	src/lib/services/leadsService.ts
+	src/lib/services/notificationsService.ts
+	src/lib/services/profilesService.ts
+	src/lib/services/serviceHelpers.ts
+	src/lib/services/signingService.ts
+	src/lib/services/storageService.ts
+	src/lib/services/tasksService.ts
+	src/lib/supabase.ts
+	src/lib/utils.ts
+	src/lib/validation.ts
+	src/main.tsx
+	src/pages/admin/ApprovedPage.tsx
+	src/pages/admin/Dashboard.tsx
+	src/pages/admin/Home.tsx
+	src/pages/admin/ImportPage.tsx
+	src/pages/admin/PendingPage.tsx
+	src/pages/admin/PlaceholderPage.tsx
+	src/pages/admin/RejectedPage.tsx
+	src/pages/admin/SharesPage.tsx
+	src/pages/admin/SupportPage.tsx
+	src/pages/admin/UsersPage.tsx
+	src/pages/auth/
+	src/pages/broker/AgreementsPage.tsx
+	src/pages/broker/AuctionsPage.tsx
+	src/pages/broker/Dashboard.tsx
+	src/pages/broker/Home.tsx
+	src/pages/broker/LeadsPage.tsx
+	src/pages/broker/NotificationsPage.tsx
+	src/pages/broker/PlaceholderPage.tsx
+	src/pages/broker/ProfilePage.tsx
+	src/pages/broker/ReportsPage.tsx
+	src/pages/broker/SettingsPage.tsx
+	src/pages/broker/TasksPage.tsx
+	src/pages/buyer/Dashboard.tsx
+	src/pages/buyer/FavoritesPage.tsx
+	src/pages/buyer/Home.tsx
+	src/pages/buyer/NotificationsPage.tsx
+	src/pages/buyer/SearchPage.tsx
+	src/pages/landing/
+	src/pages/market/
+	src/pages/shared/
+	src/pages/sign/
+	src/providers.tsx
+	src/theme.css
+	src/types/index.ts
+	src/vite-env.d.ts
+	supabase/
+	ts-error-lines.txt
+	ts-lines.json
+	tsc-capture.txt
+	tsc-err.txt
+	tsc-errors.txt
+	tsc-out.log
+	tsc-out.txt
+	tsc.log
+	tsconfig.app.json
+	tsconfig.json
+	tsconfig.node.json
+	vercel.json
+	vite-build-errors.txt
+	vite.config.ts
+
+nothing added to commit but untracked files present (use "git add" to track)
+--- diff stat ---
+--- log ---
+93337dc Improve managed properties UX - unit editing, cross-links, property cards, sidebar hierarchy
+added C:\Users\office\Projects\NexEstate-v2\src\lib\services\unitsService.ts
+added C:\Users\office\Projects\NexEstate-v2\src\components\property\UnitFormModal.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\components\broker\ManagedUnitsTable.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\pages\admin\PropertiesPage.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\pages\broker\MyPropertiesPage.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\pages\broker\PropertiesPage.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\pages\buyer\SharedPropertiesPage.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\pages\broker\PropertyDetailPage.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\pages\buyer\SharedPropertyDetailPage.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\components\layout\Sidebar.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\hooks\useBrokerSidebarData.ts
+added C:\Users\office\Projects\NexEstate-v2\src\pages\broker\UnitsPage.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\pages\broker\LeasesPage.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\pages\broker\PaymentsPage.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\components\broker\QuickAddModals.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\contexts\QuickAddContext.tsx
+added C:\Users\office\Projects\NexEstate-v2\src\lib\services\propertiesService.ts
+added C:\Users\office\Projects\NexEstate-v2\src\lib\services\sharedPropertiesService.ts
+added C:\Users\office\Projects\NexEstate-v2\src\lib\services\leasesService.ts
+added C:\Users\office\Projects\NexEstate-v2\src\lib\services\auctionsService.ts
+added C:\Users\office\Projects\NexEstate-v2\src\lib\services\index.ts
+added C:\Users\office\Projects\NexEstate-v2\src\types\domain.ts
+added schema.migration.favorites.sql
+--- staged ---
+On branch master
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.cursorrules
+	.env.example
+	.git-init-log.txt
+	.git-report.txt
+	.git-status-log.txt
+	.git-status-tmp.txt
+	.gitignore
+	EXACT-TS-ERRORS.txt
+	README.md
+	build-capture.txt
+	build-err.txt
+	build-errors-stderr.txt
+	build-errors.txt
+	build-exit-code.txt
+	build-exit.txt
+	build-full.log
+	build-log.txt
+	build-out.log
+	build-out.txt
+	build-output.txt
+	build-result-for-agent.txt
+	build-status.txt
+	diff-files.txt
+	fix_enums.sql
+	fix_schema.sql
+	fix_signup_trigger.sql
+	git-operation-log.txt
+	git-out.txt
+	git-status-out.txt
+	git-untracked.txt
+	index.html
+	line0-exact.txt
+	line1-exact.txt
+	package-lock.json
+	package.json
+	public/
+	schema.migration.lead_notifications.sql
+	schema.migration.v2.sql
+	schema.sql
+	src/App.tsx
+	src/_build_diag.txt
+	src/_tsc.log
+	src/components/ProtectedRoute.tsx
+	src/components/admin/
+	src/components/auth/
+	src/components/dashboard/
+	src/components/landing/
+	src/components/layout/DashboardLayout.tsx
+	src/components/layout/Header.tsx
+	src/components/layout/Logo.tsx
+	src/components/layout/PublicLayout.tsx
+	src/components/market/
+	src/components/mobile/
+	src/components/property/CreateAuctionModal.tsx
+	src/components/property/CreateSigningLinkModal.tsx
+	src/components/property/PropertyFormModal.tsx
+	src/components/property/SharePropertyModal.tsx
+	src/components/pwa/
+	src/components/ui/
+	src/config/
+	src/contexts/AccessibilityContext.tsx
+	src/contexts/AuthContext.tsx
+	src/contexts/ThemeContext.tsx
+	src/data/
+	src/hooks/useAsyncData.ts
+	src/hooks/useBodyScrollLock.ts
+	src/hooks/useBuyerSharedProperties.ts
+	src/hooks/useEntityCreated.ts
+	src/hooks/useFavorites.ts
+	src/hooks/usePropertySearch.ts
+	src/hooks/usePropertyShares.ts
+	src/hooks/useRealtimeNotifications.ts
+	src/hooks/useSigningLinks.ts
+	src/index.css
+	src/lib/appUrl.ts
+	src/lib/authErrors.ts
+	src/lib/claimPendingInvites.ts
+	src/lib/constants.ts
+	src/lib/csvExport.ts
+	src/lib/notificationPrefs.ts
+	src/lib/permissions.ts
+	src/lib/pushNotifications.ts
+	src/lib/registerServiceWorker.ts
+	src/lib/roles.ts
+	src/lib/services/adminStatsService.ts
+	src/lib/services/brokerStatsService.ts
+	src/lib/services/buyerSearchService.ts
+	src/lib/services/edgeFunctions.ts
+	src/lib/services/favoritesService.ts
+	src/lib/services/leadsService.ts
+	src/lib/services/notificationsService.ts
+	src/lib/services/profilesService.ts
+	src/lib/services/serviceHelpers.ts
+	src/lib/services/signingService.ts
+	src/lib/services/storageService.ts
+	src/lib/services/tasksService.ts
+	src/lib/supabase.ts
+	src/lib/utils.ts
+	src/lib/validation.ts
+	src/main.tsx
+	src/pages/admin/ApprovedPage.tsx
+	src/pages/admin/Dashboard.tsx
+	src/pages/admin/Home.tsx
+	src/pages/admin/ImportPage.tsx
+	src/pages/admin/PendingPage.tsx
+	src/pages/admin/PlaceholderPage.tsx
+	src/pages/admin/RejectedPage.tsx
+	src/pages/admin/SharesPage.tsx
+	src/pages/admin/SupportPage.tsx
+	src/pages/admin/UsersPage.tsx
+	src/pages/auth/
+	src/pages/broker/AgreementsPage.tsx
+	src/pages/broker/AuctionsPage.tsx
+	src/pages/broker/Dashboard.tsx
+	src/pages/broker/Home.tsx
+	src/pages/broker/LeadsPage.tsx
+	src/pages/broker/NotificationsPage.tsx
+	src/pages/broker/PlaceholderPage.tsx
+	src/pages/broker/ProfilePage.tsx
+	src/pages/broker/ReportsPage.tsx
+	src/pages/broker/SettingsPage.tsx
+	src/pages/broker/TasksPage.tsx
+	src/pages/buyer/Dashboard.tsx
+	src/pages/buyer/FavoritesPage.tsx
+	src/pages/buyer/Home.tsx
+	src/pages/buyer/NotificationsPage.tsx
+	src/pages/buyer/SearchPage.tsx
+	src/pages/landing/
+	src/pages/market/
+	src/pages/shared/
+	src/pages/sign/
+	src/providers.tsx
+	src/theme.css
+	src/types/index.ts
+	src/vite-env.d.ts
+	supabase/
+	ts-error-lines.txt
+	ts-lines.json
+	tsc-capture.txt
+	tsc-err.txt
+	tsc-errors.txt
+	tsc-out.log
+	tsc-out.txt
+	tsc.log
+	tsconfig.app.json
+	tsconfig.json
+	tsconfig.node.json
+	vercel.json
+	vite-build-errors.txt
+	vite.config.ts
+
+nothing added to commit but untracked files present (use "git add" to track)
+HASH=93337dc4991b0a976dc75482c9e3c0c878e5e306
+BRANCH=master
+--- push ---
+fatal: 'origin' does not appear to be a git repository
+fatal: Could not read from remote repository.
+System.Management.Automation.RemoteException
+Please make sure you have the correct access rights
+and the repository exists.
+--- files ---
+schema.migration.favorites.sql
+src/components/broker/ManagedUnitsTable.tsx
+src/components/broker/QuickAddModals.tsx
+src/components/layout/Sidebar.tsx
+src/components/property/UnitFormModal.tsx
+src/contexts/QuickAddContext.tsx
+src/hooks/useBrokerSidebarData.ts
+src/lib/services/auctionsService.ts
+src/lib/services/index.ts
+src/lib/services/leasesService.ts
+src/lib/services/propertiesService.ts
+src/lib/services/sharedPropertiesService.ts
+src/lib/services/unitsService.ts
+src/pages/admin/PropertiesPage.tsx
+src/pages/broker/LeasesPage.tsx
+src/pages/broker/MyPropertiesPage.tsx
+src/pages/broker/PaymentsPage.tsx
+src/pages/broker/PropertiesPage.tsx
+src/pages/broker/PropertyDetailPage.tsx
+src/pages/broker/UnitsPage.tsx
+src/pages/buyer/SharedPropertiesPage.tsx
+src/pages/buyer/SharedPropertyDetailPage.tsx
+src/types/domain.ts

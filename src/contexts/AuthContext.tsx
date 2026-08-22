@@ -1,4 +1,3 @@
-import type { Session, User } from '@supabase/supabase-js';
 import {
   createContext,
   useCallback,
@@ -81,41 +80,13 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
   return data as Profile;
 }
 
-function profileFromAuthUser(user: User): Profile {
-  const meta = user.user_metadata ?? {};
-  const role = (meta.intended_role ?? meta.role ?? 'broker') as UserRole;
-  return {
-    id: user.id,
-    email: user.email ?? '',
-    full_name:
-      (meta.full_name as string | undefined) ??
-      (meta.name as string | undefined) ??
-      user.email?.split('@')[0] ??
-      'משתמש',
-    role,
-    phone: (meta.phone as string | undefined) ?? undefined,
-    company: (meta.company as string | undefined) ?? undefined,
-    avatar_url: (meta.avatar_url as string | undefined) ?? undefined,
-  };
-}
-
-async function resolveUserFromAuth(user: User): Promise<Profile> {
-  const profile = await fetchProfile(user.id);
-  return profile ?? profileFromAuthUser(user);
-}
-
-async function resolveUser(session: Session): Promise<Profile> {
-  return resolveUserFromAuth(session.user);
-}
-
 async function applySessionUser(
-  session: Session,
+  userId: string,
+  email: string | undefined,
   setUser: (p: Profile | null) => void,
 ) {
-  if (session.user.email) {
-    await claimPendingInvites(session.user.id, session.user.email);
-  }
-  const profile = await resolveUser(session);
+  if (email) await claimPendingInvites(userId, email);
+  const profile = await fetchProfile(userId);
   setUser(profile);
 }
 
@@ -156,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
-        await applySessionUser(session, setUser);
+        await applySessionUser(session.user.id, session.user.email, setUser);
       }
       setLoading(false);
     });
@@ -170,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await claimPendingInvites(session.user.id, session.user.email);
           }
         }
-        const profile = await resolveUser(session);
+        const profile = await fetchProfile(session.user.id);
         setUser(profile);
       } else {
         setUser(null);
@@ -208,7 +179,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw error;
       }
       if (data.user) {
-        const profile = await resolveUserFromAuth(data.user);
+        await applySessionUser(data.user.id, data.user.email, setUser);
+        const profile = await fetchProfile(data.user.id);
+        if (!profile) throw new Error('PROFILE_MISSING');
         setUser(profile);
       }
     },
@@ -259,7 +232,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data.session && data.user) {
-        await applySessionUser(data.session, setUser);
+        await applySessionUser(data.user.id, data.user.email, setUser);
+        const profile = await fetchProfile(data.user.id);
+        if (profile) setUser(profile);
         return { needsEmailConfirmation: false };
       }
 
@@ -282,7 +257,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!supabase) throw new Error('Supabase not configured');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: appUrl('/auth/callback') },
+      options: {
+        redirectTo: appUrl('/auth/callback'),
+        queryParams: { prompt: 'select_account' },
+      },
     });
     if (error) throw error;
   }, [isDemoMode]);

@@ -34,17 +34,3 @@ export function getOccupancyPercent(occupied: number, total: number): number {
   if (total === 0) return 0;
   return Math.round((occupied / total) * 100);
 }
-
-export function formatDate(value?: string | null): string {
-  if (!value) return '—';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString('he-IL');
-}
-
-export function daysUntil(value?: string | null): number | null {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-}

@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronLeft, Eye, LogOut, Pencil, Plus, Shield } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useQuickAdd, type QuickAddType } from '../../contexts/QuickAddContext';
 import type { ManagedPropertySidebarItem } from '../../lib/services/brokerStatsService';
@@ -37,14 +37,17 @@ const PERMISSION_LABELS: Record<PermissionLevel, string> = {
 export function Sidebar({ sections, managedProperties = [], sharedProperties = [], onClose }: SidebarProps) {
   const { user, signOut } = useAuth();
   const { openQuickAdd } = useQuickAdd();
+  const location = useLocation();
   const [expandedProperty, setExpandedProperty] = useState<string | null>(null);
   const [sharedOpen, setSharedOpen] = useState(sharedProperties.length > 0);
 
+  const activePropertyId =
+    location.pathname.match(/^\/broker\/properties\/([^/]+)/)?.[1] ??
+    new URLSearchParams(location.search).get('property');
+
   useEffect(() => {
-    if (!expandedProperty && managedProperties[0]?.id) {
-      setExpandedProperty(managedProperties[0].id);
-    }
-  }, [managedProperties, expandedProperty]);
+    if (activePropertyId) setExpandedProperty(activePropertyId);
+  }, [activePropertyId]);
 
   const handleQuickAdd = (e: React.MouseEvent, type: QuickAddType, propertyId?: string) => {
     e.preventDefault();
@@ -108,14 +111,14 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                       <ul className="me-2 mt-1 space-y-0.5 border-s border-border ps-3">
                         {managedProperties.map((prop) => (
                           <li key={prop.id}>
-                            <div className="flex w-full items-center gap-1 rounded-lg px-1 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                            <div className="flex items-center gap-1">
                               <button
                                 type="button"
-                                aria-label={expandedProperty === prop.id ? 'כווץ נכס' : 'הרחב נכס'}
+                                aria-label={expandedProperty === prop.id ? 'סגור תפריט נכס' : 'פתח תפריט נכס'}
                                 onClick={() =>
                                   setExpandedProperty(expandedProperty === prop.id ? null : prop.id)
                                 }
-                                className="grid h-6 w-6 place-items-center rounded"
+                                className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
                               >
                                 <ChevronDown
                                   className={cn(
@@ -127,20 +130,27 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                               <NavLink
                                 to={`/broker/properties/${prop.id}`}
                                 onClick={onClose}
-                                className="min-w-0 flex-1 truncate text-start font-medium hover:text-primary"
+                                className={({ isActive }) =>
+                                  cn(
+                                    'flex min-w-0 flex-1 items-center gap-1 rounded-lg px-2 py-1.5 text-xs transition-colors',
+                                    isActive || activePropertyId === prop.id
+                                      ? 'bg-primary/10 font-medium text-primary'
+                                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                                  )
+                                }
                               >
-                                {prop.title}
+                                <span className="truncate">{prop.title}</span>
+                                <span className="shrink-0 text-muted-foreground">({prop.totalUnits})</span>
                               </NavLink>
-                              <span className="shrink-0 text-muted-foreground">({prop.totalUnits})</span>
                             </div>
                             {expandedProperty === prop.id && (
-                              <ul className="me-2 space-y-0.5 border-s border-border ps-3 pb-1">
+                              <ul className="me-2 space-y-0.5 border-s border-border ps-3 pb-1 pt-1">
                                 <li>
                                   <div className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground">
                                     <NavLink
                                       to={`/broker/units?property=${prop.id}`}
                                       onClick={onClose}
-                                      className="flex-1 hover:text-primary"
+                                      className="flex-1"
                                     >
                                       יחידות ({prop.totalUnits})
                                     </NavLink>
@@ -159,7 +169,7 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                                     <NavLink
                                       to={`/broker/tenants?property=${prop.id}`}
                                       onClick={onClose}
-                                      className="flex-1 hover:text-primary"
+                                      className="flex-1"
                                     >
                                       שוכרים ({prop.tenantCount})
                                     </NavLink>
@@ -178,7 +188,7 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                                     <NavLink
                                       to={`/broker/leases?property=${prop.id}`}
                                       onClick={onClose}
-                                      className="flex-1 hover:text-primary"
+                                      className="flex-1"
                                     >
                                       חוזים ({prop.leaseCount})
                                     </NavLink>
@@ -196,7 +206,7 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                                   <NavLink
                                     to={`/broker/payments?property=${prop.id}`}
                                     onClick={onClose}
-                                    className="flex items-center gap-2 rounded px-2 py-1 text-xs text-muted-foreground hover:text-primary"
+                                    className="flex items-center gap-2 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
                                   >
                                     תשלומים ({prop.paymentCount})
                                   </NavLink>

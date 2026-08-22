@@ -1,40 +1,28 @@
-import { Building2, ChevronDown, ChevronUp, Layers, MapPin, Plus } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Building2, ChevronLeft, Layers, MapPin, Plus } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Card, CardContent } from '../../components/ui/Card';
 import { FilterBar } from '../../components/ui/FilterBar';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { fetchProperties } from '../../lib/services';
 import { formatCurrency, getOccupancyPercent } from '../../lib/utils';
 import type { PropertyWithUnits } from '../../types/domain';
-import { UNIT_STATUS_LABELS } from '../../types/domain';
-
-const STATUS_VARIANT: Record<string, 'success' | 'primary' | 'warning' | 'outline'> = {
-  occupied: 'success',
-  available: 'primary',
-  maintenance: 'warning',
-  reserved: 'outline',
-};
 
 export function PropertiesPage() {
   const { user } = useAuth();
   const { openQuickAdd } = useQuickAdd();
-  const navigate = useNavigate();
   const [properties, setProperties] = useState<PropertyWithUnits[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [expanded, setExpanded] = useState<string | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
     fetchProperties(user?.id).then((data) => {
       setProperties(data);
-      if (data.length) setExpanded(data[0].id);
       setLoading(false);
     });
   }, [user?.id]);
@@ -43,14 +31,18 @@ export function PropertiesPage() {
     load();
   }, [load]);
 
-  useEntityCreated('property', load);
+  useEntityCreated(['property', 'unit'], load);
 
-  const filtered = properties.filter(
-    (p) =>
-      p.title.includes(search) ||
-      p.city.includes(search) ||
-      p.address.includes(search),
-  );
+  const filtered = useMemo(() => {
+    const q = search.trim();
+    if (!q) return properties;
+    return properties.filter(
+      (p) =>
+        p.title.includes(q) ||
+        p.city.includes(q) ||
+        p.address.includes(q),
+    );
+  }, [properties, search]);
 
   if (loading) {
     return (
@@ -65,7 +57,7 @@ export function PropertiesPage() {
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-bold">נכסים מנוהלים</h2>
-          <p className="text-sm text-muted-foreground">ניהול נכסים ויחידות</p>
+          <p className="text-sm text-muted-foreground">בחר נכס לצפייה ביחידות, שוכרים וחוזים</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="primary">{properties.length} נכסים</Badge>
@@ -76,130 +68,61 @@ export function PropertiesPage() {
         </div>
       </div>
 
-      <FilterBar search={search} onSearchChange={setSearch} placeholder="חיפוש נכס..." />
+      <FilterBar search={search} onSearchChange={setSearch} placeholder="חיפוש לפי שם נכס, עיר או כתובת..." />
 
-      <div className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {filtered.map((property) => {
-          const isOpen = expanded === property.id;
           const occupancy = getOccupancyPercent(property.occupiedUnits, property.totalUnits);
 
           return (
-            <Card key={property.id}>
-              <CardHeader
-                className="cursor-pointer"
-                onClick={() => setExpanded(isOpen ? null : property.id)}
-              >
-                <div className="flex items-center gap-4">
-                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                    <Building2 className="h-6 w-6" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <CardTitle className="text-base">
-                      <Link
-                        to={`/broker/properties/${property.id}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="hover:text-primary"
-                      >
-                        {property.title}
-                      </Link>
-                    </CardTitle>
-                    <p className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {property.address}, {property.city}
-                    </p>
+            <Link key={property.id} to={`/broker/properties/${property.id}`} className="group block">
+              <Card className="h-full transition-colors hover:border-primary/40 hover:bg-muted/30">
+                <CardContent className="p-5">
+                  <div className="mb-4 flex items-start gap-3">
+                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                      <Building2 className="h-6 w-6" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold group-hover:text-primary">{property.title}</h3>
+                      <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">
+                          {property.address}, {property.city}
+                        </span>
+                      </p>
+                    </div>
+                    <ChevronLeft className="h-5 w-5 shrink-0 text-muted-foreground group-hover:text-primary" />
                   </div>
-                  <div className="hidden items-center gap-4 sm:flex">
-                    <div className="text-end">
+
+                  <div className="grid grid-cols-3 gap-2 text-center text-sm">
+                    <div className="rounded-lg bg-muted/50 px-2 py-2">
                       <p className="text-xs text-muted-foreground">תפוסה</p>
                       <p className="font-bold text-success">{occupancy}%</p>
                     </div>
-                    <div className="text-end">
-                      <p className="text-xs text-muted-foreground">הכנסה חודשית</p>
+                    <div className="rounded-lg bg-muted/50 px-2 py-2">
+                      <p className="text-xs text-muted-foreground">הכנסה</p>
                       <p className="font-bold">{formatCurrency(property.monthlyIncome)}</p>
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Layers className="h-4 w-4" />
-                      {property.occupiedUnits}/{property.totalUnits}
+                    <div className="rounded-lg bg-muted/50 px-2 py-2">
+                      <p className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                        <Layers className="h-3 w-3" />
+                        יחידות
+                      </p>
+                      <p className="font-bold">
+                        {property.occupiedUnits}/{property.totalUnits}
+                      </p>
                     </div>
                   </div>
-                  {isOpen ? (
-                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                  )}
-                </div>
-              </CardHeader>
-
-              {isOpen && (
-                <CardContent className="border-t border-border pt-4">
-                  <div className="mb-4 flex flex-wrap gap-3 sm:hidden">
-                    <Badge variant="success">תפוסה {occupancy}%</Badge>
-                    <Badge variant="primary">{formatCurrency(property.monthlyIncome)}/חודש</Badge>
-                    <Badge variant="outline">{property.occupiedUnits}/{property.totalUnits} יחידות</Badge>
-                  </div>
-
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>יחידה</TableHead>
-                        <TableHead>שם</TableHead>
-                        <TableHead>שטח</TableHead>
-                        <TableHead>שכ&quot;ד</TableHead>
-                        <TableHead>סטטוס</TableHead>
-                        <TableHead>שוכר</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {property.units.map((unit) => (
-                        <TableRow
-                          key={unit.id}
-                          className="cursor-pointer"
-                          onClick={() => navigate(`/broker/units/${unit.id}`)}
-                        >
-                          <TableCell className="font-medium">
-                            <Link to={`/broker/units/${unit.id}`} className="text-primary hover:underline">
-                              {unit.unit_number}
-                            </Link>
-                          </TableCell>
-                          <TableCell>{unit.unit_name ?? '—'}</TableCell>
-                          <TableCell>{unit.area_sqm ? `${unit.area_sqm} מ"ר` : '—'}</TableCell>
-                          <TableCell>
-                            {unit.monthly_rent ? formatCurrency(unit.monthly_rent) : '—'}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={STATUS_VARIANT[unit.unit_status] ?? 'outline'}>
-                              {UNIT_STATUS_LABELS[unit.unit_status]}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {unit.tenant_id ? (
-                              <Link
-                                to={`/broker/tenants/${unit.tenant_id}`}
-                                className="text-primary hover:underline"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                {unit.tenant_name}
-                              </Link>
-                            ) : (
-                              <span className="text-muted-foreground">—</span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-
-                  <div className="mt-4 text-end">
-                    <Link to={`/broker/properties/${property.id}`} className="text-sm text-primary hover:underline">
-                      פרטי נכס מלאים ←
-                    </Link>
-                  </div>
                 </CardContent>
-              )}
-            </Card>
+              </Card>
+            </Link>
           );
         })}
       </div>
+
+      {filtered.length === 0 && (
+        <p className="py-12 text-center text-muted-foreground">לא נמצאו נכסים התואמים לחיפוש</p>
+      )}
     </div>
   );
 }

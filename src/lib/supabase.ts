@@ -21,5 +21,12 @@ if (import.meta.env.DEV && !isSupabaseConfigured) {
 }
 
 export const supabase: SupabaseClient | null = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey!)
+  ? createClient(supabaseUrl, supabaseAnonKey!, {
+      auth: {
+        flowType: 'pkce',
+        detectSessionInUrl: true,
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    })
   : null;

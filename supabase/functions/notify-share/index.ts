@@ -13,7 +13,6 @@ interface NotifyShareBody {
   permissionLevel: string;
   isInvitation?: boolean;
   expiresAt?: string;
-  intendedRole?: string;
 }
 
 const PERMISSION_LABELS: Record<string, string> = {
@@ -39,15 +38,9 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     const sharedByName = sharer?.full_name || sharer?.email || 'משתמש NexEstate';
-    const accessLink = body.isInvitation ? `${appBaseUrl()}/register` : `${appBaseUrl()}/login`;
+    const accessLink = `${appBaseUrl()}/login`;
     const permissionLabel =
       PERMISSION_LABELS[body.permissionLevel] || body.permissionLevel;
-    const roleLabels: Record<string, string> = {
-      partner: 'שותף',
-      manager: 'מנהל נכס',
-      owner: 'בעל נכס',
-      buyer: 'קונה / שוכר',
-    };
 
     const html = getShareAccessEmail({
       recipientName: body.recipientName || '',
@@ -58,8 +51,6 @@ Deno.serve(async (req: Request) => {
       permissionLevel: permissionLabel,
       accessLink,
       expiresAt: body.expiresAt,
-      intendedRole: body.intendedRole ? roleLabels[body.intendedRole] || body.intendedRole : undefined,
-      isInvitation: body.isInvitation,
     });
 
     const subject = body.isInvitation
