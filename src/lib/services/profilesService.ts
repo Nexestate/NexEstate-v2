@@ -1,6 +1,10 @@
 import type { Profile } from '../../types';
 import { isDemoMode, requireSupabase, throwIfError } from './serviceHelpers';
 
+function textOrUndefined(value: string | null | undefined): string | undefined {
+  return value == null || value === '' ? undefined : value;
+}
+
 export type ProfileUpdatePayload = {
   full_name?: string;
   phone?: string | null;
@@ -13,15 +17,16 @@ export async function updateProfile(
   payload: ProfileUpdatePayload,
 ): Promise<Profile> {
   if (isDemoMode()) {
-    return {
+    const updated: Profile = {
       id: userId,
       email: 'demo@nexestate.co',
       full_name: payload.full_name ?? 'Demo User',
-      phone: payload.phone ?? undefined,
-      company: payload.company ?? undefined,
-      license_number: payload.license_number ?? undefined,
       role: 'buyer',
+      phone: textOrUndefined(payload.phone),
+      company: textOrUndefined(payload.company),
+      license_number: textOrUndefined(payload.license_number),
     };
+    return updated;
   }
 
   const client = requireSupabase();
