@@ -240,7 +240,10 @@ export function Sidebar({
                                       <div className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-muted/50">
                                         <NavLink
                                           to={sub.to}
-                                          onClick={onClose}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            onClose?.();
+                                          }}
                                           className={({ isActive }) =>
                                             cn(
                                               'flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors',

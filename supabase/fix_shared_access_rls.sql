@@ -30,7 +30,17 @@ CREATE POLICY "Share participants can view related profiles" ON public.profiles
     )
   );
 
--- Optional repair (run fix_property_shares_columns.sql first if columns were legacy names)
+-- Lease payments: shared users can read via property share
+DROP POLICY IF EXISTS "Shared users can read lease payments" ON public.lease_payments;
+CREATE POLICY "Shared users can read lease payments" ON public.lease_payments
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.leases l
+      WHERE l.id = lease_payments.lease_id
+        AND public.can_read_property(l.property_id)
+    )
+  );
+
 -- INSERT INTO property_shares (property_id, shared_with, shared_by, permission_level)
 -- SELECT 'a0000001-0000-0000-0000-000000000001', p.id, pr.broker_id, 'view'
 -- FROM profiles p

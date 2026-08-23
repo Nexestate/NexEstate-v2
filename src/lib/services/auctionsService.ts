@@ -25,7 +25,7 @@ export async function fetchAuctions(): Promise<Auction[]> {
   }));
 }
 
-export async function fetchPayments(): Promise<Payment[]> {
+export async function fetchPayments(propertyIds?: string[]): Promise<Payment[]> {
   if (isDemoMode()) {
     return DEMO_PAYMENTS.map((payment) => {
       const lease = DEMO_LEASES.find((l) => l.tenant_name === payment.tenant_name && l.is_active);
@@ -40,12 +40,35 @@ export async function fetchPayments(): Promise<Payment[]> {
   }
 
   const client = requireSupabase();
-  const { data, error } = await client
+
+  let leaseIds: string[] | undefined;
+  if (propertyIds?.length) {
+    const { data: leases, error: leasesError } = await client
+      .from('leases')
+      .select('id')
+      .in('property_id', propertyIds);
+    if (leasesError) {
+      console.warn('[fetchPayments] leases lookup failed', leasesError.message);
+      return [];
+    }
+    leaseIds = (leases ?? []).map((l) => l.id as string);
+    if (!leaseIds.length) return [];
+  }
+
+  let query = client
     .from('lease_payments')
-    .select('*, leases(id, property_id, unit_id, tenant_id, tenants(full_name), properties(title), property_units(unit_number))')
+    .select(
+      '*, leases(id, property_id, unit_id, tenant_id, tenants(full_name), properties(title), property_units(unit_number))',
+    )
     .order('due_date', { ascending: false });
 
-  throwIfError(error);
+  if (leaseIds) query = query.in('lease_id', leaseIds);
+
+  const { data, error } = await query;
+  if (error) {
+    console.warn('[fetchPayments]', error.message);
+    return [];
+  }
 
   return (data ?? []).map((row) => {
     const lease = row.leases as {

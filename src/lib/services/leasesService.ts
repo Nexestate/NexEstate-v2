@@ -2,6 +2,101 @@ import { DEMO_LEASES, DEMO_MANAGED_PROPERTIES, DEMO_TENANTS } from '../../data/d
 import type { Lease, Tenant } from '../../types/domain';
 import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
+function mapLeaseRow(row: Record<string, unknown>): Lease {
+  return {
+    id: row.id as string,
+    property_id: row.property_id as string,
+    property_title: (row.properties as { title?: string } | null)?.title,
+    unit_id: (row.unit_id as string | null) ?? undefined,
+    unit_number: (row.property_units as { unit_number?: string } | null)?.unit_number,
+    tenant_id: row.tenant_id as string,
+    tenant_name: (row.tenants as { full_name?: string } | null)?.full_name ?? '',
+    start_date: row.start_date as string,
+    end_date: row.end_date as string,
+    monthly_rent: row.monthly_rent as number,
+    deposit: (row.deposit as number | null) ?? undefined,
+    is_active: row.is_active as boolean,
+  };
+}
+
+export async function fetchLeasesForProperties(propertyIds: string[]): Promise<Lease[]> {
+  if (!propertyIds.length) return [];
+  if (isDemoMode()) {
+    return DEMO_LEASES.filter((l) => propertyIds.includes(l.property_id));
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('leases')
+    .select('*, properties(title), property_units(unit_number), tenants(full_name)')
+    .in('property_id', propertyIds)
+    .neq('is_active', false)
+    .order('start_date', { ascending: false });
+
+  if (error) {
+    console.warn('[fetchLeasesForProperties]', error.message);
+    return [];
+  }
+
+  return (data ?? []).map((row) => mapLeaseRow(row as Record<string, unknown>));
+}
+
+export async function fetchTenantsForProperties(propertyIds: string[]): Promise<Tenant[]> {
+  if (!propertyIds.length) return [];
+  if (isDemoMode()) {
+    return DEMO_TENANTS.map((tenant) => {
+      const lease = DEMO_LEASES.find((l) => l.tenant_id === tenant.id && l.is_active);
+      return {
+        ...tenant,
+        property_id: lease?.property_id,
+        unit_id: lease?.unit_id,
+        lease_id: lease?.id,
+      };
+    }).filter((t) => t.property_id && propertyIds.includes(t.property_id));
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('leases')
+    .select('id, property_id, unit_id, tenant_id, tenants(*), properties(title), property_units(unit_number)')
+    .in('property_id', propertyIds)
+    .neq('is_active', false);
+
+  if (error) {
+    console.warn('[fetchTenantsForProperties]', error.message);
+    return [];
+  }
+
+  const seen = new Set<string>();
+  const tenants: Tenant[] = [];
+
+  for (const row of data ?? []) {
+    const tenantId = row.tenant_id as string | null;
+    if (!tenantId || seen.has(tenantId)) continue;
+    seen.add(tenantId);
+
+    const rawTenant = row.tenants as Record<string, unknown> | Record<string, unknown>[] | null;
+    const tenantRow = Array.isArray(rawTenant) ? rawTenant[0] : rawTenant;
+    if (!tenantRow) continue;
+
+    tenants.push({
+      id: tenantId,
+      full_name: tenantRow.full_name as string,
+      company_name: (tenantRow.company_name as string | null) ?? undefined,
+      email: (tenantRow.email as string | null) ?? undefined,
+      phone: (tenantRow.phone as string | null) ?? undefined,
+      status: tenantRow.status as Tenant['status'],
+      property_id: row.property_id as string,
+      property_title: (row.properties as { title?: string } | null)?.title,
+      unit_number: (row.property_units as { unit_number?: string } | null)?.unit_number,
+      unit_id: (row.unit_id as string | null) ?? undefined,
+      lease_id: row.id as string,
+    });
+  }
+
+  return tenants.sort((a, b) => a.full_name.localeCompare(b.full_name, 'he'));
+}
+
 export async function fetchLeases(managerId?: string): Promise<Lease[]> {
   if (isDemoMode()) return DEMO_LEASES;
 
@@ -16,20 +111,7 @@ export async function fetchLeases(managerId?: string): Promise<Lease[]> {
   const { data, error } = await query;
   throwIfError(error);
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    property_id: row.property_id,
-    property_title: (row.properties as { title?: string } | null)?.title,
-    unit_id: row.unit_id ?? undefined,
-    unit_number: (row.property_units as { unit_number?: string } | null)?.unit_number,
-    tenant_id: row.tenant_id,
-    tenant_name: (row.tenants as { full_name?: string } | null)?.full_name ?? '',
-    start_date: row.start_date,
-    end_date: row.end_date,
-    monthly_rent: row.monthly_rent,
-    deposit: row.deposit ?? undefined,
-    is_active: row.is_active,
-  }));
+  return (data ?? []).map((row) => mapLeaseRow(row as Record<string, unknown>));
 }
 
 export async function createTenant(

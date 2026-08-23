@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
-import { fetchProperties, updateUnit } from '../../lib/services';
+import { fetchAccessibleProperties, updateUnit } from '../../lib/services';
 import { formatCurrency } from '../../lib/utils';
 import type { PropertyUnit, PropertyWithUnits } from '../../types/domain';
 import { UNIT_STATUS_LABELS } from '../../types/domain';
@@ -36,11 +36,11 @@ export function UnitsPage() {
   const load = useCallback(() => {
     if (!user?.id) return;
     setLoading(true);
-    fetchProperties(user.id).then((data) => {
+    fetchAccessibleProperties(user.id, user.role).then((data) => {
       setProperties(data);
       setLoading(false);
     });
-  }, [user?.id]);
+  }, [user?.id, user?.role]);
 
   useEffect(() => {
     load();

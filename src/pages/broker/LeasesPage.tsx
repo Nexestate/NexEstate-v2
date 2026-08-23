@@ -7,7 +7,7 @@ import { Tabs } from '../../components/ui/Tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
-import { fetchLeases, fetchTenants } from '../../lib/services';
+import { fetchAccessiblePropertyIds, fetchLeasesForProperties, fetchTenantsForProperties } from '../../lib/services';
 import { formatCurrency } from '../../lib/utils';
 import type { Lease, Tenant } from '../../types/domain';
 import { TENANT_STATUS_LABELS } from '../../types/domain';
@@ -37,13 +37,28 @@ export function LeasesPage() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(() => {
+    if (!user?.id) return;
     setLoading(true);
-    Promise.all([fetchLeases(user?.id), fetchTenants(user?.id)]).then(([l, t]) => {
-      setLeases(l);
-      setTenants(t);
-      setLoading(false);
-    });
-  }, [user?.id]);
+    fetchAccessiblePropertyIds(user.id, user.role)
+      .then((propertyIds) =>
+        Promise.all([
+          fetchLeasesForProperties(propertyIds),
+          fetchTenantsForProperties(propertyIds),
+        ]),
+      )
+      .then(([l, t]) => {
+        setLeases(l);
+        setTenants(t);
+      })
+      .catch((err) => {
+        console.error('[LeasesPage] load failed', err);
+      })
+      .finally(() => setLoading(false));
+  }, [user?.id, user?.role]);
+
+  useEffect(() => {
+    setSection(pathname.includes('/tenants') ? 'tenants' : 'leases');
+  }, [pathname]);
 
   useEffect(() => {
     load();

@@ -30,7 +30,8 @@ export function useBrokerSidebarData() {
       return;
     }
 
-    setLoading(true);
+    const isInitialLoad = managedProperties.length === 0;
+    if (isInitialLoad) setLoading(true);
     try {
       if (isSharedOnlyRole) {
         const shared = await fetchSharedWithUser(user.id);
@@ -87,7 +88,7 @@ export function useBrokerSidebarData() {
     } finally {
       setLoading(false);
     }
-  }, [authLoading, isSharedOnlyRole, user?.id]);
+  }, [authLoading, isSharedOnlyRole, managedProperties.length, user?.id]);
 
   useEffect(() => {
     void refresh();
