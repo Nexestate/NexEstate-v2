@@ -24,30 +24,48 @@ export async function fetchSharedWithUser(userId: string): Promise<SharedPropert
   }
 
   const client = requireSupabase();
-  const { data, error } = await client
+
+  const { data: shares, error: sharesError } = await client
     .from('property_shares')
-    .select(`
-      permission_level,
-      property:properties(id, title, city, address),
-      shared_by_profile:profiles!property_shares_shared_by_fkey(full_name)
-    `)
+    .select('property_id, permission_level, shared_by')
     .eq('shared_with', userId)
     .order('created_at', { ascending: false });
 
-  throwIfError(error);
+  throwIfError(sharesError);
+  if (!shares?.length) return [];
 
-  return (data ?? [])
+  const propertyIds = [...new Set(shares.map((s) => s.property_id as string).filter(Boolean))];
+  const sharerIds = [...new Set(shares.map((s) => s.shared_by as string).filter(Boolean))];
+
+  const [{ data: properties, error: propsError }, { data: profiles, error: profilesError }] =
+    await Promise.all([
+      client.from('properties').select('id, title, city, address').in('id', propertyIds),
+      sharerIds.length
+        ? client.from('profiles').select('id, full_name').in('id', sharerIds)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
+  throwIfError(propsError);
+  if (profilesError) {
+    console.warn('[fetchSharedWithUser] sharer profiles unavailable', profilesError.message);
+  }
+
+  const propsById = new Map((properties ?? []).map((p) => [p.id as string, p]));
+  const namesById = new Map(
+    (profiles ?? []).map((p) => [p.id as string, (p.full_name as string) ?? null]),
+  );
+
+  return shares
     .map((row) => {
-      const prop = row.property as unknown as { id: string; title: string; city?: string; address?: string } | null;
+      const prop = propsById.get(row.property_id as string);
       if (!prop) return null;
-      const profile = row.shared_by_profile as { full_name?: string } | null;
       return {
-        id: prop.id,
-        title: prop.title,
-        city: prop.city,
-        address: prop.address,
+        id: prop.id as string,
+        title: prop.title as string,
+        city: (prop.city as string | null) ?? undefined,
+        address: (prop.address as string | null) ?? undefined,
         permissionLevel: row.permission_level as PermissionLevel,
-        sharedByName: profile?.full_name ?? null,
+        sharedByName: namesById.get(row.shared_by as string) ?? null,
       };
     })
     .filter(Boolean) as SharedPropertySummary[];

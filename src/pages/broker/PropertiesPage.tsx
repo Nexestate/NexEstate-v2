@@ -27,7 +27,16 @@ export function PropertiesPage() {
     try {
       if (isSharedOnlyRole) {
         const shared = await fetchSharedWithUser(user.id);
-        const details = await Promise.all(shared.map((s) => fetchProperty(s.id)));
+        const details = await Promise.all(
+          shared.map(async (s) => {
+            try {
+              return await fetchProperty(s.id);
+            } catch (err) {
+              console.warn('[PropertiesPage] property load failed', s.id, err);
+              return undefined;
+            }
+          }),
+        );
         setProperties(details.filter((p): p is PropertyWithUnits => Boolean(p)));
       } else {
         const owned = await fetchProperties(user.id);
@@ -143,7 +152,11 @@ export function PropertiesPage() {
       </div>
 
       {filtered.length === 0 && (
-        <p className="py-12 text-center text-muted-foreground">לא נמצאו נכסים התואמים לחיפוש</p>
+        <p className="py-12 text-center text-muted-foreground">
+          {isSharedOnlyRole
+            ? 'אין נכסים משותפים עדיין. בקש מהמזמין לשלוח הזמנה מחדש, או התנתק והתחבר שוב לאחר אישור ההזמנה.'
+            : 'לא נמצאו נכסים התואמים לחיפוש'}
+        </p>
       )}
     </div>
   );

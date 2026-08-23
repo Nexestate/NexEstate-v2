@@ -85,7 +85,12 @@ async function applySessionUser(
   email: string | undefined,
   setUser: (p: Profile | null) => void,
 ) {
-  if (email) await claimPendingInvites(userId, email);
+  if (email) {
+    const claimed = await claimPendingInvites(userId, email);
+    if (claimed > 0) {
+      window.dispatchEvent(new CustomEvent('nexestate:invites-claimed'));
+    }
+  }
   const profile = await fetchProfile(userId);
   setUser(profile);
 }
@@ -138,7 +143,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (session?.user) {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
           if (session.user.email) {
-            await claimPendingInvites(session.user.id, session.user.email);
+            const claimed = await claimPendingInvites(session.user.id, session.user.email);
+            if (claimed > 0) {
+              window.dispatchEvent(new CustomEvent('nexestate:invites-claimed'));
+            }
           }
         }
         const profile = await fetchProfile(session.user.id);

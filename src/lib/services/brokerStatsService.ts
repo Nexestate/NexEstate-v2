@@ -1,6 +1,6 @@
 import { calculateDemoStats, DEMO_MANAGED_PROPERTIES, DEMO_PROPERTIES } from '../../data/demoData';
 import type { PropertyWithUnits } from '../../types/domain';
-import { fetchClients, fetchLeads, fetchLeases, fetchProperties, fetchTasks, fetchTenants } from './index';
+import { fetchClients, fetchLeads, fetchProperties, fetchTasks } from './index';
 import { isDemoMode, requireSupabase } from './serviceHelpers';
 
 export interface BrokerDashboardStats {
@@ -42,13 +42,30 @@ export async function fetchBrokerDashboardStats(brokerId?: string): Promise<Brok
     };
   }
 
-  const [properties, leads, clients, tasks, tenants] = await Promise.all([
+  const [properties, leads, clients, tasks] = await Promise.all([
     fetchProperties(brokerId),
     fetchLeads(brokerId),
     fetchClients(brokerId),
     fetchTasks(brokerId),
-    fetchTenants(brokerId),
   ]);
+
+  const propertyIds = properties.map((p) => p.id);
+  let tenantTotal = 0;
+  if (propertyIds.length > 0) {
+    try {
+      const client = requireSupabase();
+      const { data: leaseRows, error } = await client
+        .from('leases')
+        .select('tenant_id')
+        .in('property_id', propertyIds)
+        .neq('is_active', false);
+      if (!error && leaseRows) {
+        tenantTotal = new Set(leaseRows.map((r) => r.tenant_id).filter(Boolean)).size;
+      }
+    } catch {
+      // keep 0
+    }
+  }
 
   const units = properties.reduce((sum, p) => sum + p.totalUnits, 0);
   const occupiedUnits = properties.reduce((sum, p) => sum + p.occupiedUnits, 0);
@@ -59,7 +76,7 @@ export async function fetchBrokerDashboardStats(brokerId?: string): Promise<Brok
     properties: properties.length,
     units,
     occupiedUnits,
-    tenants: tenants.length,
+    tenants: tenantTotal,
     clients: clients.length,
     leads: leads.length,
     tasks: tasks.length,
@@ -86,37 +103,37 @@ export async function fetchManagedPropertySidebar(
     return { properties: DEMO_PROPERTIES, sidebar };
   }
 
+  const propertyIds = properties.map((p) => p.id);
   const tenantByProperty = new Map<string, number>();
   const leaseByProperty = new Map<string, number>();
 
-  try {
-    const [tenants, leases] = await Promise.all([
-      fetchTenants(brokerId),
-      fetchLeases(brokerId),
-    ]);
+  if (propertyIds.length > 0) {
+    try {
+      const client = requireSupabase();
+      const { data: leases, error } = await client
+        .from('leases')
+        .select('property_id, tenant_id, is_active')
+        .in('property_id', propertyIds);
 
-    const tenantIdsByProperty = new Map<string, Set<string>>();
-    for (const l of leases) {
-      if (!l.property_id || !l.is_active) continue;
-      leaseByProperty.set(l.property_id, (leaseByProperty.get(l.property_id) ?? 0) + 1);
-      if (l.tenant_id) {
-        if (!tenantIdsByProperty.has(l.property_id)) {
-          tenantIdsByProperty.set(l.property_id, new Set());
+      if (error) throw error;
+
+      const tenantIdsByProperty = new Map<string, Set<string>>();
+      for (const row of leases ?? []) {
+        if (row.is_active === false) continue;
+        const pid = row.property_id as string;
+        if (!pid) continue;
+        leaseByProperty.set(pid, (leaseByProperty.get(pid) ?? 0) + 1);
+        if (row.tenant_id) {
+          if (!tenantIdsByProperty.has(pid)) tenantIdsByProperty.set(pid, new Set());
+          tenantIdsByProperty.get(pid)!.add(row.tenant_id as string);
         }
-        tenantIdsByProperty.get(l.property_id)!.add(l.tenant_id);
       }
-    }
-    for (const [pid, ids] of tenantIdsByProperty) {
-      tenantByProperty.set(pid, ids.size);
-    }
-    for (const t of tenants) {
-      const pid = (t as { property_id?: string }).property_id;
-      if (pid && !tenantByProperty.has(pid)) {
-        tenantByProperty.set(pid, (tenantByProperty.get(pid) ?? 0) + 1);
+      for (const [pid, ids] of tenantIdsByProperty) {
+        tenantByProperty.set(pid, ids.size);
       }
+    } catch (err) {
+      console.error('[fetchManagedPropertySidebar] lease counts failed', err);
     }
-  } catch (err) {
-    console.error('[fetchManagedPropertySidebar] tenant/lease counts failed', err);
   }
 
   const sidebar: ManagedPropertySidebarItem[] = properties.map((p) => ({
@@ -156,7 +173,7 @@ export async function fetchPropertySidebarItem(
       .from('leases')
       .select('id, tenant_id')
       .eq('property_id', propertyId)
-      .eq('is_active', true),
+      .neq('is_active', false),
   ]);
 
   const tenantIds = new Set(

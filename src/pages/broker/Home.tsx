@@ -42,8 +42,11 @@ export function BrokerHome() {
         .then((shared) => Promise.all(shared.map((s) => fetchProperty(s.id))))
         .then((props) => {
           setProperties(props.filter((p): p is PropertyWithUnits => Boolean(p)));
-          setLoading(false);
-        });
+        })
+        .catch((err) => {
+          console.error('[BrokerHome] shared properties load failed', err);
+        })
+        .finally(() => setLoading(false));
       return;
     }
 

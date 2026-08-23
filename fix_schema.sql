@@ -85,9 +85,9 @@ DROP FUNCTION IF EXISTS public.set_updated_at() CASCADE;
 -- ─── 4. Legacy renames (only if target missing) ──────────────────────────────
 
 SELECT public._nex_ensure_rename('property_shares', 'shared_with',
-  ARRAY['user_id', 'recipient_id', 'shared_to', 'buyer_id']);
+  ARRAY['shared_with_user_id', 'user_id', 'recipient_id', 'shared_to', 'buyer_id']);
 SELECT public._nex_ensure_rename('property_shares', 'shared_by',
-  ARRAY['sharer_id', 'created_by', 'owner_id', 'inviter_id']);
+  ARRAY['shared_by_user_id', 'sharer_id', 'created_by', 'owner_id', 'inviter_id']);
 SELECT public._nex_ensure_rename('property_shares', 'permission_level',
   ARRAY['permission', 'access_level']);
 

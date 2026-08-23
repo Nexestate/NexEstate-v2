@@ -1,4 +1,4 @@
-import { ChevronLeft, CreditCard, Eye, FileText, Layers, LayoutDashboard, LogOut, Pencil, Plus, Shield, Users } from 'lucide-react';
+import { ChevronLeft, CreditCard, Eye, FileText, Layers, LogOut, Pencil, Plus, Shield, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -45,6 +45,7 @@ export function Sidebar({
   const { user, signOut } = useAuth();
   const { openQuickAdd } = useQuickAdd();
   const location = useLocation();
+  const isSharedOnlyRole = user?.role === 'partner' || user?.role === 'manager';
   const [managedOpen, setManagedOpen] = useState(false);
   const [expandedProperties, setExpandedProperties] = useState<Set<string>>(() => new Set());
   const [sharedOpen, setSharedOpen] = useState(false);
@@ -165,7 +166,9 @@ export function Sidebar({
                         {managedPropertiesLoading ? (
                           <li className="px-2 py-2 text-xs text-muted-foreground">טוען נכסים...</li>
                         ) : managedProperties.length === 0 ? (
-                          <li className="px-2 py-2 text-xs text-muted-foreground">אין נכסים מנוהלים</li>
+                          <li className="px-2 py-2 text-xs text-muted-foreground">
+                            {isSharedOnlyRole ? 'אין נכסים משותפים' : 'אין נכסים מנוהלים'}
+                          </li>
                         ) : (
                           managedProperties.map((prop) => (
                           <li key={prop.id}>
@@ -204,13 +207,6 @@ export function Sidebar({
                               <ul className="me-2 space-y-0.5 border-s border-border ps-3 pb-1 pt-1">
                                 {[
                                   {
-                                    label: 'סקירה',
-                                    to: `/broker/properties/${prop.id}`,
-                                    count: null as number | null,
-                                    icon: LayoutDashboard,
-                                    end: true,
-                                  },
-                                  {
                                     label: 'יחידות',
                                     to: `/broker/units?property=${prop.id}`,
                                     count: prop.totalUnits,
@@ -244,7 +240,6 @@ export function Sidebar({
                                       <div className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-muted/50">
                                         <NavLink
                                           to={sub.to}
-                                          end={sub.end}
                                           onClick={onClose}
                                           className={({ isActive }) =>
                                             cn(

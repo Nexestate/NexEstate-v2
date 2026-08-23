@@ -18,6 +18,8 @@ export function useBrokerSidebarData() {
   >([]);
   const [loading, setLoading] = useState(true);
 
+  const isSharedOnlyRole = user?.role === 'partner' || user?.role === 'manager';
+
   const refresh = useCallback(async () => {
     if (authLoading) return;
 
@@ -30,16 +32,36 @@ export function useBrokerSidebarData() {
 
     setLoading(true);
     try {
-      const [{ sidebar }, shared] = await Promise.all([
-        fetchManagedPropertySidebar(user.id),
-        fetchSharedWithUser(user.id),
-      ]);
+      if (isSharedOnlyRole) {
+        const shared = await fetchSharedWithUser(user.id);
+        const sharedSidebar = await Promise.all(
+          shared.map((s) => fetchPropertySidebarItem(s.id, s.title)),
+        );
+        setManagedProperties(sharedSidebar);
+        setSharedProperties(
+          shared.map((s) => ({
+            id: s.id,
+            title: s.title,
+            permissionLevel: s.permissionLevel,
+          })),
+        );
+        return;
+      }
 
-      const ownedIds = new Set(sidebar.map((p) => p.id));
-      const sharedOnly = shared.filter((s) => !ownedIds.has(s.id));
-      const sharedSidebar = await Promise.all(
-        sharedOnly.map((s) => fetchPropertySidebarItem(s.id, s.title)),
-      );
+      const { sidebar } = await fetchManagedPropertySidebar(user.id);
+
+      let sharedSidebar: ManagedPropertySidebarItem[] = [];
+      let shared: Awaited<ReturnType<typeof fetchSharedWithUser>> = [];
+      try {
+        shared = await fetchSharedWithUser(user.id);
+        const ownedIds = new Set(sidebar.map((p) => p.id));
+        const sharedOnly = shared.filter((s) => !ownedIds.has(s.id));
+        sharedSidebar = await Promise.all(
+          sharedOnly.map((s) => fetchPropertySidebarItem(s.id, s.title)),
+        );
+      } catch (sharedErr) {
+        console.error('[useBrokerSidebarData] shared properties failed', sharedErr);
+      }
 
       setManagedProperties([...sidebar, ...sharedSidebar]);
       setSharedProperties(
@@ -53,16 +75,10 @@ export function useBrokerSidebarData() {
       console.error('[useBrokerSidebarData] refresh failed', err);
       try {
         const properties = await fetchProperties(user.id);
-        setManagedProperties(
-          properties.map((p) => ({
-            id: p.id,
-            title: p.title,
-            totalUnits: p.totalUnits,
-            tenantCount: 0,
-            leaseCount: 0,
-            paymentCount: 0,
-          })),
+        const fallbackSidebar = await Promise.all(
+          properties.map((p) => fetchPropertySidebarItem(p.id, p.title)),
         );
+        setManagedProperties(fallbackSidebar);
       } catch (fallbackErr) {
         console.error('[useBrokerSidebarData] properties fallback failed', fallbackErr);
         setManagedProperties([]);
@@ -71,7 +87,7 @@ export function useBrokerSidebarData() {
     } finally {
       setLoading(false);
     }
-  }, [authLoading, user?.id]);
+  }, [authLoading, isSharedOnlyRole, user?.id]);
 
   useEffect(() => {
     void refresh();
@@ -79,8 +95,13 @@ export function useBrokerSidebarData() {
 
   useEffect(() => {
     const onFocus = () => void refresh();
+    const onClaimed = () => void refresh();
     window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
+    window.addEventListener('nexestate:invites-claimed', onClaimed);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      window.removeEventListener('nexestate:invites-claimed', onClaimed);
+    };
   }, [refresh]);
 
   useEntityCreated(['property', 'unit', 'tenant', 'lease'], refresh);

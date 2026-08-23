@@ -50,26 +50,37 @@ function enrichUnitsWithLeases(
 async function fetchLeasesByUnitForProperties(
   propertyIds: string[],
 ): Promise<Map<string, Map<string, LeaseLink>>> {
-  const client = requireSupabase();
-  const { data, error } = await client
-    .from('leases')
-    .select('id, property_id, unit_id, tenant_id, tenants(full_name)')
-    .in('property_id', propertyIds)
-    .eq('is_active', true);
-  throwIfError(error);
+  if (!propertyIds.length) return new Map();
 
-  const byProperty = new Map<string, Map<string, LeaseLink>>();
-  for (const row of data ?? []) {
-    if (!row.unit_id) continue;
-    const propertyId = row.property_id as string;
-    if (!byProperty.has(propertyId)) byProperty.set(propertyId, new Map());
-    byProperty.get(propertyId)!.set(row.unit_id as string, {
-      id: row.id as string,
-      tenant_id: row.tenant_id as string,
-      tenant_name: (row.tenants as { full_name?: string } | null)?.full_name ?? '',
-    });
+  try {
+    const client = requireSupabase();
+    const { data, error } = await client
+      .from('leases')
+      .select('id, property_id, unit_id, tenant_id, tenants(full_name)')
+      .in('property_id', propertyIds)
+      .neq('is_active', false);
+
+    if (error) {
+      console.warn('[fetchLeasesByUnitForProperties]', error.message);
+      return new Map();
+    }
+
+    const byProperty = new Map<string, Map<string, LeaseLink>>();
+    for (const row of data ?? []) {
+      if (!row.unit_id) continue;
+      const propertyId = row.property_id as string;
+      if (!byProperty.has(propertyId)) byProperty.set(propertyId, new Map());
+      byProperty.get(propertyId)!.set(row.unit_id as string, {
+        id: row.id as string,
+        tenant_id: row.tenant_id as string,
+        tenant_name: (row.tenants as { full_name?: string } | null)?.full_name ?? '',
+      });
+    }
+    return byProperty;
+  } catch (err) {
+    console.warn('[fetchLeasesByUnitForProperties] failed', err);
+    return new Map();
   }
-  return byProperty;
 }
 
 function mapProperty(row: unknown, units: PropertyWithUnits['units']): PropertyWithUnits {
