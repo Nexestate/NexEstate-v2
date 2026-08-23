@@ -41,8 +41,8 @@ export function DashboardLayout({
 
   return (
     <QuickAddProvider>
-      <div className="flex min-h-[100dvh] min-w-0 bg-background">
-        <div className="hidden lg:block">
+      <div className="flex h-[100dvh] min-w-0 overflow-hidden bg-background">
+        <div className="hidden h-full shrink-0 lg:block">
           <Sidebar
             sections={sections}
             managedProperties={managedProperties}
@@ -62,9 +62,11 @@ export function DashboardLayout({
           />
         </MobileSidebarDrawer>
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <main
-            className={cn('flex min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto p-4 pb-24 lg:p-8 lg:pb-8')}
+            className={cn(
+              'flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto p-4 pb-24 lg:p-8 lg:pb-8',
+            )}
           >
             <Header
               subtitle={headerSubtitle}

@@ -90,7 +90,7 @@ export function Sidebar({
   };
 
   return (
-    <aside className="flex h-full w-64 flex-col border-s border-sidebar-border bg-sidebar">
+    <aside className="flex h-[100dvh] w-64 flex-col border-s border-sidebar-border bg-sidebar">
       <div className="border-b border-sidebar-border p-4">
         <Logo size="sm" />
       </div>
