@@ -86,20 +86,24 @@ export async function fetchManagedPropertySidebar(
     return { properties: DEMO_PROPERTIES, sidebar };
   }
 
-  const [tenants, leases] = await Promise.all([
-    fetchTenants(brokerId),
-    fetchLeases(brokerId),
-  ]);
-
   const tenantByProperty = new Map<string, number>();
   const leaseByProperty = new Map<string, number>();
 
-  for (const t of tenants) {
-    const pid = (t as { property_id?: string }).property_id;
-    if (pid) tenantByProperty.set(pid, (tenantByProperty.get(pid) ?? 0) + 1);
-  }
-  for (const l of leases) {
-    if (l.property_id) leaseByProperty.set(l.property_id, (leaseByProperty.get(l.property_id) ?? 0) + 1);
+  try {
+    const [tenants, leases] = await Promise.all([
+      fetchTenants(brokerId),
+      fetchLeases(brokerId),
+    ]);
+
+    for (const t of tenants) {
+      const pid = (t as { property_id?: string }).property_id;
+      if (pid) tenantByProperty.set(pid, (tenantByProperty.get(pid) ?? 0) + 1);
+    }
+    for (const l of leases) {
+      if (l.property_id) leaseByProperty.set(l.property_id, (leaseByProperty.get(l.property_id) ?? 0) + 1);
+    }
+  } catch (err) {
+    console.error('[fetchManagedPropertySidebar] tenant/lease counts failed', err);
   }
 
   const sidebar: ManagedPropertySidebarItem[] = properties.map((p) => ({

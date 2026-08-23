@@ -14,6 +14,7 @@ import { Logo } from './Logo';
 interface SidebarProps {
   sections: NavSection[];
   managedProperties?: ManagedPropertySidebarItem[];
+  managedPropertiesLoading?: boolean;
   sharedProperties?: Array<{
     id: string;
     title: string;
@@ -34,7 +35,13 @@ const PERMISSION_LABELS: Record<PermissionLevel, string> = {
   admin: 'מנהל',
 };
 
-export function Sidebar({ sections, managedProperties = [], sharedProperties = [], onClose }: SidebarProps) {
+export function Sidebar({
+  sections,
+  managedProperties = [],
+  managedPropertiesLoading = false,
+  sharedProperties = [],
+  onClose,
+}: SidebarProps) {
   const { user, signOut } = useAuth();
   const { openQuickAdd } = useQuickAdd();
   const location = useLocation();
@@ -102,10 +109,11 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                   return null;
                 }
                 const Icon = item.icon;
+                const isManagedPropertiesItem = item.to === '/broker/properties';
                 return (
                   <li key={item.to}>
                     <div className="flex items-center gap-1">
-                      {item.to === '/broker/properties' && managedProperties.length > 0 && (
+                      {isManagedPropertiesItem && (
                         <button
                           type="button"
                           aria-label={managedOpen ? 'סגור רשימת נכסים' : 'פתח רשימת נכסים'}
@@ -136,7 +144,7 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                       >
                         <Icon className="h-5 w-5 shrink-0" />
                         <span className="flex-1">{item.label}</span>
-                        {item.to === '/broker/properties' && managedProperties.length > 0 && !managedOpen && (
+                        {isManagedPropertiesItem && !managedOpen && managedProperties.length > 0 && (
                           <span className="text-[10px] text-muted-foreground">({managedProperties.length})</span>
                         )}
                       </NavLink>
@@ -152,9 +160,14 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                       )}
                     </div>
 
-                    {item.to === '/broker/properties' && managedOpen && managedProperties.length > 0 && (
+                    {isManagedPropertiesItem && managedOpen && (
                       <ul className="me-2 mt-1 space-y-0.5 border-s border-border ps-3">
-                        {managedProperties.map((prop) => (
+                        {managedPropertiesLoading ? (
+                          <li className="px-2 py-2 text-xs text-muted-foreground">טוען נכסים...</li>
+                        ) : managedProperties.length === 0 ? (
+                          <li className="px-2 py-2 text-xs text-muted-foreground">אין נכסים מנוהלים</li>
+                        ) : (
+                          managedProperties.map((prop) => (
                           <li key={prop.id}>
                             <div className="flex items-center gap-1">
                               <button
@@ -258,7 +271,8 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                               </ul>
                             )}
                           </li>
-                        ))}
+                        ))
+                        )}
                       </ul>
                     )}
                   </li>

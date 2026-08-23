@@ -5,11 +5,12 @@ import {
   fetchManagedPropertySidebar,
   type ManagedPropertySidebarItem,
 } from '../lib/services/brokerStatsService';
+import { fetchProperties } from '../lib/services';
 import { fetchSharedWithUser } from '../lib/services/sharedPropertiesService';
 import type { PermissionLevel } from '../types';
 
 export function useBrokerSidebarData() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [managedProperties, setManagedProperties] = useState<ManagedPropertySidebarItem[]>([]);
   const [sharedProperties, setSharedProperties] = useState<
     Array<{ id: string; title: string; permissionLevel: PermissionLevel }>
@@ -17,12 +18,15 @@ export function useBrokerSidebarData() {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
+    if (authLoading) return;
+
     if (!user?.id) {
       setManagedProperties([]);
       setSharedProperties([]);
       setLoading(false);
       return;
     }
+
     setLoading(true);
     try {
       const [{ sidebar }, shared] = await Promise.all([
@@ -37,13 +41,38 @@ export function useBrokerSidebarData() {
           permissionLevel: s.permissionLevel,
         })),
       );
+    } catch (err) {
+      console.error('[useBrokerSidebarData] refresh failed', err);
+      try {
+        const properties = await fetchProperties(user.id);
+        setManagedProperties(
+          properties.map((p) => ({
+            id: p.id,
+            title: p.title,
+            totalUnits: p.totalUnits,
+            tenantCount: 0,
+            leaseCount: 0,
+            paymentCount: 0,
+          })),
+        );
+      } catch (fallbackErr) {
+        console.error('[useBrokerSidebarData] properties fallback failed', fallbackErr);
+        setManagedProperties([]);
+      }
+      setSharedProperties([]);
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [authLoading, user?.id]);
 
   useEffect(() => {
     void refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    const onFocus = () => void refresh();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
   }, [refresh]);
 
   useEntityCreated(['property', 'unit', 'tenant', 'lease'], refresh);
