@@ -295,6 +295,46 @@ export function usePropertyShares(propertyId: string | undefined) {
     return { success: true };
   };
 
+  const resendInvite = async (inviteId: string) => {
+    if (isDemoMode() || !supabase || !propertyId) {
+      return { success: false, error: 'המערכת לא מחוברת' };
+    }
+
+    const { data: invite, error: inviteError } = await supabase
+      .from('pending_invites')
+      .select('*')
+      .eq('id', inviteId)
+      .eq('property_id', propertyId)
+      .maybeSingle();
+
+    if (inviteError || !invite) {
+      return { success: false, error: 'הזמנה לא נמצאה' };
+    }
+
+    const { data: propertyData } = await supabase
+      .from('properties')
+      .select('title')
+      .eq('id', propertyId)
+      .single();
+
+    try {
+      const { notifyShare } = await import('../lib/services/edgeFunctions');
+      await notifyShare({
+        recipientEmail: invite.email,
+        recipientName: '',
+        sharedByUserId: invite.invited_by,
+        entityType: 'נכס',
+        entityId: propertyId,
+        entityName: propertyData?.title || 'נכס',
+        permissionLevel: invite.permission_level,
+        isInvitation: true,
+      });
+      return { success: true, message: 'הזמנה נשלחה שוב' };
+    } catch {
+      return { success: false, error: 'שגיאה בשליחה חוזרת' };
+    }
+  };
+
   return {
     shares,
     pendingInvites,
@@ -307,6 +347,7 @@ export function usePropertyShares(propertyId: string | undefined) {
     cancelInvite,
     updateInvitePermission,
     updateInviteRole,
+    resendInvite,
     refresh: fetchShares,
   };
 }

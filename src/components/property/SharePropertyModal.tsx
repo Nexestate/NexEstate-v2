@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { usePropertyShares } from '../../hooks/usePropertyShares';
 import { PERMISSION_LABELS, type PermissionLevel } from '../../lib/permissions';
 import { validateEmail } from '../../lib/validation';
+import { PropertyShareAccessList } from './PropertyShareAccessList';
 
 interface SharePropertyModalProps {
   open: boolean;
@@ -22,26 +23,37 @@ export function SharePropertyModal({
   propertyTitle,
 }: SharePropertyModalProps) {
   const { user } = useAuth();
-  const { shareProperty } = usePropertyShares(propertyId);
+  const {
+    shares,
+    pendingInvites,
+    loading,
+    shareProperty,
+    updatePermission,
+    removeShare,
+    updateInvitePermission,
+    deleteInvite,
+    resendInvite,
+    refresh,
+  } = usePropertyShares(propertyId);
   const [email, setEmail] = useState('');
   const [recipientName, setRecipientName] = useState('');
   const [permission, setPermission] = useState<PermissionLevel>('view');
-  const [role, setRole] = useState('owner');
+  const [role, setRole] = useState('partner');
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const reset = () => {
+  const resetForm = () => {
     setEmail('');
     setRecipientName('');
     setPermission('view');
-    setRole('owner');
+    setRole('partner');
     setMessage('');
     setError('');
   };
 
   const handleClose = () => {
-    reset();
+    resetForm();
     onClose();
   };
 
@@ -77,82 +89,113 @@ export function SharePropertyModal({
     }
 
     setMessage(result.message ?? 'נשלח בהצלחה');
-    setTimeout(() => {
-      handleClose();
-    }, 1200);
+    resetForm();
+    await refresh();
   };
 
   return (
-    <Modal open={open} onClose={handleClose} title={`שיתוף — ${propertyTitle}`}>
-      <div className="space-y-4">
-        <Input
-          label="אימייל המוזמן"
-          type="email"
-          placeholder="guest@email.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+    <Modal
+      open={open}
+      onClose={handleClose}
+      title={`שיתוף — ${propertyTitle}`}
+      className="max-h-[92dvh] max-w-2xl overflow-hidden"
+    >
+      <div className="max-h-[calc(92dvh-5rem)] space-y-6 overflow-y-auto pe-1">
+        <section className="space-y-4">
+          <h3 className="text-sm font-semibold">הזמנה חדשה</h3>
 
-        <Input
-          label="שם המוזמן (אופציונלי)"
-          type="text"
-          placeholder="ישראל ישראלי"
-          value={recipientName}
-          onChange={(e) => setRecipientName(e.target.value)}
-        />
+          <Input
+            label="אימייל המוזמן"
+            type="email"
+            placeholder="guest@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">רמת הרשאה</label>
-          <div className="flex gap-2">
-            {(['view', 'edit', 'admin'] as const).map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => setPermission(p)}
-                className={`flex-1 rounded-lg border px-3 py-2 text-sm transition-colors ${
-                  permission === p
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border'
-                }`}
-              >
-                {PERMISSION_LABELS[p]}
-              </button>
-            ))}
+          <Input
+            label="שם המוזמן (אופציונלי)"
+            type="text"
+            placeholder="ישראל ישראלי"
+            value={recipientName}
+            onChange={(e) => setRecipientName(e.target.value)}
+          />
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">רמת הרשאה</label>
+            <div className="flex gap-2">
+              {(['view', 'edit', 'admin'] as const).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPermission(p)}
+                  className={`flex-1 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                    permission === p
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border'
+                  }`}
+                >
+                  {PERMISSION_LABELS[p]}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">תפקיד מיועד</label>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="flex h-11 w-full rounded-xl border border-border bg-muted/50 px-4 text-sm"
-          >
-            <option value="owner">בעל נכס</option>
-            <option value="manager">חברת ניהול</option>
-            <option value="partner">שותף</option>
-            <option value="buyer">קונה / שוכר</option>
-          </select>
-        </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">תפקיד מיועד</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="flex h-11 w-full rounded-xl border border-border bg-muted/50 px-4 text-sm"
+            >
+              <option value="partner">שותף</option>
+              <option value="manager">חברת ניהול</option>
+              <option value="owner">בעל נכס</option>
+              <option value="buyer">קונה / שוכר</option>
+            </select>
+          </div>
 
-        <div className="rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground">
-          {email ? (
-            <>
-              הזמנה תישלח ל-<Badge variant="primary">{email}</Badge> עם הרשאת{' '}
-              {PERMISSION_LABELS[permission]}
-            </>
-          ) : (
-            'המוזמן יקבל מייל עם קישור לצפייה בנכס'
+          <div className="rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground">
+            {email ? (
+              <>
+                הזמנה תישלח ל-<Badge variant="primary">{email}</Badge> עם הרשאת{' '}
+                {PERMISSION_LABELS[permission]}
+              </>
+            ) : (
+              'המוזמן יקבל מייל עם קישור לצפייה בנכס'
+            )}
+          </div>
+
+          {error && (
+            <p className="text-sm text-destructive">
+              {error}
+              {error.includes('כבר נשלחה הזמנה') && (
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  ראה/י את ההזמנה ברשימה למטה — ניתן לערוך, לשלוח שוב או למחוק.
+                </span>
+              )}
+            </p>
           )}
-        </div>
+          {message && <p className="text-sm text-success">{message}</p>}
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
-        {message && <p className="text-sm text-success">{message}</p>}
+          <Button className="w-full" onClick={() => void handleSend()} disabled={!email || sending}>
+            {sending ? 'שולח...' : 'שלח הזמנה'}
+          </Button>
+        </section>
 
-        <Button className="w-full" onClick={handleSend} disabled={!email || sending}>
-          {sending ? 'שולח...' : message ? 'נשלח!' : 'שלח הזמנה'}
-        </Button>
+        <section className="space-y-3 border-t border-border pt-4">
+          <h3 className="text-sm font-semibold">מי יש לו גישה לנכס</h3>
+          <PropertyShareAccessList
+            shares={shares}
+            pendingInvites={pendingInvites}
+            loading={loading}
+            onUpdatePermission={updatePermission}
+            onRemoveShare={removeShare}
+            onUpdateInvitePermission={updateInvitePermission}
+            onDeleteInvite={deleteInvite}
+            onResendInvite={resendInvite}
+          />
+        </section>
       </div>
     </Modal>
   );
