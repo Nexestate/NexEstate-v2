@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronLeft, Eye, LogOut, Pencil, Plus, Shield } from 'lucide-react';
+import { ChevronLeft, Eye, LogOut, Pencil, Plus, Shield } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -38,16 +38,42 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
   const { user, signOut } = useAuth();
   const { openQuickAdd } = useQuickAdd();
   const location = useLocation();
-  const [expandedProperty, setExpandedProperty] = useState<string | null>(null);
-  const [sharedOpen, setSharedOpen] = useState(sharedProperties.length > 0);
+  const [managedOpen, setManagedOpen] = useState(false);
+  const [expandedProperties, setExpandedProperties] = useState<Set<string>>(() => new Set());
+  const [sharedOpen, setSharedOpen] = useState(false);
 
   const activePropertyId =
     location.pathname.match(/^\/broker\/properties\/([^/]+)/)?.[1] ??
     new URLSearchParams(location.search).get('property');
 
+  const isManagedSectionActive =
+    location.pathname.startsWith('/broker/properties') ||
+    ['/broker/units', '/broker/tenants', '/broker/leases', '/broker/payments'].some((path) =>
+      location.pathname.startsWith(path),
+    );
+
   useEffect(() => {
-    if (activePropertyId) setExpandedProperty(activePropertyId);
-  }, [activePropertyId]);
+    if (isManagedSectionActive) setManagedOpen(true);
+    if (activePropertyId) {
+      setExpandedProperties((prev) => {
+        if (prev.has(activePropertyId)) return prev;
+        const next = new Set(prev);
+        next.add(activePropertyId);
+        return next;
+      });
+    }
+  }, [activePropertyId, isManagedSectionActive]);
+
+  const toggleProperty = (propertyId: string) => {
+    setExpandedProperties((prev) => {
+      const next = new Set(prev);
+      if (next.has(propertyId)) next.delete(propertyId);
+      else next.add(propertyId);
+      return next;
+    });
+  };
+
+  const isPropertyExpanded = (propertyId: string) => expandedProperties.has(propertyId);
 
   const handleQuickAdd = (e: React.MouseEvent, type: QuickAddType, propertyId?: string) => {
     e.preventDefault();
@@ -79,6 +105,22 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                 return (
                   <li key={item.to}>
                     <div className="flex items-center gap-1">
+                      {item.to === '/broker/properties' && managedProperties.length > 0 && (
+                        <button
+                          type="button"
+                          aria-label={managedOpen ? 'סגור רשימת נכסים' : 'פתח רשימת נכסים'}
+                          aria-expanded={managedOpen}
+                          onClick={() => setManagedOpen((open) => !open)}
+                          className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                        >
+                          <ChevronLeft
+                            className={cn(
+                              'h-4 w-4 transition-transform duration-200',
+                              managedOpen && '-rotate-90',
+                            )}
+                          />
+                        </button>
+                      )}
                       <NavLink
                         to={item.to}
                         end={item.end}
@@ -94,6 +136,9 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                       >
                         <Icon className="h-5 w-5 shrink-0" />
                         <span className="flex-1">{item.label}</span>
+                        {item.to === '/broker/properties' && managedProperties.length > 0 && !managedOpen && (
+                          <span className="text-[10px] text-muted-foreground">({managedProperties.length})</span>
+                        )}
                       </NavLink>
                       {item.addNew && (
                         <button
@@ -107,23 +152,22 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                       )}
                     </div>
 
-                    {item.to === '/broker/properties' && managedProperties.length > 0 && (
+                    {item.to === '/broker/properties' && managedOpen && managedProperties.length > 0 && (
                       <ul className="me-2 mt-1 space-y-0.5 border-s border-border ps-3">
                         {managedProperties.map((prop) => (
                           <li key={prop.id}>
                             <div className="flex items-center gap-1">
                               <button
                                 type="button"
-                                aria-label={expandedProperty === prop.id ? 'סגור תפריט נכס' : 'פתח תפריט נכס'}
-                                onClick={() =>
-                                  setExpandedProperty(expandedProperty === prop.id ? null : prop.id)
-                                }
+                                aria-label={isPropertyExpanded(prop.id) ? 'סגור תפריט נכס' : 'פתח תפריט נכס'}
+                                aria-expanded={isPropertyExpanded(prop.id)}
+                                onClick={() => toggleProperty(prop.id)}
                                 className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
                               >
-                                <ChevronDown
+                                <ChevronLeft
                                   className={cn(
-                                    'h-3.5 w-3.5 transition-transform',
-                                    expandedProperty === prop.id && 'rotate-180',
+                                    'h-3.5 w-3.5 transition-transform duration-200',
+                                    isPropertyExpanded(prop.id) && '-rotate-90',
                                   )}
                                 />
                               </button>
@@ -143,7 +187,7 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
                                 <span className="shrink-0 text-muted-foreground">({prop.totalUnits})</span>
                               </NavLink>
                             </div>
-                            {expandedProperty === prop.id && (
+                            {isPropertyExpanded(prop.id) && (
                               <ul className="me-2 space-y-0.5 border-s border-border ps-3 pb-1 pt-1">
                                 <li>
                                   <div className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground">
@@ -229,10 +273,16 @@ export function Sidebar({ sections, managedProperties = [], sharedProperties = [
             <button
               type="button"
               onClick={() => setSharedOpen(!sharedOpen)}
+              aria-expanded={sharedOpen}
               className="flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
             >
-              <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', sharedOpen && 'rotate-180')} />
+              <ChevronLeft
+                className={cn('h-3.5 w-3.5 transition-transform duration-200', sharedOpen && '-rotate-90')}
+              />
               נכסים ששותפו איתי
+              {!sharedOpen && (
+                <span className="text-[10px] font-normal normal-case">({sharedProperties.length})</span>
+              )}
             </button>
             {sharedOpen && (
               <ul className="mt-1 space-y-0.5">

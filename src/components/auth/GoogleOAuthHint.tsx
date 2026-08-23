@@ -4,8 +4,12 @@ import { getAppOrigin, getSupabaseAuthCallbackUrl } from '../../lib/appUrl';
 import { isSupabaseConfigured } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 
-export function GoogleOAuthHint() {
-  const [open, setOpen] = useState(false);
+interface GoogleOAuthHintProps {
+  defaultOpen?: boolean;
+}
+
+export function GoogleOAuthHint({ defaultOpen = false }: GoogleOAuthHintProps) {
+  const [open, setOpen] = useState(defaultOpen);
   const [copied, setCopied] = useState(false);
 
   if (!isSupabaseConfigured) return null;

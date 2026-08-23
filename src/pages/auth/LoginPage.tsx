@@ -2,6 +2,7 @@ import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthShell } from '../../components/auth/AuthShell';
+import { GoogleOAuthHint } from '../../components/auth/GoogleOAuthHint';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAuthErrorDisplay } from '../../lib/authErrors';
 import { Button } from '../../components/ui/Button';
@@ -22,6 +23,7 @@ export function LoginPage() {
   const [needsConfirm, setNeedsConfirm] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [showGoogleOAuthHint, setShowGoogleOAuthHint] = useState(false);
 
   useEffect(() => {
     const authError = searchParams.get('error');
@@ -29,10 +31,9 @@ export function LoginPage() {
     if (!authError) return;
 
     if (authDesc?.includes('redirect_uri_mismatch') || authError === 'redirect_uri_mismatch') {
+      setShowGoogleOAuthHint(true);
       setError('שגיאת Google OAuth: Redirect URI לא תואם');
-      setErrorDetail(
-        'פתח/י «Google לא עובד?» למטה והוסף/י ב-Google Cloud Console את כתובת Supabase בלבד.',
-      );
+      setErrorDetail('הוסף/י ב-Google Cloud Console את כתובת Supabase המופיעה למטה.');
     } else {
       setError('שגיאה בהתחברות עם Google');
       setErrorDetail(authDesc ?? authError);
@@ -50,8 +51,15 @@ export function LoginPage() {
       if (isDemoMode) navigate(getRedirectPath());
     } catch (err) {
       const { message, detail } = getAuthErrorDisplay(err);
+      const detailText = detail ?? '';
+      if (
+        message.toLowerCase().includes('redirect_uri') ||
+        detailText.toLowerCase().includes('redirect_uri')
+      ) {
+        setShowGoogleOAuthHint(true);
+      }
       setError(message || 'שגיאה בהתחברות עם Google');
-      setErrorDetail(detail ?? '');
+      setErrorDetail(detailText);
     } finally {
       setGoogleLoading(false);
     }
@@ -194,6 +202,8 @@ export function LoginPage() {
           </Link>
         </p>
       </div>
+
+      {showGoogleOAuthHint && <GoogleOAuthHint defaultOpen />}
     </AuthShell>
   );
 }
