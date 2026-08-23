@@ -13,6 +13,7 @@ function mapUnitRow(u: Record<string, unknown>): PropertyUnit {
     area_sqm: (u.area_sqm as number | null) ?? undefined,
     monthly_rent: (u.monthly_rent as number | null) ?? undefined,
     unit_status: u.unit_status as PropertyUnit['unit_status'],
+    floor: (u.floor as number | null) ?? undefined,
   };
 }
 

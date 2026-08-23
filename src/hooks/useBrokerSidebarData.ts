@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useEntityCreated } from './useEntityCreated';
 import {
   fetchManagedPropertySidebar,
+  fetchPropertySidebarItem,
   type ManagedPropertySidebarItem,
 } from '../lib/services/brokerStatsService';
 import { fetchProperties } from '../lib/services';
@@ -33,7 +34,14 @@ export function useBrokerSidebarData() {
         fetchManagedPropertySidebar(user.id),
         fetchSharedWithUser(user.id),
       ]);
-      setManagedProperties(sidebar);
+
+      const ownedIds = new Set(sidebar.map((p) => p.id));
+      const sharedOnly = shared.filter((s) => !ownedIds.has(s.id));
+      const sharedSidebar = await Promise.all(
+        sharedOnly.map((s) => fetchPropertySidebarItem(s.id, s.title)),
+      );
+
+      setManagedProperties([...sidebar, ...sharedSidebar]);
       setSharedProperties(
         shared.map((s) => ({
           id: s.id,

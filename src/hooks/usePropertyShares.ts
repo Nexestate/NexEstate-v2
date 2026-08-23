@@ -178,16 +178,17 @@ export function usePropertyShares(propertyId: string | undefined) {
           email: email.toLowerCase(),
           permission_level: permissionLevel,
           status: 'pending',
-          intended_role: intendedRole || 'owner',
+          intended_role: intendedRole || 'partner',
         });
 
         if (inviteError) {
           return { success: false, error: 'שגיאה ביצירת הזמנה' };
         }
 
+        const { notifyShare } = await import('../lib/services/edgeFunctions');
+        let emailResult;
         try {
-          const { notifyShare } = await import('../lib/services/edgeFunctions');
-          await notifyShare({
+          emailResult = await notifyShare({
             recipientEmail: email.toLowerCase(),
             recipientName: recipientName || '',
             sharedByUserId: sharedBy,
@@ -195,13 +196,30 @@ export function usePropertyShares(propertyId: string | undefined) {
             entityId: propertyId,
             entityName: propertyData?.title || 'נכס',
             permissionLevel,
+            intendedRole: intendedRole || 'partner',
             isInvitation: true,
           });
-        } catch {
-          // Edge function may not be deployed yet — invite still created
+        } catch (err) {
+          await fetchShares();
+          return {
+            success: true,
+            isInvitation: true,
+            message: `ההזמנה נשמרה, אך המייל לא נשלח: ${
+              err instanceof Error ? err.message : 'בדוק deploy של notify-share'
+            }`,
+          };
         }
 
         await fetchShares();
+
+        if (!emailResult.sent) {
+          return {
+            success: true,
+            isInvitation: true,
+            message: `ההזמנה נשמרה, אך המייל לא נשלח: ${emailResult.error ?? 'בדוק הגדרות Resend'}`,
+          };
+        }
+
         return { success: true, isInvitation: true, message: 'הזמנה נשלחה למייל' };
       }
 
@@ -228,8 +246,45 @@ export function usePropertyShares(propertyId: string | undefined) {
         return { success: false, error: 'שגיאה ביצירת שיתוף' };
       }
 
+      const { data: propertyData } = await supabase
+        .from('properties')
+        .select('title')
+        .eq('id', propertyId)
+        .single();
+
+      const { notifyShare } = await import('../lib/services/edgeFunctions');
+      let emailResult;
+      try {
+        emailResult = await notifyShare({
+          recipientEmail: userProfile.email || email.toLowerCase(),
+          recipientName: userProfile.full_name || recipientName || '',
+          sharedByUserId: sharedBy,
+          entityType: 'נכס',
+          entityId: propertyId,
+          entityName: propertyData?.title || 'נכס',
+          permissionLevel,
+          isInvitation: false,
+        });
+      } catch (err) {
+        await fetchShares();
+        return {
+          success: true,
+          message: `הנכס שותף, אך המייל לא נשלח: ${
+            err instanceof Error ? err.message : 'בדוק deploy של notify-share'
+          }`,
+        };
+      }
+
       await fetchShares();
-      return { success: true, message: 'הנכס שותף בהצלחה' };
+
+      if (!emailResult.sent) {
+        return {
+          success: true,
+          message: `הנכס שותף, אך המייל לא נשלח: ${emailResult.error ?? 'בדוק הגדרות Resend'}`,
+        };
+      }
+
+      return { success: true, message: 'הנכס שותף בהצלחה ונשלח מייל' };
     } catch {
       return { success: false, error: 'שגיאה בלתי צפויה' };
     }
@@ -319,7 +374,7 @@ export function usePropertyShares(propertyId: string | undefined) {
 
     try {
       const { notifyShare } = await import('../lib/services/edgeFunctions');
-      await notifyShare({
+      const emailResult = await notifyShare({
         recipientEmail: invite.email,
         recipientName: '',
         sharedByUserId: invite.invited_by,
@@ -327,11 +382,18 @@ export function usePropertyShares(propertyId: string | undefined) {
         entityId: propertyId,
         entityName: propertyData?.title || 'נכס',
         permissionLevel: invite.permission_level,
+        intendedRole: invite.intended_role,
         isInvitation: true,
       });
-      return { success: true, message: 'הזמנה נשלחה שוב' };
-    } catch {
-      return { success: false, error: 'שגיאה בשליחה חוזרת' };
+
+      if (!emailResult.sent) {
+        return { success: false, error: emailResult.error ?? 'שליחת המייל נכשלה' };
+      }
+
+      return { success: true, message: 'הזמנה נשלחה שוב למייל' };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'שגיאה בשליחה חוזרת';
+      return { success: false, error: message };
     }
   };
 

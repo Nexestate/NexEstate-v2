@@ -11,6 +11,7 @@ interface NotifyShareBody {
   entityId: string;
   entityName: string;
   permissionLevel: string;
+  intendedRole?: string;
   isInvitation?: boolean;
   expiresAt?: string;
 }
@@ -38,9 +39,20 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     const sharedByName = sharer?.full_name || sharer?.email || 'משתמש NexEstate';
-    const accessLink = `${appBaseUrl()}/login`;
+    const base = appBaseUrl();
+    const accessLink = body.isInvitation
+      ? `${base}/register?email=${encodeURIComponent(body.recipientEmail)}`
+      : `${base}/login`;
     const permissionLabel =
       PERMISSION_LABELS[body.permissionLevel] || body.permissionLevel;
+
+    const { data: propertyRow } = await supabase
+      .from('properties')
+      .select('address, city')
+      .eq('id', body.entityId)
+      .maybeSingle();
+
+    const entityAddress = [propertyRow?.address, propertyRow?.city].filter(Boolean).join(', ');
 
     const html = getShareAccessEmail({
       recipientName: body.recipientName || '',
@@ -48,9 +60,12 @@ Deno.serve(async (req: Request) => {
       sharedByName,
       entityType: body.entityType || 'נכס',
       entityName: body.entityName,
+      entityAddress: entityAddress || undefined,
       permissionLevel: permissionLabel,
+      intendedRole: body.intendedRole,
       accessLink,
       expiresAt: body.expiresAt,
+      isInvitation: body.isInvitation,
     });
 
     const subject = body.isInvitation

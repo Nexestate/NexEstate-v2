@@ -8,7 +8,8 @@ import { FilterBar } from '../../components/ui/FilterBar';
 import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
-import { fetchProperties } from '../../lib/services';
+import { fetchProperties, fetchProperty } from '../../lib/services';
+import { fetchSharedWithUser } from '../../lib/services/sharedPropertiesService';
 import { formatCurrency, getOccupancyPercent } from '../../lib/utils';
 import type { PropertyWithUnits } from '../../types/domain';
 
@@ -18,14 +19,29 @@ export function PropertiesPage() {
   const [properties, setProperties] = useState<PropertyWithUnits[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const isSharedOnlyRole = user?.role === 'partner' || user?.role === 'manager';
 
-  const load = useCallback(() => {
+  const load = useCallback(async () => {
+    if (!user?.id) return;
     setLoading(true);
-    fetchProperties(user?.id).then((data) => {
-      setProperties(data);
+    try {
+      if (isSharedOnlyRole) {
+        const shared = await fetchSharedWithUser(user.id);
+        const details = await Promise.all(shared.map((s) => fetchProperty(s.id)));
+        setProperties(details.filter((p): p is PropertyWithUnits => Boolean(p)));
+      } else {
+        const owned = await fetchProperties(user.id);
+        const shared = await fetchSharedWithUser(user.id);
+        const sharedIds = new Set(owned.map((p) => p.id));
+        const extra = await Promise.all(
+          shared.filter((s) => !sharedIds.has(s.id)).map((s) => fetchProperty(s.id)),
+        );
+        setProperties([...owned, ...extra.filter((p): p is PropertyWithUnits => Boolean(p))]);
+      }
+    } finally {
       setLoading(false);
-    });
-  }, [user?.id]);
+    }
+  }, [isSharedOnlyRole, user?.id]);
 
   useEffect(() => {
     load();
@@ -56,15 +72,21 @@ export function PropertiesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold">נכסים מנוהלים</h2>
-          <p className="text-sm text-muted-foreground">בחר נכס לצפייה ביחידות, שוכרים וחוזים</p>
+          <h2 className="text-xl font-bold">{isSharedOnlyRole ? 'נכסים ששותפו' : 'נכסים מנוהלים'}</h2>
+          <p className="text-sm text-muted-foreground">
+            {isSharedOnlyRole
+              ? 'נכסים ששותפו איתך לצפייה וניהול'
+              : 'בחר נכס לצפייה ביחידות, שוכרים וחוזים'}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="primary">{properties.length} נכסים</Badge>
-          <Button onClick={() => openQuickAdd('property')}>
-            <Plus className="h-4 w-4" />
-            נכס חדש
-          </Button>
+          {!isSharedOnlyRole && (
+            <Button onClick={() => openQuickAdd('property')}>
+              <Plus className="h-4 w-4" />
+              נכס חדש
+            </Button>
+          )}
         </div>
       </div>
 

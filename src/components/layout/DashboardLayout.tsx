@@ -15,7 +15,7 @@ interface DashboardLayoutProps {
   managedProperties?: import('../../lib/services/brokerStatsService').ManagedPropertySidebarItem[];
   managedPropertiesLoading?: boolean;
   sharedProperties?: Array<{ id: string; title: string; permissionLevel: PermissionLevel }>;
-  mobileNav?: 'broker' | 'buyer' | 'admin';
+  mobileNav?: 'broker' | 'buyer' | 'admin' | 'partner';
   headerSubtitle?: string;
   notificationsPath?: string;
 }

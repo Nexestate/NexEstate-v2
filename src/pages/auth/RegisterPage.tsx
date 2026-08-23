@@ -1,6 +1,6 @@
 import { Mail, User } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthShell } from '../../components/auth/AuthShell';
 import { RoleSelector } from '../../components/auth/RoleSelector';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,8 +13,9 @@ import type { UserRole } from '../../types';
 export function RegisterPage() {
   const { signUp, getRedirectPath, isDemoMode, resendConfirmationEmail } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(searchParams.get('email') ?? '');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('broker');
   const [terms, setTerms] = useState(false);

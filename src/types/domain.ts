@@ -88,6 +88,7 @@ export interface PropertyUnit {
   tenant_name?: string;
   tenant_id?: string;
   lease_id?: string;
+  floor?: number;
 }
 
 export interface PropertyWithUnits extends Property {

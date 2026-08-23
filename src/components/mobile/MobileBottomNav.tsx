@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   LogOut,
   MoreHorizontal,
-  Search,
   Settings,
   Users,
 } from 'lucide-react';
@@ -19,7 +18,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/Button';
 
-type NavVariant = 'broker' | 'buyer' | 'admin';
+type NavVariant = 'broker' | 'buyer' | 'admin' | 'partner';
 
 interface NavItem {
   label: string;
@@ -47,7 +46,6 @@ const BROKER_MORE: NavItem[] = [
 const BUYER_MAIN: NavItem[] = [
   { label: 'לוח בקרה', to: '/buyer', icon: LayoutDashboard, end: true },
   { label: 'נכסים', to: '/buyer/shared', icon: Building2 },
-  { label: 'חיפוש', to: '/buyer/search', icon: Search },
   { label: 'התראות', to: '/buyer/notifications', icon: Bell },
 ];
 
@@ -71,10 +69,21 @@ const ADMIN_MORE: NavItem[] = [
   { label: 'הגדרות', to: '/admin/settings', icon: Settings },
 ];
 
+const PARTNER_MAIN: NavItem[] = [
+  { label: 'לוח בקרה', to: '/broker', icon: LayoutDashboard, end: true },
+  { label: 'נכסים', to: '/broker/properties', icon: Building2 },
+  { label: 'התראות', to: '/broker/notifications', icon: Bell },
+];
+
+const PARTNER_MORE: NavItem[] = [
+  { label: 'הגדרות', to: '/broker/settings', icon: Settings },
+];
+
 const CONFIG: Record<NavVariant, { main: NavItem[]; more?: NavItem[] }> = {
   broker: { main: BROKER_MAIN, more: BROKER_MORE },
   buyer: { main: BUYER_MAIN, more: BUYER_MORE },
   admin: { main: ADMIN_MAIN, more: ADMIN_MORE },
+  partner: { main: PARTNER_MAIN, more: PARTNER_MORE },
 };
 
 interface MobileBottomNavProps {

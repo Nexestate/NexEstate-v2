@@ -1,55 +1,30 @@
 import { supabase } from './supabase';
-import type { UserRole } from '../types';
 
-/** Claim pending property invites → shares + optional role upgrade. */
+/** Claim pending property invites → shares + role upgrade (server-side RPC). */
 export async function claimPendingInvites(userId: string, userEmail: string): Promise<void> {
   if (!supabase) return;
+
   try {
-    const { data: pendingInvites, error: fetchError } = await supabase
-      .from('pending_invites')
-      .select('*')
-      .ilike('email', userEmail.trim())
-      .eq('status', 'pending');
+    const { data, error } = await supabase.rpc('claim_my_pending_invites');
 
-    if (fetchError || !pendingInvites?.length) return;
-
-    const roleMap: Record<string, number> = { owner: 3, manager: 2, partner: 1, buyer: 0 };
-    let bestRole: UserRole = 'buyer';
-    let bestPriority = 0;
-
-    for (const invite of pendingInvites) {
-      if (!invite.property_id) continue;
-
-      const { error: shareError } = await supabase.from('property_shares').insert({
-        property_id: invite.property_id,
-        shared_with: userId,
-        shared_by: invite.invited_by,
-        permission_level: invite.permission_level || 'view',
-      });
-
-      if (!shareError) {
-        await supabase
-          .from('pending_invites')
-          .update({
-            status: 'claimed',
-            accepted_at: new Date().toISOString(),
-            claimed_at: new Date().toISOString(),
-          })
-          .eq('id', invite.id);
+    if (error) {
+      // RPC not deployed yet — ignore; DB trigger may have run on signup
+      if (error.code === 'PGRST202' || error.message?.includes('claim_my_pending_invites')) {
+        console.warn('[claimPendingInvites] RPC missing — run supabase/claim_invites_rpc.sql');
+        return;
       }
-
-      const inviteRole = (invite.intended_role || 'buyer') as UserRole;
-      const priority = roleMap[inviteRole] ?? 0;
-      if (priority > bestPriority) {
-        bestPriority = priority;
-        bestRole = inviteRole;
-      }
+      console.error('[claimPendingInvites] RPC error:', error.message);
+      return;
     }
 
-    if (bestRole !== 'buyer') {
-      await supabase.from('profiles').update({ role: bestRole }).eq('id', userId);
+    const result = data as { ok?: boolean; claimed?: number; role?: string } | null;
+    if (result?.claimed) {
+      console.info(`[claimPendingInvites] claimed ${result.claimed} invite(s), role=${result.role}`);
     }
   } catch (err) {
     console.error('Error claiming pending invites:', err);
   }
+
+  void userId;
+  void userEmail;
 }

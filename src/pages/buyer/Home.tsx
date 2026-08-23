@@ -1,15 +1,14 @@
-import { useBuyerSharedProperties } from '../../hooks/useBuyerSharedProperties';
-import { useFavorites } from '../../hooks/useFavorites';
-import { useAuth } from '../../contexts/AuthContext';
-import { getUnreadCount, fetchNotifications } from '../../lib/services';
-import { Building2, Eye, Heart, Pencil, Search, Share2, TrendingUp } from 'lucide-react';
+import { Building2, Eye, Heart, Pencil, Share2, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { StatCard, StatCardGrid } from '../../components/dashboard/StatCard';
 import { Badge } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { useBuyerSharedProperties } from '../../hooks/useBuyerSharedProperties';
+import { useFavorites } from '../../hooks/useFavorites';
+import { useAuth } from '../../contexts/AuthContext';
+import { getUnreadCount, fetchNotifications } from '../../lib/services';
 
 const PERMISSION_LABELS = { view: 'צפייה', edit: 'עריכה', admin: 'מנהל' } as const;
 const PERMISSION_VARIANTS = { view: 'primary', edit: 'warning', admin: 'success' } as const;
@@ -38,13 +37,12 @@ export function BuyerHome() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold">לוח בקרה</h2>
-        <p className="text-sm text-muted-foreground">סקירה אישית של הנכסים שלך</p>
+        <p className="text-sm text-muted-foreground">נכסים ששותפו איתך</p>
       </div>
 
-      <StatCardGrid className="lg:grid-cols-4">
-        <StatCard label="נכסים במועדפים" value={favoritesCount} icon={Heart} color="#ef4444" to="/buyer/favorites" />
+      <StatCardGrid className="lg:grid-cols-3">
         <StatCard label="נכסים ששותפו" value={properties.length} icon={Share2} color="#8b5cf6" to="/buyer/shared" />
-        <StatCard label="נכסים מתאימים" value={0} icon={Building2} color="#10b981" to="/buyer/search" />
+        <StatCard label="מועדפים" value={favoritesCount} icon={Heart} color="#ef4444" to="/buyer/favorites" />
         <StatCard label="התראות חדשות" value={unreadNotifications} icon={TrendingUp} color="#f59e0b" to="/buyer/notifications" />
       </StatCardGrid>
 
@@ -95,17 +93,10 @@ export function BuyerHome() {
         <Card>
           <CardContent>
             <EmptyState
-              icon={Search}
-              title="התחילו לחפש נכס"
-              description="השתמשו במנוע החיפוש למציאת נכסים בהתאמה אישית"
-              actionLabel="חיפוש נכסים"
-              onAction={() => {}}
+              icon={Share2}
+              title="אין נכסים משותפים עדיין"
+              description="כשמישהו ישתף איתך נכס, הוא יופיע כאן אוטומטית לאחר ההתחברות"
             />
-            <div className="flex justify-center pb-6">
-              <Link to="/buyer/search">
-                <Button>חיפוש נכסים</Button>
-              </Link>
-            </div>
           </CardContent>
         </Card>
       )}

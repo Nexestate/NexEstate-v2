@@ -1,25 +1,47 @@
-export const EMAIL_STYLES = `
-  <style>
-    body { font-family: 'Segoe UI', sans-serif; direction: rtl; text-align: right; background: #f5f5f5; }
-    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; }
-    .header { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 30px; text-align: center; }
-    .content { padding: 30px; color: #333; line-height: 1.8; }
-    .highlight-box { background: #f0f9ff; border-right: 4px solid #3b82f6; padding: 15px; margin: 20px 0; border-radius: 8px; }
-    .button { display: inline-block; background: #3b82f6; color: white !important; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; }
-    .footer { background: #f8fafc; padding: 20px; text-align: center; color: #64748b; font-size: 12px; }
-    .details-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    .details-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
-  </style>
-`;
+const ROLE_LABELS: Record<string, string> = {
+  owner: 'בעל נכס',
+  manager: 'חברת ניהול',
+  partner: 'שותף',
+  buyer: 'קונה / שוכר',
+};
 
 function wrap(title: string, body: string): string {
-  return `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="utf-8">${EMAIL_STYLES}</head>
-  <body><div class="container">
-    <div class="header"><h1 style="margin:0">NexEstate</h1><p style="margin:8px 0 0;opacity:.9">${title}</p></div>
-    <div class="content">${body}</div>
-    <div class="footer">© NexEstate — פלטפורמת נדל״ן דיגיטלית</div>
-  </div></body></html>`;
+  return `<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:'Segoe UI',Tahoma,Arial,sans-serif;direction:rtl;text-align:right;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">
+          <tr>
+            <td style="background:linear-gradient(135deg,#3b82f6 0%,#6366f1 100%);padding:28px 24px;text-align:right;">
+              <div style="font-size:24px;font-weight:700;color:#ffffff;margin:0;">NexEstate</div>
+              <div style="font-size:14px;color:rgba(255,255,255,0.9);margin-top:6px;">${title}</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:28px 24px;color:#1e293b;line-height:1.8;text-align:right;direction:rtl;">
+              ${body}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:16px 24px 24px;background:#f8fafc;text-align:center;color:#64748b;font-size:12px;direction:rtl;">
+              © NexEstate — פלטפורמת נדל״ן דיגיטלית
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 }
+
+export const EMAIL_STYLES = '';
 
 export function getSignedAgreementBrokerEmail(data: {
   brokerName: string;
@@ -33,19 +55,19 @@ export function getSignedAgreementBrokerEmail(data: {
 }): string {
   return wrap(
     'הסכם נחתם',
-    `<p>שלום ${data.brokerName},</p>
-    <p>הלקוח <strong>${data.clientName}</strong> חתם על הסכם.</p>
-    <div class="highlight-box">
-      <table class="details-table">
-        <tr><td>לקוח</td><td>${data.clientName}</td></tr>
-        <tr><td>טלפון</td><td>${data.clientPhone}</td></tr>
-        ${data.clientEmail ? `<tr><td>אימייל</td><td>${data.clientEmail}</td></tr>` : ''}
-        <tr><td>סוג עסקה</td><td>${data.dealType}</td></tr>
-        <tr><td>נכס</td><td>${data.propertyDescription}</td></tr>
-        <tr><td>נחתם ב</td><td>${data.signedAt}</td></tr>
-      </table>
-    </div>
-    <p style="text-align:center"><a class="button" href="${data.agreementLink}">צפייה בהסכם</a></p>`,
+    `<p style="margin:0 0 16px;text-align:right;">שלום ${data.brokerName},</p>
+    <p style="margin:0 0 16px;text-align:right;">הלקוח <strong>${data.clientName}</strong> חתם על הסכם.</p>
+    <table role="presentation" width="100%" style="background:#f0f9ff;border-right:4px solid #3b82f6;border-radius:12px;margin:16px 0;">
+      <tr><td style="padding:16px;text-align:right;">
+        <p style="margin:4px 0;"><strong>לקוח:</strong> ${data.clientName}</p>
+        <p style="margin:4px 0;"><strong>טלפון:</strong> ${data.clientPhone}</p>
+        ${data.clientEmail ? `<p style="margin:4px 0;"><strong>אימייל:</strong> ${data.clientEmail}</p>` : ''}
+        <p style="margin:4px 0;"><strong>סוג עסקה:</strong> ${data.dealType}</p>
+        <p style="margin:4px 0;"><strong>נכס:</strong> ${data.propertyDescription}</p>
+        <p style="margin:4px 0;"><strong>נחתם ב:</strong> ${data.signedAt}</p>
+      </td></tr>
+    </table>
+    <p style="text-align:center;margin:24px 0 0;"><a href="${data.agreementLink}" style="display:inline-block;background:#3b82f6;color:#ffffff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700;">צפייה בהסכם</a></p>`,
   );
 }
 
@@ -59,13 +81,15 @@ export function getSignedAgreementClientEmail(data: {
 }): string {
   return wrap(
     'אישור חתימה',
-    `<p>שלום ${data.clientName},</p>
-    <p>ההסכם שלך מול <strong>${data.brokerName}</strong> נחתם בהצלחה.</p>
-    <div class="highlight-box">
-      <p><strong>${data.dealType}</strong> — ${data.propertyDescription}</p>
-      <p>תאריך חתימה: ${data.signedAt}</p>
-    </div>
-    <p style="text-align:center"><a class="button" href="${data.agreementLink}">הורדת ההסכם</a></p>`,
+    `<p style="margin:0 0 16px;text-align:right;">שלום ${data.clientName},</p>
+    <p style="margin:0 0 16px;text-align:right;">ההסכם שלך מול <strong>${data.brokerName}</strong> נחתם בהצלחה.</p>
+    <table role="presentation" width="100%" style="background:#f0f9ff;border-right:4px solid #3b82f6;border-radius:12px;margin:16px 0;">
+      <tr><td style="padding:16px;text-align:right;">
+        <p style="margin:4px 0;"><strong>${data.dealType}</strong> — ${data.propertyDescription}</p>
+        <p style="margin:4px 0;">תאריך חתימה: ${data.signedAt}</p>
+      </td></tr>
+    </table>
+    <p style="text-align:center;margin:24px 0 0;"><a href="${data.agreementLink}" style="display:inline-block;background:#3b82f6;color:#ffffff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700;">הורדת ההסכם</a></p>`,
   );
 }
 
@@ -75,27 +99,60 @@ export function getShareAccessEmail(data: {
   sharedByName: string;
   entityType: string;
   entityName: string;
+  entityAddress?: string;
   permissionLevel: string;
+  intendedRole?: string;
   accessLink: string;
   expiresAt?: string;
+  isInvitation?: boolean;
 }): string {
+  const greeting = data.recipientName?.trim() || data.recipientEmail;
+  const roleLabel = data.intendedRole ? (ROLE_LABELS[data.intendedRole] ?? data.intendedRole) : null;
+
   return wrap(
-    'הוזמנת לשתף נכס',
-    `<p>שלום ${data.recipientName || data.recipientEmail},</p>
-    <p><strong>${data.sharedByName}</strong> שיתף איתך ${data.entityType}: <strong>${data.entityName}</strong>.</p>
-    <div class="highlight-box">
-      <p>רמת הרשאה: ${data.permissionLevel}</p>
-      ${data.expiresAt ? `<p>תוקף עד: ${data.expiresAt}</p>` : ''}
-    </div>
-    <p style="text-align:center"><a class="button" href="${data.accessLink}">כניסה למערכת</a></p>`,
+    data.isInvitation ? 'הוזמנת לצפות בנכס' : 'שותף איתך נכס',
+    `<p style="margin:0 0 12px;text-align:right;font-size:16px;">שלום ${greeting},</p>
+    <p style="margin:0 0 20px;text-align:right;color:#475569;">
+      <strong>${data.sharedByName}</strong> הזמין/ה אותך ל-NexEstate לצפייה וניהול משותף של נכס.
+    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:14px;background:#fafafa;margin:0 0 20px;">
+      <tr>
+        <td style="padding:18px;text-align:right;">
+          <div style="font-size:12px;color:#64748b;margin-bottom:4px;">נכס משותף</div>
+          <div style="font-size:18px;font-weight:700;color:#0f172a;margin-bottom:8px;">${data.entityName}</div>
+          ${data.entityAddress ? `<div style="font-size:13px;color:#64748b;margin-bottom:12px;">${data.entityAddress}</div>` : ''}
+          <table role="presentation" width="100%" style="border-top:1px solid #e2e8f0;margin-top:12px;padding-top:12px;">
+            <tr>
+              <td style="padding:6px 0;text-align:right;font-size:13px;color:#64748b;">הרשאה</td>
+              <td style="padding:6px 0;text-align:left;font-size:13px;font-weight:700;color:#3b82f6;">${data.permissionLevel}</td>
+            </tr>
+            ${roleLabel ? `<tr>
+              <td style="padding:6px 0;text-align:right;font-size:13px;color:#64748b;">תפקיד במערכת</td>
+              <td style="padding:6px 0;text-align:left;font-size:13px;font-weight:700;color:#6366f1;">${roleLabel}</td>
+            </tr>` : ''}
+          </table>
+        </td>
+      </tr>
+    </table>
+    <p style="margin:0 0 20px;text-align:right;font-size:14px;color:#64748b;">
+      ${data.isInvitation
+        ? 'עדיין אין לך חשבון? לחץ/י על הכפתור להרשמה — החשבון יקושר אוטומטית לנכס המשותף.'
+        : 'היכנס/י למערכת כדי לצפות בנכס.'}
+    </p>
+    ${data.expiresAt ? `<p style="margin:0 0 16px;text-align:right;font-size:13px;color:#94a3b8;">תוקף ההזמנה: ${data.expiresAt}</p>` : ''}
+    <p style="text-align:center;margin:8px 0 0;">
+      <a href="${data.accessLink}" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#6366f1);color:#ffffff;padding:14px 32px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;">
+        ${data.isInvitation ? 'אשר/י גישה והירשם' : 'כניסה למערכת'}
+      </a>
+    </p>`,
   );
 }
 
 export function getWelcomeEmail(data: { userName: string; loginLink: string }): string {
   return wrap(
     'ברוכים הבאים',
-    `<p>שלום ${data.userName},</p>
-    <p>חשבונך ב-NexEstate נוצר בהצלחה.</p>
-    <p style="text-align:center"><a class="button" href="${data.loginLink}">התחברות</a></p>`,
+    `<p style="margin:0 0 16px;text-align:right;">שלום ${data.userName},</p>
+    <p style="margin:0 0 16px;text-align:right;">חשבונך ב-NexEstate נוצר בהצלחה.</p>
+    <p style="text-align:center;margin:24px 0 0;"><a href="${data.loginLink}" style="display:inline-block;background:#3b82f6;color:#ffffff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700;">התחברות</a></p>`,
   );
 }

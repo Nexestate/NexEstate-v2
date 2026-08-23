@@ -8,7 +8,6 @@ import {
   FileSignature,
   Gavel,
   Headphones,
-  Heart,
   Home,
   LayoutDashboard,
   Settings,
@@ -64,13 +63,46 @@ export const BUYER_NAV: NavSection[] = [
     items: [
       { to: '/buyer', label: 'לוח בקרה', icon: LayoutDashboard, end: true },
       { to: '/buyer/shared', label: 'נכסים ששותפו', icon: Home },
-      { to: '/buyer/search', label: 'חיפוש נכסים', icon: Target },
-      { to: '/buyer/favorites', label: 'מועדפים', icon: Heart },
       { to: '/buyer/notifications', label: 'התראות', icon: Bell },
       { to: '/buyer/settings', label: 'הגדרות', icon: Settings },
     ],
   },
 ];
+
+/** Partners / managers invited to shared properties — no CRM or property search */
+export const PARTNER_NAV: NavSection[] = [
+  {
+    title: 'ראשי',
+    items: [
+      { to: '/broker', label: 'לוח בקרה', icon: LayoutDashboard, end: true },
+      { to: '/broker/properties', label: 'נכסים ששותפו', icon: Building2 },
+      { to: '/broker/notifications', label: 'התראות', icon: Bell },
+    ],
+  },
+  {
+    title: 'חשבון',
+    items: [
+      { to: '/broker/profile', label: 'הפרופיל שלי', icon: User },
+      { to: '/broker/settings', label: 'הגדרות', icon: Settings },
+    ],
+  },
+];
+
+export function getNavSectionsForRole(role: import('../types').UserRole): NavSection[] {
+  if (role === 'partner' || role === 'manager') return PARTNER_NAV;
+  if (role === 'buyer') return BUYER_NAV;
+  if (role === 'admin' || role === 'superadmin') return ADMIN_NAV;
+  return BROKER_NAV;
+}
+
+export function getMobileNavVariant(
+  role: import('../types').UserRole,
+): 'broker' | 'buyer' | 'admin' | 'partner' {
+  if (role === 'buyer') return 'buyer';
+  if (role === 'partner' || role === 'manager') return 'partner';
+  if (role === 'admin' || role === 'superadmin') return 'admin';
+  return 'broker';
+}
 
 export const ADMIN_NAV: NavSection[] = [
   {

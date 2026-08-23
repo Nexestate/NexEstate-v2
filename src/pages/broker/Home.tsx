@@ -6,7 +6,8 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { useAuth } from '../../contexts/AuthContext';
-import { fetchBrokerDashboardStats, fetchManagedPropertySidebar, fetchSigningLinks, fetchTasks } from '../../lib/services';
+import { fetchBrokerDashboardStats, fetchManagedPropertySidebar, fetchProperty, fetchSigningLinks, fetchTasks } from '../../lib/services';
+import { fetchSharedWithUser } from '../../lib/services/sharedPropertiesService';
 import { formatCurrency, getOccupancyPercent } from '../../lib/utils';
 import type { PropertyWithUnits } from '../../types/domain';
 import type { SigningLink, Task } from '../../types/domain';
@@ -30,9 +31,22 @@ export function BrokerHome() {
   const [links, setLinks] = useState<SigningLink[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const isSharedOnlyRole = user?.role === 'partner' || user?.role === 'manager';
+
   useEffect(() => {
     if (!user?.id) return;
     setLoading(true);
+
+    if (isSharedOnlyRole) {
+      void fetchSharedWithUser(user.id)
+        .then((shared) => Promise.all(shared.map((s) => fetchProperty(s.id))))
+        .then((props) => {
+          setProperties(props.filter((p): p is PropertyWithUnits => Boolean(p)));
+          setLoading(false);
+        });
+      return;
+    }
+
     Promise.all([
       fetchBrokerDashboardStats(user.id),
       fetchManagedPropertySidebar(user.id),
@@ -45,7 +59,7 @@ export function BrokerHome() {
       setLinks(l);
       setLoading(false);
     });
-  }, [user?.id]);
+  }, [isSharedOnlyRole, user?.id]);
 
   const upcomingTasks = tasks.filter((t) => t.status !== 'done').slice(0, 3);
 
@@ -53,6 +67,46 @@ export function BrokerHome() {
     return (
       <div className="flex justify-center py-20">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (isSharedOnlyRole) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-xl font-bold">לוח בקרה</h2>
+          <p className="text-sm text-muted-foreground">נכסים ששותפו איתך</p>
+        </div>
+        <StatCardGrid className="lg:grid-cols-2">
+          <StatCard label="נכסים ששותפו" value={properties.length} icon={Building2} color="#8b5cf6" to="/broker/properties" />
+        </StatCardGrid>
+        {properties.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">הנכסים שלך</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 sm:grid-cols-2">
+              {properties.map((property) => (
+                <Link
+                  key={property.id}
+                  to={`/broker/properties/${property.id}`}
+                  className="rounded-xl border border-border p-4 transition-colors hover:border-primary/40"
+                >
+                  <h3 className="font-semibold">{property.title}</h3>
+                  <p className="text-sm text-muted-foreground">{property.city}</p>
+                  <p className="mt-2 text-xs text-primary">צפייה בנכס ←</p>
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="py-8 text-center text-sm text-muted-foreground">
+              אין נכסים משותפים עדיין. לאחר קבלת הזמנה והתחברות מחדש, הנכס יופיע כאן.
+            </CardContent>
+          </Card>
+        )}
       </div>
     );
   }

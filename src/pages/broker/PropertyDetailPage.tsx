@@ -1,7 +1,19 @@
-import { ArrowRight, Building2, MapPin, Pencil, Plus, Share2 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import {
+  ArrowRight,
+  Banknote,
+  Building2,
+  Layers,
+  MapPin,
+  Pencil,
+  Plus,
+  Share2,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ManagedUnitsTable } from '../../components/broker/ManagedUnitsTable';
+import { PropertyUnitCards } from '../../components/broker/PropertyUnitCards';
 import {
   PropertyFormModal,
   propertyFormToPayload,
@@ -9,8 +21,8 @@ import {
 } from '../../components/property/PropertyFormModal';
 import { SharePropertyModal } from '../../components/property/SharePropertyModal';
 import { UnitFormModal, type UnitFormValues } from '../../components/property/UnitFormModal';
+import { StatCard, StatCardGrid } from '../../components/dashboard/StatCard';
 import { PageLoader } from '../../components/ui/PageLoader';
-import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { notifyEntityCreated } from '../../contexts/QuickAddContext';
@@ -18,15 +30,26 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { createUnit, fetchProperty, updateProperty, updateUnit } from '../../lib/services';
 import { supabase } from '../../lib/supabase';
-import { formatCurrency, getOccupancyPercent } from '../../lib/utils';
+import { cn, formatCurrency, getOccupancyPercent } from '../../lib/utils';
 import type { PropertyKind, PropertyStatus, PropertyVisibility } from '../../types';
 import type { PropertyUnit, PropertyWithUnits } from '../../types/domain';
+
+type PropertyTab = 'overview' | 'units' | 'tenants' | 'leases' | 'payments';
+
+const TABS: { id: PropertyTab; label: string; to: (id: string) => string }[] = [
+  { id: 'overview', label: 'סקירה', to: (id) => `/broker/properties/${id}` },
+  { id: 'units', label: 'יחידות', to: (id) => `/broker/units?property=${id}` },
+  { id: 'tenants', label: 'שוכרים', to: (id) => `/broker/tenants?property=${id}` },
+  { id: 'leases', label: 'חוזים', to: (id) => `/broker/leases?property=${id}` },
+  { id: 'payments', label: 'תשלומים', to: (id) => `/broker/payments?property=${id}` },
+];
 
 export function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [property, setProperty] = useState<PropertyWithUnits | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<PropertyTab>('overview');
   const [shareOpen, setShareOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editInitial, setEditInitial] = useState<Partial<PropertyFormValues> | undefined>();
@@ -47,6 +70,22 @@ export function PropertyDetailPage() {
   }, [load]);
 
   useEntityCreated(['unit', 'tenant', 'lease'], load);
+
+  const stats = useMemo(() => {
+    if (!property) return null;
+    const occupancy = getOccupancyPercent(property.occupiedUnits, property.totalUnits);
+    const tenantCount = new Set(
+      property.units.map((u) => u.tenant_id).filter(Boolean),
+    ).size;
+    const annualIncome = property.monthlyIncome * 12;
+    const avgPerUnit =
+      property.occupiedUnits > 0
+        ? Math.round(property.monthlyIncome / property.occupiedUnits)
+        : 0;
+    const totalArea = property.units.reduce((sum, u) => sum + (u.area_sqm ?? 0), 0);
+
+    return { occupancy, tenantCount, annualIncome, avgPerUnit, totalArea };
+  }, [property]);
 
   const openEdit = async () => {
     if (!id || !property) return;
@@ -132,7 +171,7 @@ export function PropertyDetailPage() {
   };
 
   if (loading) return <PageLoader />;
-  if (!property) {
+  if (!property || !stats) {
     return (
       <div className="py-20 text-center">
         <p className="text-muted-foreground">נכס לא נמצא</p>
@@ -143,11 +182,12 @@ export function PropertyDetailPage() {
     );
   }
 
-  const occupancy = getOccupancyPercent(property.occupiedUnits, property.totalUnits);
-
   return (
     <div className="space-y-6">
-      <Link to="/broker/properties" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+      <Link
+        to="/broker/properties"
+        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
+      >
         <ArrowRight className="h-4 w-4" />
         חזרה לנכסים
       </Link>
@@ -177,65 +217,94 @@ export function PropertyDetailPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-4">
-        {[
-          { label: 'תפוסה', value: `${occupancy}%`, variant: 'success' as const },
-          { label: 'הכנסה חודשית', value: formatCurrency(property.monthlyIncome), variant: 'primary' as const },
-          { label: 'יחידות', value: `${property.occupiedUnits}/${property.totalUnits}`, variant: 'outline' as const },
-          { label: 'שטח', value: property.area_sqm ? `${property.area_sqm} מ"ר` : '—', variant: 'outline' as const },
-        ].map(({ label, value, variant }) => (
-          <Card key={label}>
-            <CardContent className="py-4 text-center">
-              <Badge variant={variant} className="mb-2">{label}</Badge>
-              <p className="text-xl font-bold">{value}</p>
-            </CardContent>
-          </Card>
-        ))}
+      <StatCardGrid>
+        <StatCard
+          label="הכנסה שנתית"
+          value={formatCurrency(stats.annualIncome)}
+          icon={TrendingUp}
+          color="#10b981"
+        />
+        <StatCard
+          label="ממוצע ליחידה"
+          value={formatCurrency(stats.avgPerUnit)}
+          icon={Banknote}
+          color="#8b5cf6"
+        />
+        <StatCard
+          label="הכנסה חודשית"
+          value={formatCurrency(property.monthlyIncome)}
+          icon={Banknote}
+          color="#3b82f6"
+        />
+        <StatCard label="תפוסה" value={`${stats.occupancy}%`} icon={Layers} color="#10b981" />
+        <StatCard label="שוכרים" value={stats.tenantCount} icon={Users} color="#f59e0b" />
+        <StatCard
+          label="יחידות"
+          value={`${property.occupiedUnits}/${property.totalUnits}`}
+          icon={Building2}
+          color="#6366f1"
+        />
+      </StatCardGrid>
+
+      <div className="flex flex-wrap gap-2 border-b border-border pb-1">
+        {TABS.map((t) =>
+          t.id === 'overview' ? (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab('overview')}
+              className={cn(
+                'rounded-t-lg px-4 py-2 text-sm font-medium transition-colors',
+                tab === 'overview'
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              {t.label}
+            </button>
+          ) : (
+            <Link
+              key={t.id}
+              to={t.to(property.id)}
+              className="rounded-t-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {t.label}
+            </Link>
+          ),
+        )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Link
-          to={`/broker/units?property=${property.id}`}
-          className="inline-flex h-10 items-center justify-center rounded-xl border border-border px-4 text-sm font-medium hover:bg-muted"
-        >
-          כל היחידות
-        </Link>
-        <Link
-          to={`/broker/tenants?property=${property.id}`}
-          className="inline-flex h-10 items-center justify-center rounded-xl border border-border px-4 text-sm font-medium hover:bg-muted"
-        >
-          שוכרים
-        </Link>
-        <Link
-          to={`/broker/leases?property=${property.id}`}
-          className="inline-flex h-10 items-center justify-center rounded-xl border border-border px-4 text-sm font-medium hover:bg-muted"
-        >
-          חוזים
-        </Link>
-        <Link
-          to={`/broker/payments?property=${property.id}`}
-          className="inline-flex h-10 items-center justify-center rounded-xl border border-border px-4 text-sm font-medium hover:bg-muted"
-        >
-          תשלומים
-        </Link>
-      </div>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-2">
-          <CardTitle className="text-base">יחידות ({property.units.length})</CardTitle>
-          <Button size="sm" onClick={openUnitCreate}>
-            <Plus className="h-4 w-4" />
-            יחידה חדשה
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <ManagedUnitsTable
-            propertyId={property.id}
-            units={property.units}
-            onEdit={openUnitEdit}
-          />
-        </CardContent>
-      </Card>
+      {tab === 'overview' ? (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <CardTitle className="text-base">יחידות בנכס</CardTitle>
+            <Button size="sm" onClick={openUnitCreate}>
+              <Plus className="h-4 w-4" />
+              יחידה חדשה
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <PropertyUnitCards units={property.units} />
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <CardTitle className="text-base">טבלת יחידות ({property.units.length})</CardTitle>
+            <Button size="sm" onClick={openUnitCreate}>
+              <Plus className="h-4 w-4" />
+              יחידה חדשה
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <ManagedUnitsTable
+              propertyId={property.id}
+              units={property.units}
+              onEdit={openUnitEdit}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       <SharePropertyModal
         open={shareOpen}
@@ -266,9 +335,10 @@ export function PropertyDetailPage() {
                 unit_number: editingUnit.unit_number,
                 unit_name: editingUnit.unit_name ?? '',
                 area_sqm: editingUnit.area_sqm != null ? String(editingUnit.area_sqm) : '',
-                monthly_rent: editingUnit.monthly_rent != null ? String(editingUnit.monthly_rent) : '',
+                monthly_rent:
+                  editingUnit.monthly_rent != null ? String(editingUnit.monthly_rent) : '',
                 unit_status: editingUnit.unit_status,
-                floor: '',
+                floor: editingUnit.floor != null ? String(editingUnit.floor) : '',
               }
             : undefined
         }

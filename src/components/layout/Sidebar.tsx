@@ -1,4 +1,4 @@
-import { ChevronLeft, Eye, LogOut, Pencil, Plus, Shield } from 'lucide-react';
+import { ChevronLeft, CreditCard, Eye, FileText, Layers, LayoutDashboard, LogOut, Pencil, Plus, Shield, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -189,10 +189,10 @@ export function Sidebar({
                                 onClick={onClose}
                                 className={({ isActive }) =>
                                   cn(
-                                    'flex min-w-0 flex-1 items-center gap-1 rounded-lg px-2 py-1.5 text-xs transition-colors',
+                                    'flex min-w-0 flex-1 items-center gap-1 rounded-lg border px-2 py-1.5 text-xs transition-colors',
                                     isActive || activePropertyId === prop.id
-                                      ? 'bg-primary/10 font-medium text-primary'
-                                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                                      ? 'border-primary/50 bg-primary/10 font-medium text-primary shadow-sm'
+                                      : 'border-transparent text-muted-foreground hover:bg-muted hover:text-foreground',
                                   )
                                 }
                               >
@@ -202,72 +202,81 @@ export function Sidebar({
                             </div>
                             {isPropertyExpanded(prop.id) && (
                               <ul className="me-2 space-y-0.5 border-s border-border ps-3 pb-1 pt-1">
-                                <li>
-                                  <div className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground">
-                                    <NavLink
-                                      to={`/broker/units?property=${prop.id}`}
-                                      onClick={onClose}
-                                      className="flex-1"
-                                    >
-                                      יחידות ({prop.totalUnits})
-                                    </NavLink>
-                                    <button
-                                      type="button"
-                                      aria-label="הוסף יחידה"
-                                      className="grid h-5 w-5 place-items-center rounded text-primary hover:bg-primary/10"
-                                      onClick={(e) => handleQuickAdd(e, 'unit', prop.id)}
-                                    >
-                                      <Plus className="h-3 w-3" />
-                                    </button>
-                                  </div>
-                                </li>
-                                <li>
-                                  <div className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground">
-                                    <NavLink
-                                      to={`/broker/tenants?property=${prop.id}`}
-                                      onClick={onClose}
-                                      className="flex-1"
-                                    >
-                                      שוכרים ({prop.tenantCount})
-                                    </NavLink>
-                                    <button
-                                      type="button"
-                                      aria-label="הוסף שוכר"
-                                      className="grid h-5 w-5 place-items-center rounded text-primary hover:bg-primary/10"
-                                      onClick={(e) => handleQuickAdd(e, 'tenant', prop.id)}
-                                    >
-                                      <Plus className="h-3 w-3" />
-                                    </button>
-                                  </div>
-                                </li>
-                                <li>
-                                  <div className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground">
-                                    <NavLink
-                                      to={`/broker/leases?property=${prop.id}`}
-                                      onClick={onClose}
-                                      className="flex-1"
-                                    >
-                                      חוזים ({prop.leaseCount})
-                                    </NavLink>
-                                    <button
-                                      type="button"
-                                      aria-label="הוסף חוזה"
-                                      className="grid h-5 w-5 place-items-center rounded text-primary hover:bg-primary/10"
-                                      onClick={(e) => handleQuickAdd(e, 'lease', prop.id)}
-                                    >
-                                      <Plus className="h-3 w-3" />
-                                    </button>
-                                  </div>
-                                </li>
-                                <li>
-                                  <NavLink
-                                    to={`/broker/payments?property=${prop.id}`}
-                                    onClick={onClose}
-                                    className="flex items-center gap-2 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
-                                  >
-                                    תשלומים ({prop.paymentCount})
-                                  </NavLink>
-                                </li>
+                                {[
+                                  {
+                                    label: 'סקירה',
+                                    to: `/broker/properties/${prop.id}`,
+                                    count: null as number | null,
+                                    icon: LayoutDashboard,
+                                    end: true,
+                                  },
+                                  {
+                                    label: 'יחידות',
+                                    to: `/broker/units?property=${prop.id}`,
+                                    count: prop.totalUnits,
+                                    icon: Layers,
+                                    addNew: 'unit' as const,
+                                  },
+                                  {
+                                    label: 'שוכרים',
+                                    to: `/broker/tenants?property=${prop.id}`,
+                                    count: prop.tenantCount,
+                                    icon: Users,
+                                    addNew: 'tenant' as const,
+                                  },
+                                  {
+                                    label: 'חוזים',
+                                    to: `/broker/leases?property=${prop.id}`,
+                                    count: prop.leaseCount,
+                                    icon: FileText,
+                                    addNew: 'lease' as const,
+                                  },
+                                  {
+                                    label: 'תשלומים',
+                                    to: `/broker/payments?property=${prop.id}`,
+                                    count: prop.paymentCount,
+                                    icon: CreditCard,
+                                  },
+                                ].map((sub) => {
+                                  const SubIcon = sub.icon;
+                                  return (
+                                    <li key={sub.label}>
+                                      <div className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-muted/50">
+                                        <NavLink
+                                          to={sub.to}
+                                          end={sub.end}
+                                          onClick={onClose}
+                                          className={({ isActive }) =>
+                                            cn(
+                                              'flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors',
+                                              isActive
+                                                ? 'bg-primary/10 font-medium text-primary'
+                                                : 'text-muted-foreground hover:text-foreground',
+                                            )
+                                          }
+                                        >
+                                          <SubIcon className="h-3.5 w-3.5 shrink-0 opacity-80" />
+                                          <span className="flex-1">{sub.label}</span>
+                                          {sub.count != null && (
+                                            <span className="shrink-0 tabular-nums text-muted-foreground">
+                                              ({sub.count})
+                                            </span>
+                                          )}
+                                        </NavLink>
+                                        {sub.addNew && (
+                                          <button
+                                            type="button"
+                                            aria-label={`הוסף ${sub.label}`}
+                                            className="grid h-5 w-5 shrink-0 place-items-center rounded text-primary hover:bg-primary/10"
+                                            onClick={(e) => handleQuickAdd(e, sub.addNew, prop.id)}
+                                          >
+                                            <Plus className="h-3 w-3" />
+                                          </button>
+                                        )}
+                                      </div>
+                                    </li>
+                                  );
+                                })}
                               </ul>
                             )}
                           </li>

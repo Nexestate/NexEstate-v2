@@ -1,7 +1,7 @@
 import { calculateDemoStats, DEMO_MANAGED_PROPERTIES, DEMO_PROPERTIES } from '../../data/demoData';
 import type { PropertyWithUnits } from '../../types/domain';
 import { fetchClients, fetchLeads, fetchLeases, fetchProperties, fetchTasks, fetchTenants } from './index';
-import { isDemoMode } from './serviceHelpers';
+import { isDemoMode, requireSupabase } from './serviceHelpers';
 
 export interface BrokerDashboardStats {
   properties: number;
@@ -95,12 +95,25 @@ export async function fetchManagedPropertySidebar(
       fetchLeases(brokerId),
     ]);
 
+    const tenantIdsByProperty = new Map<string, Set<string>>();
+    for (const l of leases) {
+      if (!l.property_id || !l.is_active) continue;
+      leaseByProperty.set(l.property_id, (leaseByProperty.get(l.property_id) ?? 0) + 1);
+      if (l.tenant_id) {
+        if (!tenantIdsByProperty.has(l.property_id)) {
+          tenantIdsByProperty.set(l.property_id, new Set());
+        }
+        tenantIdsByProperty.get(l.property_id)!.add(l.tenant_id);
+      }
+    }
+    for (const [pid, ids] of tenantIdsByProperty) {
+      tenantByProperty.set(pid, ids.size);
+    }
     for (const t of tenants) {
       const pid = (t as { property_id?: string }).property_id;
-      if (pid) tenantByProperty.set(pid, (tenantByProperty.get(pid) ?? 0) + 1);
-    }
-    for (const l of leases) {
-      if (l.property_id) leaseByProperty.set(l.property_id, (leaseByProperty.get(l.property_id) ?? 0) + 1);
+      if (pid && !tenantByProperty.has(pid)) {
+        tenantByProperty.set(pid, (tenantByProperty.get(pid) ?? 0) + 1);
+      }
     }
   } catch (err) {
     console.error('[fetchManagedPropertySidebar] tenant/lease counts failed', err);
@@ -116,4 +129,46 @@ export async function fetchManagedPropertySidebar(
   }));
 
   return { properties, sidebar };
+}
+
+/** Sidebar counts for a single property (owned or shared). */
+export async function fetchPropertySidebarItem(
+  propertyId: string,
+  title?: string,
+): Promise<ManagedPropertySidebarItem> {
+  if (isDemoMode()) {
+    const demo = DEMO_MANAGED_PROPERTIES.find((p) => p.id === propertyId);
+    return {
+      id: propertyId,
+      title: title ?? demo?.title ?? 'נכס',
+      totalUnits: demo?.totalUnits ?? 0,
+      tenantCount: 3,
+      leaseCount: 4,
+      paymentCount: 4,
+    };
+  }
+
+  const client = requireSupabase();
+  const [{ data: prop }, { data: units }, { data: leases }] = await Promise.all([
+    client.from('properties').select('title').eq('id', propertyId).maybeSingle(),
+    client.from('property_units').select('id').eq('property_id', propertyId),
+    client
+      .from('leases')
+      .select('id, tenant_id')
+      .eq('property_id', propertyId)
+      .eq('is_active', true),
+  ]);
+
+  const tenantIds = new Set(
+    (leases ?? []).map((l) => l.tenant_id as string).filter(Boolean),
+  );
+
+  return {
+    id: propertyId,
+    title: title ?? (prop?.title as string) ?? 'נכס',
+    totalUnits: units?.length ?? 0,
+    tenantCount: tenantIds.size,
+    leaseCount: leases?.length ?? 0,
+    paymentCount: leases?.length ?? 0,
+  };
 }
