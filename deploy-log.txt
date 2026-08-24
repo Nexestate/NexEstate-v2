@@ -1,19 +1,44 @@
-?? .git-status-tmp.txt
-?? _build.log
-?? _git_out.txt
-?? _status.txt
-?? build-out.txt
-?? commit-crm-changes.ps1
-?? deploy-log.txt
-?? finish-deploy.ps1
-?? fix-and-push.ps1
-?? fix-vercel-tsc.ps1
-?? git-check.txt
-?? git-diff-out.txt
-?? git-status-out.txt
-?? head.txt
-?? log-copy.txt
-?? push-green-build.ps1
-?? src/components/broker/EntityLinkButton.tsx
-?? src/components/ui/BackButton.tsx
-?? test-out.txt
+=== STEP 2: npm run build ===
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> nexestate@0.1.0 build
+> tsc -b && vite build
+
+vite v6.4.3 building for production...
+transforming...
+?£ף 1783 modules transformed.
+[plugin vite:reporter] 
+(!) C:/Users/office/Projects/NexEstate-v2/src/lib/services/edgeFunctions.ts is dynamically imported by C:/Users/office/Projects/NexEstate-v2/src/hooks/usePropertyShares.ts, C:/Users/office/Projects/NexEstate-v2/src/hooks/usePropertyShares.ts, C:/Users/office/Projects/NexEstate-v2/src/hooks/usePropertyShares.ts but also statically imported by C:/Users/office/Projects/NexEstate-v2/src/lib/services/index.ts, C:/Users/office/Projects/NexEstate-v2/src/lib/services/signingService.ts, dynamic import will not move module into another chunk.
+System.Management.Automation.RemoteException
+rendering chunks...
+computing gzip size...
+dist/index.html                   1.39 kB ?פג gzip:   0.67 kB
+dist/assets/index-BA_YhQfB.css   73.88 kB ?פג gzip:  12.27 kB
+dist/assets/index-D9zLERMV.js   798.63 kB ?פג gzip: 212.72 kB
+System.Management.Automation.RemoteException
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+?£ף built in 21.88s
+ M deploy-log.txt
+5e46407 fix: sticky nav, entity popup links, and back buttons in broker CRM
+To https://github.com/Nexestate/NexEstate-v2.git
+   cf7f7c0..5e46407  main -> main
+PUSH_EXIT=0
+
+=== STEP 8: git log -1 --oneline ===
+5e46407 fix: sticky nav, entity popup links, and back buttons in broker CRM
+
+=== STEP 8: git status ===
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   deploy-log.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+=== FINAL: push succeeded (exit 0 on last git push origin main) ===
