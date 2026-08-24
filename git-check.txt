@@ -1,0 +1,12 @@
+ M src/components/layout/DashboardLayout.tsx
+?? build-out.txt
+?? fix-and-push.ps1
+?? fix-vercel-tsc.ps1
+?? git-check.txt
+?? git-diff-out.txt
+?? git-status-out.txt
+?? push-green-build.ps1
+?? src/components/broker/EntityDetailModal.tsx
+?? src/contexts/EntityDetailContext.tsx
+ src/components/layout/DashboardLayout.tsx | 5 +++++
+ 1 file changed, 5 insertions(+)

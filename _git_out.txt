@@ -1,0 +1,25 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.git-status-tmp.txt
+	_build.log
+	_git_out.txt
+	_status.txt
+	build-out.txt
+	commit-crm-changes.ps1
+	finish-deploy.ps1
+	fix-and-push.ps1
+	fix-vercel-tsc.ps1
+	git-check.txt
+	git-diff-out.txt
+	git-status-out.txt
+	push-green-build.ps1
+	src/components/broker/EntityLinkButton.tsx
+	src/components/ui/BackButton.tsx
+
+nothing added to commit but untracked files present (use "git add" to track)
+cf7f7c0 Fix DashboardLayout merge so production can build
+43223f4 Fix active lease rents, entity detail modals, and cross-linking
+4c6d9d4 Fix partner access to units, leases, tenants and payments pages.
