@@ -42,3 +42,7 @@ Changes not staged for commit:
 no changes added to commit (use "git add" and/or "git commit -a")
 
 === FINAL: push succeeded (exit 0 on last git push origin main) ===
+[main ccf1870] fix: sticky nav, entity popup links, and back buttons in broker CRM
+ 1 file changed, 44 insertions(+), 19 deletions(-)
+error: cannot pull with rebase: You have unstaged changes.
+error: Please commit or stash them.
