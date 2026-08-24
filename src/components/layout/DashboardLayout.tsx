@@ -3,8 +3,10 @@ import { Outlet } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { QuickAddProvider } from '../../contexts/QuickAddContext';
+import { EntityDetailProvider } from '../../contexts/EntityDetailContext';
 import { cn } from '../../lib/utils';
 import type { NavSection, PermissionLevel } from '../../types';
+import { EntityDetailModal } from '../broker/EntityDetailModal';
 import { QuickAddModals } from '../broker/QuickAddModals';
 import { Header } from './Header';
 import { MobileBottomNav } from '../mobile/MobileBottomNav';
@@ -41,8 +43,14 @@ export function DashboardLayout({
 
   return (
     <QuickAddProvider>
+<<<<<<< HEAD
       <div className="flex h-[100dvh] min-w-0 overflow-hidden bg-background">
         <div className="hidden h-full shrink-0 lg:block">
+=======
+      <EntityDetailProvider>
+      <div className="flex min-h-[100dvh] min-w-0 bg-background">
+        <div className="hidden lg:block">
+>>>>>>> 9b4f1a8 (Fix active lease rents, entity detail modals, and cross-linking)
           <Sidebar
             sections={sections}
             managedProperties={managedProperties}
@@ -79,6 +87,8 @@ export function DashboardLayout({
         </div>
       </div>
       <QuickAddModals />
+      <EntityDetailModal />
+      </EntityDetailProvider>
     </QuickAddProvider>
   );
 }
