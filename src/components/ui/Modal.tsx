@@ -20,17 +20,19 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
       <button type="button" aria-label="סגור" className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div
         className={cn(
-          'relative z-10 w-full max-w-lg rounded-t-2xl border border-border bg-card p-6 shadow-xl sm:rounded-2xl',
+          'relative z-10 flex max-h-[min(92dvh,100%)] w-full max-w-lg flex-col rounded-t-2xl border border-border bg-card shadow-xl sm:rounded-2xl',
           className,
         )}
       >
-        <div className="mb-4 flex items-center justify-between">
+        <div className="flex shrink-0 items-center justify-between border-b border-border px-6 py-4">
           <h2 className="text-lg font-bold">{title}</h2>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
           </Button>
         </div>
-        {children}
+        <div data-modal-scroll className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-4">
+          {children}
+        </div>
       </div>
     </div>
   );
