@@ -35,6 +35,11 @@ export function DashboardLayout({
   useRealtimeNotifications(user?.id);
 
   useEffect(() => {
+    document.documentElement.classList.add('dashboard-shell');
+    return () => document.documentElement.classList.remove('dashboard-shell');
+  }, []);
+
+  useEffect(() => {
     if (sidebarOpen) document.body.classList.add('mobile-menu-open');
     else document.body.classList.remove('mobile-menu-open');
     return () => document.body.classList.remove('mobile-menu-open');

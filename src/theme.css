@@ -80,6 +80,16 @@ html.dark {
   }
 }
 
+/* Dashboard: lock html/body so overflow-x:hidden does not force document scroll
+   (CSS spec: overflow-x != visible + overflow-y visible → overflow-y computes to auto). */
+html.dashboard-shell,
+html.dashboard-shell body,
+html.dashboard-shell #root {
+  height: 100%;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
 @layer utilities {
   .glass-card {
     background-color: rgb(17 24 39 / 0.8);
