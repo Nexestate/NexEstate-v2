@@ -1,5 +1,4 @@
 import { Pencil } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
@@ -8,7 +7,6 @@ import type { PropertyUnit } from '../../types/domain';
 import { UNIT_STATUS_LABELS } from '../../types/domain';
 import { EntityLinkButton } from './EntityLinkButton';
 import { useEntityDetail } from '../../contexts/EntityDetailContext';
-import { stopRowClick } from './EntityDetailModal';
 
 const STATUS_VARIANT: Record<string, 'success' | 'primary' | 'warning' | 'outline'> = {
   occupied: 'success',

@@ -15,7 +15,6 @@ import { formatCurrency } from '../../lib/utils';
 import type { PropertyUnit, PropertyWithUnits } from '../../types/domain';
 import { UNIT_STATUS_LABELS } from '../../types/domain';
 import { EntityLinkButton } from '../../components/broker/EntityLinkButton';
-import { stopRowClick } from '../../components/broker/EntityDetailModal';
 import { BackButton } from '../../components/ui/BackButton';
 import { useEntityDetail } from '../../contexts/EntityDetailContext';
 

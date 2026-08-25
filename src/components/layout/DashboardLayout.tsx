@@ -4,7 +4,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { QuickAddProvider } from '../../contexts/QuickAddContext';
 import { EntityDetailProvider } from '../../contexts/EntityDetailContext';
-import { cn } from '../../lib/utils';
 import type { NavSection, PermissionLevel } from '../../types';
 import { EntityDetailModal } from '../broker/EntityDetailModal';
 import { QuickAddModals } from '../broker/QuickAddModals';
