@@ -51,15 +51,16 @@ export function DashboardLayout({
 
   return (
     <QuickAddProvider>
-      <EntityDetailProvider>
-        <div className="flex min-min-h-screen min-w-0 bg-background">
-          <div className="sticky top-0 self-start h-screen hidden min-h-screen shrink-0 lg:block">
+      <EntityDetailProvider userId={user?.id}>
+        <div className="flex h-[100dvh] min-h-0 min-w-0 overflow-hidden bg-background">
+          <div className="hidden h-full shrink-0 lg:block">
             <Sidebar
               sections={sections}
               managedProperties={managedProperties}
               sharedProperties={sharedProperties}
             />
           </div>
+
           <SidebarOverlay open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           <MobileSidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)}>
             <Sidebar
@@ -69,16 +70,19 @@ export function DashboardLayout({
               onClose={() => setSidebarOpen(false)}
             />
           </MobileSidebarDrawer>
-          <div className="flex min-w-0 flex-1 flex-col">
-            <div className="sticky top-0 z-30 shrink-0 border-b border-border bg-background/95 p-4 backdrop-blur lg:hidden">
+
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+            <div className="z-30 shrink-0 border-b border-border bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 lg:hidden">
               {header}
             </div>
-            <main className="flex min-w-0 flex-1 flex-col overflow-y-auto lg:overflow-visible overscroll-contain">
+
+            <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
               <div className="hidden px-8 pt-8 lg:block">{header}</div>
               <div className="p-4 pb-28 lg:p-8 lg:pb-8">
                 <Outlet />
               </div>
             </main>
+
             <MobileBottomNav variant={bottomNav} />
           </div>
         </div>
