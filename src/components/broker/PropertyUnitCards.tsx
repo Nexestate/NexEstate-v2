@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
 import { Badge } from '../ui/Badge';
+import { useEntityDetail } from '../../contexts/EntityDetailContext';
 import { formatCurrency } from '../../lib/utils';
 import type { PropertyUnit } from '../../types/domain';
 import { UNIT_STATUS_LABELS } from '../../types/domain';
@@ -11,22 +11,37 @@ const STATUS_VARIANT: Record<string, 'success' | 'primary' | 'warning' | 'outlin
   reserved: 'outline',
 };
 
+type UnitCard = PropertyUnit & { floor?: number };
+
 interface PropertyUnitCardsProps {
-  units: PropertyUnit[];
+  units: UnitCard[];
+  propertyId?: string;
+  propertyTitle?: string;
 }
 
-export function PropertyUnitCards({ units }: PropertyUnitCardsProps) {
+export function PropertyUnitCards({ units, propertyId, propertyTitle }: PropertyUnitCardsProps) {
+  const { openUnit } = useEntityDetail();
+
   if (units.length === 0) {
-    return <p className="py-8 text-center text-sm text-muted-foreground">אין יחידות בנכס זה</p>;
+    return (
+      <p className="py-8 text-center text-sm text-muted-foreground">אין יחידות בנכס זה</p>
+    );
   }
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {units.map((unit) => (
-        <Link
+        <button
           key={unit.id}
-          to={`/broker/units/${unit.id}`}
-          className="group rounded-2xl border border-border bg-card/50 p-4 transition-colors hover:border-primary/40 hover:bg-muted/30"
+          type="button"
+          className="group rounded-2xl border border-border bg-card/50 p-4 text-start transition-colors hover:border-primary/40 hover:bg-muted/30"
+          onClick={() =>
+            openUnit({
+              ...unit,
+              propertyTitle: propertyTitle ?? unit.unit_name ?? unit.unit_number,
+              property_id: unit.property_id || propertyId || '',
+            })
+          }
         >
           <div className="mb-3 flex items-start justify-between gap-2">
             <Badge variant={STATUS_VARIANT[unit.unit_status] ?? 'outline'}>
@@ -47,7 +62,7 @@ export function PropertyUnitCards({ units }: PropertyUnitCardsProps) {
           {unit.monthly_rent != null && (
             <p className="mt-3 text-lg font-bold text-primary">{formatCurrency(unit.monthly_rent)}</p>
           )}
-        </Link>
+        </button>
       ))}
     </div>
   );
