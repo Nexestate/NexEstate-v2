@@ -4,3 +4,8 @@ dist
 .env.local
 *.local
 .DS_Store
+deploy-log.txt
+push-result.log
+push-check.txt
+*.log
+src/deploy-status.md

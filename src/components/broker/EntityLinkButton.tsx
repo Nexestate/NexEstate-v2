@@ -7,7 +7,6 @@ interface EntityLinkButtonProps {
   onClick: () => void;
 }
 
-/** Inline table link that opens entity detail without row navigation side-effects. */
 export function EntityLinkButton({ children, className, disabled, onClick }: EntityLinkButtonProps) {
   if (disabled) {
     return <span className="text-muted-foreground">{children}</span>;

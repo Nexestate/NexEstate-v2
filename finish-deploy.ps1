@@ -1,121 +1,52 @@
-# Overwrite DashboardLayout.tsx (clean), build, commit, rebase, push.
+# 1) Write UX files to disk  2) build  3) commit src  4) push
 $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
 $env:GIT_PAGER = 'cat'
 $env:GIT_EDITOR = 'true'
+$status = Join-Path $PSScriptRoot 'src\deploy-status.md'
 
-$layoutPath = Join-Path $PSScriptRoot 'src\components\layout\DashboardLayout.tsx'
-$clean = @'
-import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
-import { QuickAddProvider } from '../../contexts/QuickAddContext';
-import { EntityDetailProvider } from '../../contexts/EntityDetailContext';
-import { cn } from '../../lib/utils';
-import type { NavSection, PermissionLevel } from '../../types';
-import { EntityDetailModal } from '../broker/EntityDetailModal';
-import { QuickAddModals } from '../broker/QuickAddModals';
-import { Header } from './Header';
-import { MobileBottomNav } from '../mobile/MobileBottomNav';
-import { Sidebar, SidebarOverlay, MobileSidebarDrawer } from './Sidebar';
-
-interface DashboardLayoutProps {
-  sections: NavSection[];
-  managedProperties?: import('../../lib/services/brokerStatsService').ManagedPropertySidebarItem[];
-  managedPropertiesLoading?: boolean;
-  sharedProperties?: Array<{ id: string; title: string; permissionLevel: PermissionLevel }>;
-  mobileNav?: 'broker' | 'buyer' | 'admin' | 'partner';
-  headerSubtitle?: string;
-  notificationsPath?: string;
+function W([string]$m) {
+  Add-Content -Path $status -Value $m -Encoding UTF8
+  Write-Host $m
 }
 
-export function DashboardLayout({
-  sections,
-  managedProperties,
-  sharedProperties,
-  mobileNav = 'broker',
-  headerSubtitle,
-  notificationsPath,
-}: DashboardLayoutProps) {
-  const bottomNav = mobileNav === 'partner' ? 'broker' : mobileNav;
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useAuth();
-  useRealtimeNotifications(user?.id);
+try {
+  Set-Content -Path $status -Value "# deploy status`n" -Encoding UTF8
+  W "cwd=$PWD"
+  W "=== apply UX files to disk ==="
+  node .\apply-ux-fixes.mjs
+  if ($LASTEXITCODE -ne 0) { W "apply-ux-fixes failed exit=$LASTEXITCODE"; exit 1 }
 
-  useEffect(() => {
-    if (sidebarOpen) document.body.classList.add('mobile-menu-open');
-    else document.body.classList.remove('mobile-menu-open');
-    return () => document.body.classList.remove('mobile-menu-open');
-  }, [sidebarOpen]);
+  W "=== npm run build ==="
+  npm run build
+  if ($LASTEXITCODE -ne 0) { W "BUILD FAILED exit=$LASTEXITCODE"; exit 1 }
+  W "build ok"
 
-  return (
-    <QuickAddProvider>
-      <EntityDetailProvider>
-        <div className="flex min-h-[100dvh] min-w-0 bg-background">
-          <div className="hidden lg:block">
-            <Sidebar
-              sections={sections}
-              managedProperties={managedProperties}
-              sharedProperties={sharedProperties}
-            />
-          </div>
+  W "=== git add ==="
+  git add -- src/components src/contexts/EntityDetailContext.tsx src/pages/broker apply-ux-fixes.mjs finish-deploy.ps1 .gitignore
+  $names = git --no-pager diff --cached --name-only
+  W "STAGED:"
+  W ($names -join "`n")
+  git --no-pager diff --cached --stat | ForEach-Object { W $_ }
 
-          <SidebarOverlay open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-          <MobileSidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)}>
-            <Sidebar
-              sections={sections}
-              managedProperties={managedProperties}
-              sharedProperties={sharedProperties}
-              onClose={() => setSidebarOpen(false)}
-            />
-          </MobileSidebarDrawer>
+  $staged = @($names | Where-Object { $_ })
+  if ($staged.Count -eq 0) {
+    W "NOTHING STAGED"
+    git status --short | ForEach-Object { W $_ }
+    exit 1
+  }
 
-          <div className="flex min-w-0 flex-1 flex-col">
-            <main
-              className={cn(
-                'flex min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto p-4 pb-24 lg:p-8 lg:pb-8',
-              )}
-            >
-              <Header
-                subtitle={headerSubtitle}
-                onMenuClick={() => setSidebarOpen(true)}
-                notificationsPath={notificationsPath}
-              />
-              <Outlet />
-            </main>
-            <MobileBottomNav variant={bottomNav} />
-          </div>
-        </div>
-        <QuickAddModals />
-        <EntityDetailModal />
-      </EntityDetailProvider>
-    </QuickAddProvider>
-  );
+  W "=== git commit ==="
+  git commit -m "fix: sticky nav, entity popup links, and back buttons in broker CRM"
+  W "=== pull --rebase ==="
+  git pull --rebase origin main
+  if ($LASTEXITCODE -ne 0) { W "PULL FAILED"; exit 1 }
+  W "=== push ==="
+  git push origin main
+  if ($LASTEXITCODE -ne 0) { W "PUSH FAILED"; exit 1 }
+  W "PUSH OK"
+  git --no-pager log -1 --stat | ForEach-Object { W $_ }
+} catch {
+  W "ERROR: $_"
+  exit 1
 }
-'@
-[IO.File]::WriteAllText($layoutPath, $clean.Replace("`n", "`r`n"))
-Write-Host 'Wrote clean DashboardLayout.tsx' -ForegroundColor Green
-
-Write-Host '=== npm run build ===' -ForegroundColor Cyan
-npm run build
-if ($LASTEXITCODE -ne 0) { exit 1 }
-
-Write-Host '=== git add + commit ===' -ForegroundColor Cyan
-git add -- src/components/layout/DashboardLayout.tsx src/components/broker/EntityDetailModal.tsx src/contexts/EntityDetailContext.tsx
-$staged = @(git --no-pager diff --cached --name-only)
-git --no-pager diff --cached --stat
-if ($staged.Count -gt 0) {
-  git -c user.email="nexuservice@gmail.com" -c user.name="Michael Wiener" commit -m "Fix DashboardLayout merge so production can build"
-} else {
-  Write-Host 'No layout diff to commit (already clean in git).' -ForegroundColor Yellow
-}
-
-Write-Host '=== pull --rebase ===' -ForegroundColor Cyan
-git pull --rebase origin main
-if ($LASTEXITCODE -ne 0) { exit 1 }
-
-Write-Host '=== push ===' -ForegroundColor Cyan
-git push origin main
-if ($LASTEXITCODE -ne 0) { exit 1 }
-Write-Host 'Done. Check Vercel for Ready.' -ForegroundColor Green

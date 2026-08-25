@@ -8,8 +8,11 @@ import { useAsyncData } from '../../hooks/useAsyncData';
 import { fetchAccessiblePropertyIds, fetchPayments } from '../../lib/services';
 import { formatCurrency } from '../../lib/utils';
 import { PAYMENT_STATUS_LABELS } from '../../types/domain';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { BackButton } from '../../components/ui/BackButton';
+import { EntityLinkButton } from '../../components/broker/EntityLinkButton';
+import { useEntityDetail } from '../../contexts/EntityDetailContext';
 
 const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'destructive' | 'outline'> = {
   paid: 'success',
@@ -21,7 +24,9 @@ const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'destructive' | 'ou
 export function PaymentsPage() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
+  const { openPayment, openPaymentById, openTenantById, openUnitById, openLeaseById } = useEntityDetail();
   const propertyFilter = searchParams.get('property');
+  const openId = searchParams.get('open');
   const [search, setSearch] = useState('');
 
   const loadPayments = useCallback(async () => {
@@ -59,6 +64,13 @@ export function PaymentsPage() {
     };
   }, [scoped]);
 
+  useEffect(() => {
+    if (!openId || loading || !payments) return;
+    const payment = payments.find((p) => p.id === openId);
+    if (payment) openPayment(payment);
+    else void openPaymentById(openId);
+  }, [openId, loading, payments, openPayment, openPaymentById]);
+
   if (loading) return <PageLoader />;
 
   if (error) {
@@ -71,6 +83,7 @@ export function PaymentsPage() {
 
   return (
     <div className="space-y-6">
+      {propertyFilter && <BackButton to="/broker/payments" label="חזרה לכל התשלומים" />}
       <PageHeader
         title="תשלומים"
         description={
@@ -119,18 +132,15 @@ export function PaymentsPage() {
           </TableHeader>
           <TableBody>
             {filtered.map((p) => (
-              <TableRow key={p.id}>
+              <TableRow key={p.id} className="cursor-pointer" onClick={() => openPayment(p)}>
                 <TableCell className="font-medium">
-                  {p.tenant_id && p.property_id ? (
-                    <Link
-                      to={`/broker/tenants?property=${p.property_id}&open=${p.tenant_id}`}
-                      className="text-primary hover:underline"
-                    >
-                      {p.tenant_name}
-                    </Link>
-                  ) : (
-                    p.tenant_name
-                  )}
+                  {p.tenant_id ? (
+                  <EntityLinkButton onClick={() => void openTenantById(p.tenant_id!)}>
+                    {p.tenant_name}
+                  </EntityLinkButton>
+                ) : (
+                  p.tenant_name
+                )}
                 </TableCell>
                 <TableCell>
                   {p.property_id ? (
@@ -143,15 +153,12 @@ export function PaymentsPage() {
                 </TableCell>
                 <TableCell>
                   {p.unit_id && p.property_id ? (
-                    <Link
-                      to={`/broker/units?property=${p.property_id}&open=${p.unit_id}`}
-                      className="text-primary hover:underline"
-                    >
-                      {p.unit_number}
-                    </Link>
-                  ) : (
-                    p.unit_number
-                  )}
+                  <EntityLinkButton onClick={() => void openUnitById(p.property_id!, p.unit_id!)}>
+                    {p.unit_number}
+                  </EntityLinkButton>
+                ) : (
+                  p.unit_number
+                )}
                 </TableCell>
                 <TableCell className="font-medium">{formatCurrency(p.amount)}</TableCell>
                 <TableCell>{new Date(p.due_date).toLocaleDateString('he-IL')}</TableCell>
@@ -159,16 +166,13 @@ export function PaymentsPage() {
                   <Badge variant={STATUS_VARIANT[p.status]}>{PAYMENT_STATUS_LABELS[p.status]}</Badge>
                 </TableCell>
                 <TableCell>
-                  {p.lease_id && p.property_id ? (
-                    <Link
-                      to={`/broker/leases?property=${p.property_id}&open=${p.lease_id}`}
-                      className="text-primary hover:underline"
-                    >
-                      צפייה
-                    </Link>
-                  ) : (
-                    '—'
-                  )}
+                  {p.lease_id ? (
+                  <EntityLinkButton onClick={() => void openLeaseById(p.lease_id!)}>
+                    צפייה
+                  </EntityLinkButton>
+                ) : (
+                  '—'
+                )}
                 </TableCell>
               </TableRow>
             ))}

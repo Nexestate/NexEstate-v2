@@ -14,6 +14,10 @@ import { fetchAccessibleProperties, updateUnit } from '../../lib/services';
 import { formatCurrency } from '../../lib/utils';
 import type { PropertyUnit, PropertyWithUnits } from '../../types/domain';
 import { UNIT_STATUS_LABELS } from '../../types/domain';
+import { EntityLinkButton } from '../../components/broker/EntityLinkButton';
+import { stopRowClick } from '../../components/broker/EntityDetailModal';
+import { BackButton } from '../../components/ui/BackButton';
+import { useEntityDetail } from '../../contexts/EntityDetailContext';
 
 const STATUS_VARIANT: Record<string, 'success' | 'primary' | 'warning' | 'outline'> = {
   occupied: 'success',
@@ -25,6 +29,7 @@ const STATUS_VARIANT: Record<string, 'success' | 'primary' | 'warning' | 'outlin
 export function UnitsPage() {
   const { user } = useAuth();
   const { openQuickAdd } = useQuickAdd();
+  const { openUnit, openUnitById, openTenantById, openLeaseById } = useEntityDetail();
   const [searchParams] = useSearchParams();
   const propertyFilter = searchParams.get('property');
   const openId = searchParams.get('open');
@@ -73,6 +78,16 @@ export function UnitsPage() {
     [units, search, propertyFilter],
   );
 
+  useEffect(() => {
+    if (!openId || loading) return;
+    const unit = units.find((u) => u.id === openId);
+    if (unit) {
+      openUnit({ ...unit, propertyTitle: unit.propertyTitle, property_id: unit.property_id });
+      return;
+    }
+    if (propertyFilter) void openUnitById(propertyFilter, openId);
+  }, [openId, units, loading, propertyFilter, openUnit, openUnitById]);
+
   const propertyTitle = propertyFilter
     ? properties.find((p) => p.id === propertyFilter)?.title
     : undefined;
@@ -101,6 +116,10 @@ export function UnitsPage() {
 
   return (
     <div className="space-y-6">
+      {propertyFilter && (
+        <BackButton to="/broker/units" label="חזרה לכל היחידות" />
+      )}
+
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <PageHeader
@@ -150,7 +169,8 @@ export function UnitsPage() {
             {filtered.map((unit) => (
               <TableRow
                 key={unit.id}
-                className={openId === unit.id ? 'bg-primary/5 ring-1 ring-primary/30' : undefined}
+                className={`cursor-pointer ${openId === unit.id ? 'bg-primary/5 ring-1 ring-primary/30' : ''}`}
+                onClick={() => openUnit({ ...unit, propertyTitle: unit.propertyTitle, property_id: unit.property_id })}
               >
                 <TableCell className="font-medium">{unit.unit_number}</TableCell>
                 <TableCell>{unit.unit_name ?? '—'}</TableCell>
@@ -166,24 +186,18 @@ export function UnitsPage() {
                 </TableCell>
                 <TableCell>
                   {unit.tenant_id ? (
-                    <Link
-                      to={`/broker/tenants?property=${unit.property_id}&open=${unit.tenant_id}`}
-                      className="text-primary hover:underline"
-                    >
+                    <EntityLinkButton onClick={() => void openTenantById(unit.tenant_id!)}>
                       {unit.tenant_name}
-                    </Link>
+                    </EntityLinkButton>
                   ) : (
                     '—'
                   )}
                 </TableCell>
                 <TableCell>
                   {unit.lease_id ? (
-                    <Link
-                      to={`/broker/leases?property=${unit.property_id}&open=${unit.lease_id}`}
-                      className="text-primary hover:underline"
-                    >
+                    <EntityLinkButton onClick={() => void openLeaseById(unit.lease_id!)}>
                       צפייה
-                    </Link>
+                    </EntityLinkButton>
                   ) : (
                     '—'
                   )}
@@ -198,7 +212,10 @@ export function UnitsPage() {
                     variant="ghost"
                     size="sm"
                     aria-label="עריכת יחידה"
-                    onClick={() => setEditingUnit(unit)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingUnit(unit);
+                    }}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -231,12 +248,7 @@ export function UnitsPage() {
               <p className="mt-1 text-sm">
                 שוכר:{' '}
                 {unit.tenant_id ? (
-                  <Link
-                    to={`/broker/tenants?property=${unit.property_id}&open=${unit.tenant_id}`}
-                    className="text-primary hover:underline"
-                  >
-                    {unit.tenant_name}
-                  </Link>
+                  <EntityLinkButton onClick={() => void openTenantById(unit.tenant_id!)}>{unit.tenant_name}</EntityLinkButton>
                 ) : (
                   unit.tenant_name
                 )}
@@ -250,7 +262,10 @@ export function UnitsPage() {
               variant="outline"
               size="sm"
               className="mt-3"
-              onClick={() => setEditingUnit(unit)}
+              onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingUnit(unit);
+                    }}
             >
               <Pencil className="h-4 w-4" />
               עריכה

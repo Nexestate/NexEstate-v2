@@ -28,7 +28,13 @@ interface EntityDetailContextValue {
 
 const EntityDetailContext = createContext<EntityDetailContextValue | null>(null);
 
-export function EntityDetailProvider({ children }: { children: ReactNode }) {
+export function EntityDetailProvider({
+  children,
+  userId,
+}: {
+  children: ReactNode;
+  userId?: string;
+}) {
   const [view, setView] = useState<EntityDetailView | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -57,7 +63,7 @@ export function EntityDetailProvider({ children }: { children: ReactNode }) {
   const openTenantById = useCallback(async (tenantId: string) => {
     setLoading(true);
     try {
-      const tenant = (await fetchTenants()).find((t) => t.id === tenantId);
+      const tenant = (await fetchTenants(userId)).find((t) => t.id === tenantId);
       if (tenant) setView({ kind: 'tenant', data: tenant });
     } finally {
       setLoading(false);
@@ -67,7 +73,7 @@ export function EntityDetailProvider({ children }: { children: ReactNode }) {
   const openLeaseById = useCallback(async (leaseId: string) => {
     setLoading(true);
     try {
-      const lease = (await fetchLeases()).find((l) => l.id === leaseId);
+      const lease = (await fetchLeases(userId)).find((l) => l.id === leaseId);
       if (lease) setView({ kind: 'lease', data: lease });
     } finally {
       setLoading(false);

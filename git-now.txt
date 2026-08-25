@@ -1,0 +1,17 @@
+ M .gitignore
+ M finish-deploy.ps1
+ M src/components/broker/EntityLinkButton.tsx
+ M src/components/broker/ManagedUnitsTable.tsx
+ M src/components/layout/DashboardLayout.tsx
+ M src/components/mobile/MobileBottomNav.tsx
+ M src/contexts/EntityDetailContext.tsx
+ M src/pages/broker/LeasesPage.tsx
+ M src/pages/broker/PaymentsPage.tsx
+ M src/pages/broker/UnitsPage.tsx
+?? apply-ux-fixes.mjs
+
+---
+HEAD=aaf4b15711f556da2fff7673476bcddf0c14c37b
+
+---
+MSG=fix: sticky nav, entity popup links, and back buttons in broker CRM

@@ -11,6 +11,9 @@ import { fetchAccessiblePropertyIds, fetchLeasesForProperties, fetchTenantsForPr
 import { formatCurrency } from '../../lib/utils';
 import type { Lease, Tenant } from '../../types/domain';
 import { TENANT_STATUS_LABELS } from '../../types/domain';
+import { EntityLinkButton } from '../../components/broker/EntityLinkButton';
+import { BackButton } from '../../components/ui/BackButton';
+import { useEntityDetail } from '../../contexts/EntityDetailContext';
 
 const TENANT_STATUS_VARIANT: Record<string, 'success' | 'warning' | 'outline'> = {
   active: 'success',
@@ -24,6 +27,7 @@ function formatDate(date: string) {
 
 export function LeasesPage() {
   const { user } = useAuth();
+  const { openLease, openTenant, openLeaseById, openTenantById, openUnitById } = useEntityDetail();
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
   const propertyFilter = searchParams.get('property');
@@ -92,6 +96,21 @@ export function LeasesPage() {
     [tenants, search, propertyFilter],
   );
 
+  useEffect(() => {
+    if (!openId || loading) return;
+    const tenant = tenants.find((t) => t.id === openId);
+    if (tenant) {
+      openTenant(tenant);
+      return;
+    }
+    const lease = leases.find((l) => l.id === openId);
+    if (lease) {
+      openLease(lease);
+      return;
+    }
+    void openTenantById(openId).then(() => openLeaseById(openId));
+  }, [openId, loading, leases, tenants, openLease, openTenant, openTenantById, openLeaseById]);
+
   const propertyTitle = propertyFilter
     ? leases.find((l) => l.property_id === propertyFilter)?.property_title ??
       tenants.find((t) => t.property_id === propertyFilter)?.property_title
@@ -107,6 +126,12 @@ export function LeasesPage() {
 
   return (
     <div className="space-y-6">
+      {propertyFilter && (
+        <BackButton
+          to={section === 'tenants' ? '/broker/tenants' : '/broker/leases'}
+          label="חזרה לרשימה המלאה"
+        />
+      )}
       <div>
         <h2 className="text-xl font-bold">חוזים ושוכרים</h2>
         <p className="text-sm text-muted-foreground">
@@ -142,7 +167,13 @@ export function LeasesPage() {
           {/* Mobile cards */}
           <div className="space-y-3 md:hidden">
             {filteredLeases.map((lease) => (
-              <div key={lease.id} className="rounded-xl border border-border bg-card p-4">
+              <div
+                key={lease.id}
+                role="button"
+                tabIndex={0}
+                className="cursor-pointer rounded-xl border border-border bg-card p-4"
+                onClick={() => openLease(lease)}
+              >
                 <div className="mb-2 flex items-start justify-between">
                   <p className="font-medium">{lease.tenant_name}</p>
                   <Badge variant={lease.is_active ? 'success' : 'outline'}>
@@ -182,15 +213,13 @@ export function LeasesPage() {
                 {filteredLeases.map((lease) => (
                   <TableRow
                     key={lease.id}
-                    className={openId === lease.id ? 'bg-primary/5 ring-1 ring-primary/30' : undefined}
+                    className={`cursor-pointer ${openId === lease.id ? 'bg-primary/5 ring-1 ring-primary/30' : ''}`}
+                    onClick={() => openLease(lease)}
                   >
                     <TableCell className="font-medium">
-                      <Link
-                        to={`/broker/tenants?property=${lease.property_id}&open=${lease.tenant_id}`}
-                        className="text-primary hover:underline"
-                      >
+                      <EntityLinkButton onClick={() => void openTenantById(lease.tenant_id)}>
                         {lease.tenant_name}
-                      </Link>
+                      </EntityLinkButton>
                     </TableCell>
                     <TableCell>
                       <Link
@@ -202,12 +231,9 @@ export function LeasesPage() {
                     </TableCell>
                     <TableCell>
                       {lease.unit_id ? (
-                        <Link
-                          to={`/broker/units?property=${lease.property_id}&open=${lease.unit_id}`}
-                          className="text-primary hover:underline"
-                        >
+                        <EntityLinkButton onClick={() => void openUnitById(lease.property_id, lease.unit_id!)}>
                           {lease.unit_number}
-                        </Link>
+                        </EntityLinkButton>
                       ) : (
                         lease.unit_number
                       )}
@@ -251,7 +277,8 @@ export function LeasesPage() {
             {filteredTenants.map((tenant) => (
               <TableRow
                 key={tenant.id}
-                className={openId === tenant.id ? 'bg-primary/5 ring-1 ring-primary/30' : undefined}
+                className={`cursor-pointer ${openId === tenant.id ? 'bg-primary/5 ring-1 ring-primary/30' : ''}`}
+                onClick={() => openTenant(tenant)}
               >
                 <TableCell>
                   <div className="flex items-center gap-2">
@@ -278,12 +305,9 @@ export function LeasesPage() {
                 </TableCell>
                 <TableCell>
                   {tenant.unit_id && tenant.property_id ? (
-                    <Link
-                      to={`/broker/units?property=${tenant.property_id}&open=${tenant.unit_id}`}
-                      className="text-primary hover:underline"
-                    >
+                    <EntityLinkButton onClick={() => void openUnitById(tenant.property_id!, tenant.unit_id!)}>
                       {tenant.unit_number ?? '—'}
-                    </Link>
+                    </EntityLinkButton>
                   ) : (
                     tenant.unit_number ?? '—'
                   )}
@@ -296,13 +320,10 @@ export function LeasesPage() {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  {tenant.lease_id && tenant.property_id ? (
-                    <Link
-                      to={`/broker/leases?property=${tenant.property_id}&open=${tenant.lease_id}`}
-                      className="text-primary hover:underline"
-                    >
+                  {tenant.lease_id ? (
+                    <EntityLinkButton onClick={() => void openLeaseById(tenant.lease_id!)}>
                       צפייה
-                    </Link>
+                    </EntityLinkButton>
                   ) : (
                     '—'
                   )}
