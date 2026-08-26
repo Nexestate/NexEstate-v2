@@ -171,7 +171,7 @@ interface LeadFormModalProps {
   onSubmit: (values: { full_name: string; phone: string; source?: string }) => Promise<void>;
 }
 
-function LeadFormModal({ open, onClose, onSubmit }: LeadFormModalProps) {
+export function LeadFormModal({ open, onClose, onSubmit }: LeadFormModalProps) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [source, setSource] = useState('');
@@ -220,7 +220,7 @@ interface ClientFormModalProps {
   onSubmit: (values: { full_name: string; type: ClientType; phone?: string; email?: string }) => Promise<void>;
 }
 
-function ClientFormModal({ open, onClose, onSubmit }: ClientFormModalProps) {
+export function ClientFormModal({ open, onClose, onSubmit }: ClientFormModalProps) {
   const [fullName, setFullName] = useState('');
   const [type, setType] = useState<ClientType>('buyer');
   const [phone, setPhone] = useState('');
@@ -290,7 +290,7 @@ interface TaskFormModalProps {
   onSubmit: (values: { title: string; priority: TaskPriority; due_date?: string }) => Promise<void>;
 }
 
-function TaskFormModal({ open, onClose, onSubmit }: TaskFormModalProps) {
+export function TaskFormModal({ open, onClose, onSubmit }: TaskFormModalProps) {
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueDate, setDueDate] = useState('');

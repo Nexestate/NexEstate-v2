@@ -1,5 +1,5 @@
 import { DEMO_LEASES, DEMO_MANAGED_PROPERTIES, DEMO_TENANTS } from '../../data/demoData';
-import type { Lease, Tenant } from '../../types/domain';
+import type { Lease, Tenant, TenantStatus } from '../../types/domain';
 import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
 function mapLeaseRow(row: Record<string, unknown>): Lease {
@@ -262,4 +262,43 @@ export async function fetchTenants(managerId?: string): Promise<Tenant[]> {
       lease_id: lease?.lease_id,
     };
   });
+}
+
+export async function fetchLeaseById(id: string): Promise<Lease | undefined> {
+  const leases = await fetchLeases();
+  return leases.find((l) => l.id === id);
+}
+export async function fetchTenantById(id: string): Promise<Tenant | undefined> {
+  const tenants = await fetchTenants();
+  return tenants.find((t) => t.id === id);
+}
+export async function updateTenant(id: string, payload: { full_name?: string; phone?: string; email?: string; status?: TenantStatus }): Promise<void> {
+  if (isDemoMode()) {
+    const tenant = DEMO_TENANTS.find((t) => t.id === id);
+    if (tenant) {
+      if (payload.full_name !== undefined) { tenant.full_name = payload.full_name; tenant.company_name = payload.full_name; }
+      if (payload.phone !== undefined) tenant.phone = payload.phone;
+      if (payload.email !== undefined) tenant.email = payload.email;
+      if (payload.status !== undefined) tenant.status = payload.status;
+    }
+    return;
+  }
+  const client = requireSupabase();
+  const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (payload.full_name !== undefined) { update.full_name = payload.full_name; update.company_name = payload.full_name; }
+  if (payload.phone !== undefined) update.phone = payload.phone;
+  if (payload.email !== undefined) update.email = payload.email;
+  if (payload.status !== undefined) update.status = payload.status;
+  const { error } = await client.from('tenants').update(update).eq('id', id);
+  throwIfError(error);
+}
+export async function updateLease(id: string, payload: { monthly_rent?: number; start_date?: string; end_date?: string; deposit?: number; is_active?: boolean }): Promise<void> {
+  if (isDemoMode()) {
+    const lease = DEMO_LEASES.find((l) => l.id === id);
+    if (lease) Object.assign(lease, payload);
+    return;
+  }
+  const client = requireSupabase();
+  const { error } = await client.from('leases').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', id);
+  throwIfError(error);
 }

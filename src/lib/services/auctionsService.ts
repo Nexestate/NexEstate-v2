@@ -1,5 +1,5 @@
 import { DEMO_AUCTIONS, DEMO_LEASES, DEMO_PAYMENTS } from '../../data/demoData';
-import type { Auction, Payment } from '../../types/domain';
+import type { Auction, Payment, PaymentStatus } from '../../types/domain';
 import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
 export async function fetchAuctions(): Promise<Auction[]> {
@@ -138,4 +138,23 @@ export async function createAuction(payload: AuctionInsert): Promise<string> {
   throwIfError(error);
   if (!data) throw new ServiceError('Auction insert returned no data');
   return data.id as string;
+}
+
+export async function fetchPaymentById(id: string): Promise<Payment | undefined> {
+  const payments = await fetchPayments();
+  return payments.find((p) => p.id === id);
+}
+export async function updatePayment(id: string, payload: { amount?: number; due_date?: string; status?: PaymentStatus }): Promise<void> {
+  if (isDemoMode()) {
+    const payment = DEMO_PAYMENTS.find((p) => p.id === id);
+    if (payment) Object.assign(payment, payload);
+    return;
+  }
+  const client = requireSupabase();
+  const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (payload.amount !== undefined) update.amount = payload.amount;
+  if (payload.due_date !== undefined) update.due_date = payload.due_date;
+  if (payload.status !== undefined) update.payment_status = payload.status;
+  const { error } = await client.from('lease_payments').update(update).eq('id', id);
+  throwIfError(error);
 }

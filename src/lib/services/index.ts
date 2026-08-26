@@ -5,10 +5,10 @@ export { fetchProperties, fetchProperty, createProperty, updateProperty } from '
 export { createUnit, updateUnit } from './unitsService';
 export type { UnitInsert, UnitUpdate } from './unitsService';
 export type { PropertyInsert } from './propertiesService';
-export { fetchLeads, fetchClients, createLead, createClient, updateLeadStatus } from './leadsService';
-export { fetchLeases, fetchLeasesForProperties, fetchTenants, fetchTenantsForProperties, createTenant, createLease } from './leasesService';
+export { fetchLeads, fetchClients, createLead, createClient, updateClient, updateLead, updateLeadStatus } from './leadsService';
+export { fetchLeases, fetchLeasesForProperties, fetchTenants, fetchTenantsForProperties, createTenant, createLease, updateTenant, updateLease, fetchLeaseById, fetchTenantById } from './leasesService';
 export { fetchSigningLink, completeSigning, fetchSigningLinks } from './signingService';
-export { fetchTasks, createTask, updateTaskStatus } from './tasksService';
+export { fetchTasks, createTask, updateTask, updateTaskStatus } from './tasksService';
 export {
   fetchNotifications,
   markNotificationRead,
@@ -17,7 +17,7 @@ export {
   createNotification,
 } from './notificationsService';
 export type { CreateNotificationPayload } from './notificationsService';
-export { fetchAuctions, fetchPayments, createAuction } from './auctionsService';
+export { fetchAuctions, fetchPayments, createAuction, fetchPaymentById, updatePayment } from './auctionsService';
 export type { AuctionInsert } from './auctionsService';
 export { fetchSharedWithUser } from './sharedPropertiesService';
 export type { SharedPropertySummary } from './sharedPropertiesService';
