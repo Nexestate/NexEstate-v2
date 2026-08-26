@@ -6,15 +6,18 @@ import {
   FileText,
   Gavel,
   Heart,
+  Home,
   LayoutDashboard,
   LogOut,
   MoreHorizontal,
+  Search,
   Settings,
   Users,
 } from 'lucide-react';
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { usePropertyNavContext } from '../../hooks/usePropertyNavContext';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/Button';
 
@@ -43,9 +46,30 @@ const BROKER_MORE: NavItem[] = [
   { label: 'הגדרות', to: '/broker/settings', icon: Settings },
 ];
 
+function propertyNav(propertyId: string): { main: NavItem[]; more: NavItem[] } {
+  const base = `/broker/properties/${propertyId}`;
+  return {
+    main: [
+      { label: 'דף נכס', to: base, icon: Building2, end: true },
+      { label: 'יחידות', to: `/broker/units?property=${propertyId}`, icon: Home },
+      { label: 'שוכרים', to: `/broker/tenants?property=${propertyId}`, icon: Users },
+      { label: 'חוזים', to: `/broker/leases?property=${propertyId}`, icon: FileText },
+    ],
+    more: [
+      { label: 'תשלומים', to: `/broker/payments?property=${propertyId}`, icon: CreditCard },
+      { label: 'לוח בקרה', to: '/broker', icon: LayoutDashboard, end: true },
+      { label: 'כל הנכסים', to: '/broker/properties', icon: Building2 },
+      { label: 'לקוחות', to: '/broker/clients', icon: Users },
+      { label: 'משימות', to: '/broker/tasks', icon: ClipboardList },
+      { label: 'הגדרות', to: '/broker/settings', icon: Settings },
+    ],
+  };
+}
+
 const BUYER_MAIN: NavItem[] = [
   { label: 'לוח בקרה', to: '/buyer', icon: LayoutDashboard, end: true },
   { label: 'נכסים', to: '/buyer/shared', icon: Building2 },
+  { label: 'חיפוש', to: '/buyer/search', icon: Search },
   { label: 'התראות', to: '/buyer/notifications', icon: Bell },
 ];
 
@@ -90,18 +114,35 @@ interface MobileBottomNavProps {
   variant: NavVariant;
 }
 
+function isNavItemActive(item: NavItem, pathname: string, search: string): boolean {
+  const [itemPath, itemSearch] = item.to.split('?');
+  if (itemSearch) {
+    const params = new URLSearchParams(itemSearch);
+    const property = params.get('property');
+    const currentProperty = new URLSearchParams(search).get('property');
+    return pathname === itemPath && property === currentProperty;
+  }
+  if (item.end) return pathname === itemPath;
+  return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
+}
+
 export function MobileBottomNav({ variant }: MobileBottomNavProps) {
   const [moreOpen, setMoreOpen] = useState(false);
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const config = CONFIG[variant];
+  const propertyId = usePropertyNavContext();
+
+  const config = useMemo(() => {
+    if (variant === 'broker' && propertyId) {
+      return propertyNav(propertyId);
+    }
+    return CONFIG[variant];
+  }, [variant, propertyId]);
 
   useEffect(() => {
     setMoreOpen(false);
-  }, [location.pathname]);
-
-  
+  }, [location.pathname, location.search]);
 
   return (
     <>
@@ -125,14 +166,19 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
           <ul className="grid grid-cols-3 gap-2">
             {config.more.map((item) => {
               const Icon = item.icon;
+              const active = isNavItemActive(item, location.pathname, location.search);
               return (
                 <li key={item.to}>
                   <NavLink
                     to={item.to}
+                    end={item.end}
                     onClick={() => setMoreOpen(false)}
-                    className="flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-center text-xs hover:bg-muted"
+                    className={cn(
+                      'flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-center text-xs hover:bg-muted',
+                      active && 'bg-primary/10 text-primary',
+                    )}
                   >
-                    <Icon className="h-5 w-5 text-primary" />
+                    <Icon className={cn('h-5 w-5', active ? 'text-primary' : 'text-primary')} />
                     {item.label}
                   </NavLink>
                 </li>
@@ -156,25 +202,23 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
 
       <nav
         className={cn(
-          'fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur transition-transform duration-300 lg:hidden',
+          'fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur lg:hidden',
           'pb-[max(0.5rem,env(safe-area-inset-bottom))]',
-          true ? 'translate-y-0' : 'translate-y-full',
         )}
       >
         <div className="flex items-center justify-around px-1 py-2">
           {config.main.map((item) => {
             const Icon = item.icon;
+            const active = isNavItemActive(item, location.pathname, location.search);
             return (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.end}
-                className={({ isActive }) =>
-                  cn(
-                    'flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 text-[10px] touch-manipulation',
-                    isActive ? 'text-primary' : 'text-muted-foreground',
-                  )
-                }
+                className={cn(
+                  'flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 text-[10px] touch-manipulation',
+                  active ? 'text-primary' : 'text-muted-foreground',
+                )}
               >
                 <Icon className="h-5 w-5" />
                 {item.label}

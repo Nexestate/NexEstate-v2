@@ -23,6 +23,7 @@ interface EntityDetailContextValue {
   openTenantById: (tenantId: string) => Promise<void>;
   openLeaseById: (leaseId: string) => Promise<void>;
   openPaymentById: (paymentId: string) => Promise<void>;
+  refreshView: () => Promise<void>;
   close: () => void;
 }
 
@@ -68,7 +69,7 @@ export function EntityDetailProvider({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [userId]);
 
   const openLeaseById = useCallback(async (leaseId: string) => {
     setLoading(true);
@@ -78,7 +79,7 @@ export function EntityDetailProvider({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [userId]);
 
   const openPaymentById = useCallback(async (paymentId: string) => {
     setLoading(true);
@@ -89,6 +90,29 @@ export function EntityDetailProvider({
       setLoading(false);
     }
   }, []);
+
+  const refreshView = useCallback(async () => {
+    if (!view) return;
+    setLoading(true);
+    try {
+      switch (view.kind) {
+        case 'unit':
+          await openUnitById(view.data.property_id, view.data.id);
+          break;
+        case 'tenant':
+          await openTenantById(view.data.id);
+          break;
+        case 'lease':
+          await openLeaseById(view.data.id);
+          break;
+        case 'payment':
+          await openPaymentById(view.data.id);
+          break;
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [view, openUnitById, openTenantById, openLeaseById, openPaymentById]);
 
   return (
     <EntityDetailContext.Provider
@@ -103,6 +127,7 @@ export function EntityDetailProvider({
         openTenantById,
         openLeaseById,
         openPaymentById,
+        refreshView,
         close,
       }}
     >

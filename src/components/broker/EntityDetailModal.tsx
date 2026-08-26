@@ -3,12 +3,14 @@ import {
   CreditCard,
   FileText,
   Home,
+  Pencil,
   User,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useEntityDetail } from '../../contexts/EntityDetailContext';
-import { fetchPayments } from '../../lib/services';
+import { notifyEntityCreated } from '../../contexts/QuickAddContext';
+import { fetchPayments, updateLease, updatePayment, updateTenant, updateUnit } from '../../lib/services';
 import { formatCurrency } from '../../lib/utils';
 import type { Payment } from '../../types/domain';
 import {
@@ -16,9 +18,13 @@ import {
   TENANT_STATUS_LABELS,
   UNIT_STATUS_LABELS,
 } from '../../types/domain';
+import { UnitFormModal } from '../property/UnitFormModal';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Modal } from '../ui/Modal';
+import { NavLinkButton } from './NavLinkButton';
+import { PaymentFormModal } from './PaymentFormModal';
+import { LeaseFormModal, TenantFormModal } from './QuickAddModals';
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -38,17 +44,21 @@ function tenantRent(data: unknown): number | undefined {
   return typeof rent === 'number' ? rent : undefined;
 }
 
+type EditKind = 'unit' | 'tenant' | 'lease' | 'payment';
+
 export function EntityDetailModal() {
   const {
     view,
     loading,
     close,
+    refreshView,
     openUnitById,
     openTenantById,
     openLeaseById,
     openPayment,
   } = useEntityDetail();
   const [leasePayments, setLeasePayments] = useState<Payment[]>([]);
+  const [editKind, setEditKind] = useState<EditKind | null>(null);
 
   useEffect(() => {
     if (view?.kind !== 'lease') {
@@ -57,6 +67,10 @@ export function EntityDetailModal() {
     }
     fetchPayments().then((all) => setLeasePayments(all.filter((p) => p.lease_id === view.data.id)));
   }, [view]);
+
+  useEffect(() => {
+    setEditKind(null);
+  }, [view?.kind, view?.data]);
 
   if (!view && !loading) return null;
 
@@ -67,302 +81,490 @@ export function EntityDetailModal() {
     payment: 'פרטי תשלום',
   };
 
-  return (
-    <Modal
-      open={Boolean(view) || loading}
-      onClose={close}
-      title={view ? titles[view.kind] : 'טוען...'}
-      className="max-w-lg"
+  const navigateAway = () => close();
+
+  const editButton = view ? (
+    <Button type="button" size="sm" variant="outline" onClick={() => setEditKind(view.kind)}>
+      <Pencil className="h-4 w-4" />
+      עריכה
+    </Button>
+  ) : null;
+
+  const propertyLink = (propertyId: string, label?: string) => (
+    <Link
+      to={`/broker/properties/${propertyId}`}
+      className="text-primary hover:underline"
+      onClick={navigateAway}
     >
-      {loading && !view ? (
-        <div className="flex justify-center py-8">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
-      ) : null}
+      {label ?? 'דף נכס'}
+    </Link>
+  );
 
-      {view?.kind === 'unit' && (
-        <div className="space-y-4">
-          <DetailRow label="מספר יחידה" value={view.data.unit_number} />
-          <DetailRow label="שם" value={view.data.unit_name} />
-          <DetailRow
-            label="נכס"
-            value={
-              <Link to={`/broker/properties/${view.data.property_id}`} className="text-primary hover:underline">
-                {view.data.propertyTitle}
-              </Link>
-            }
-          />
-          <DetailRow label="שטח" value={view.data.area_sqm ? `${view.data.area_sqm} מ"ר` : '—'} />
-          <DetailRow
-            label="שכ&quot;ד חודשי"
-            value={
-              view.data.monthly_rent ? (
-                <span className="text-primary">{formatCurrency(view.data.monthly_rent)}</span>
-              ) : (
-                '—'
-              )
-            }
-          />
-          <DetailRow
-            label="סטטוס"
-            value={<Badge variant="outline">{UNIT_STATUS_LABELS[view.data.unit_status]}</Badge>}
-          />
-          <DetailRow label="שוכר" value={view.data.tenant_name} />
+  return (
+    <>
+      <Modal
+        open={Boolean(view) || loading}
+        onClose={close}
+        title={view ? titles[view.kind] : 'טוען...'}
+        className="max-w-lg"
+      >
+        {loading && !view ? (
+          <div className="flex justify-center py-8">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        ) : null}
 
-          <div className="flex flex-wrap gap-2 pt-2">
-            {view.data.tenant_id && (
-              <Button type="button" size="sm" variant="outline" onClick={() => openTenantById(view.data.tenant_id!)}>
+        {view?.kind === 'unit' && (
+          <div className="space-y-4">
+            <DetailRow label="מספר יחידה" value={view.data.unit_number} />
+            <DetailRow label="שם" value={view.data.unit_name} />
+            <DetailRow label="נכס" value={propertyLink(view.data.property_id, view.data.propertyTitle)} />
+            <DetailRow label="שטח" value={view.data.area_sqm ? `${view.data.area_sqm} מ"ר` : '—'} />
+            <DetailRow
+              label="שכ&quot;ד חודשי"
+              value={
+                view.data.monthly_rent ? (
+                  <span className="text-primary">{formatCurrency(view.data.monthly_rent)}</span>
+                ) : (
+                  '—'
+                )
+              }
+            />
+            <DetailRow
+              label="סטטוס"
+              value={<Badge variant="outline">{UNIT_STATUS_LABELS[view.data.unit_status]}</Badge>}
+            />
+            <DetailRow
+              label="שוכר"
+              value={
+                view.data.tenant_id && view.data.tenant_name ? (
+                  <button
+                    type="button"
+                    className="text-primary hover:underline"
+                    onClick={() => openTenantById(view.data.tenant_id!)}
+                  >
+                    {view.data.tenant_name}
+                  </button>
+                ) : (
+                  view.data.tenant_name ?? '—'
+                )
+              }
+            />
+
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              {view.data.tenant_id && (
+                <Button type="button" size="sm" variant="outline" onClick={() => openTenantById(view.data.tenant_id!)}>
+                  <User className="h-4 w-4" />
+                  שוכר
+                </Button>
+              )}
+              {view.data.lease_id && (
+                <Button type="button" size="sm" variant="outline" onClick={() => openLeaseById(view.data.lease_id!)}>
+                  <FileText className="h-4 w-4" />
+                  חוזה
+                </Button>
+              )}
+              {view.data.lease_id && (
+                <NavLinkButton to={`/broker/payments?property=${view.data.property_id}`} onNavigate={navigateAway}>
+                  <CreditCard className="h-4 w-4" />
+                  תשלומים
+                </NavLinkButton>
+              )}
+              <NavLinkButton to={`/broker/properties/${view.data.property_id}`} onNavigate={navigateAway} variant="ghost">
+                <Building2 className="h-4 w-4" />
+                דף נכס
+              </NavLinkButton>
+              {editButton}
+            </div>
+          </div>
+        )}
+
+        {view?.kind === 'tenant' && (
+          <div className="space-y-4">
+            <DetailRow label="שם" value={view.data.full_name} />
+            <DetailRow label="חברה" value={view.data.company_name} />
+            <DetailRow
+              label="טלפון"
+              value={
+                view.data.phone ? (
+                  <a href={`tel:${view.data.phone}`} className="text-primary hover:underline">
+                    {view.data.phone}
+                  </a>
+                ) : (
+                  '—'
+                )
+              }
+            />
+            <DetailRow
+              label="אימייל"
+              value={
+                view.data.email ? (
+                  <a href={`mailto:${view.data.email}`} className="text-primary hover:underline">
+                    {view.data.email}
+                  </a>
+                ) : (
+                  '—'
+                )
+              }
+            />
+            <DetailRow
+              label="סטטוס"
+              value={<Badge variant="outline">{TENANT_STATUS_LABELS[view.data.status]}</Badge>}
+            />
+            <DetailRow
+              label="נכס"
+              value={
+                view.data.property_id ? propertyLink(view.data.property_id, view.data.property_title) : view.data.property_title
+              }
+            />
+            <DetailRow
+              label="יחידה"
+              value={
+                view.data.unit_id && view.data.property_id ? (
+                  <button
+                    type="button"
+                    className="text-primary hover:underline"
+                    onClick={() => openUnitById(view.data.property_id!, view.data.unit_id!)}
+                  >
+                    {view.data.unit_number}
+                  </button>
+                ) : (
+                  view.data.unit_number ?? '—'
+                )
+              }
+            />
+            <DetailRow
+              label="שכ&quot;ד"
+              value={
+                tenantRent(view.data) ? (
+                  <span className="text-primary">{formatCurrency(tenantRent(view.data)!)}</span>
+                ) : (
+                  '—'
+                )
+              }
+            />
+
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              {view.data.unit_id && view.data.property_id && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => openUnitById(view.data.property_id!, view.data.unit_id!)}
+                >
+                  <Home className="h-4 w-4" />
+                  יחידה
+                </Button>
+              )}
+              {view.data.lease_id && (
+                <Button type="button" size="sm" variant="outline" onClick={() => openLeaseById(view.data.lease_id!)}>
+                  <FileText className="h-4 w-4" />
+                  חוזה
+                </Button>
+              )}
+              {view.data.property_id && (
+                <NavLinkButton to={`/broker/payments?property=${view.data.property_id}`} onNavigate={navigateAway}>
+                  <CreditCard className="h-4 w-4" />
+                  תשלומים
+                </NavLinkButton>
+              )}
+              {view.data.property_id && (
+                <NavLinkButton to={`/broker/properties/${view.data.property_id}`} onNavigate={navigateAway} variant="ghost">
+                  <Building2 className="h-4 w-4" />
+                  דף נכס
+                </NavLinkButton>
+              )}
+              {editButton}
+            </div>
+          </div>
+        )}
+
+        {view?.kind === 'lease' && (
+          <div className="space-y-4">
+            <DetailRow
+              label="שוכר"
+              value={
+                <button
+                  type="button"
+                  className="text-primary hover:underline"
+                  onClick={() => openTenantById(view.data.tenant_id)}
+                >
+                  {view.data.tenant_name}
+                </button>
+              }
+            />
+            <DetailRow label="נכס" value={propertyLink(view.data.property_id, view.data.property_title)} />
+            <DetailRow
+              label="יחידה"
+              value={
+                view.data.unit_id ? (
+                  <button
+                    type="button"
+                    className="text-primary hover:underline"
+                    onClick={() => openUnitById(view.data.property_id, view.data.unit_id!)}
+                  >
+                    {view.data.unit_number}
+                  </button>
+                ) : (
+                  view.data.unit_number
+                )
+              }
+            />
+            <DetailRow
+              label="שכ&quot;ד חודשי"
+              value={<span className="text-primary">{formatCurrency(view.data.monthly_rent)}</span>}
+            />
+            <DetailRow label="פיקדון" value={view.data.deposit ? formatCurrency(view.data.deposit) : '—'} />
+            <DetailRow
+              label="תקופה"
+              value={`${formatDate(view.data.start_date)} – ${formatDate(view.data.end_date)}`}
+            />
+            <DetailRow
+              label="סטטוס"
+              value={
+                <Badge variant={view.data.is_active ? 'success' : 'outline'}>
+                  {view.data.is_active ? 'פעיל' : 'לא פעיל'}
+                </Badge>
+              }
+            />
+
+            {leasePayments.length > 0 && (
+              <div className="rounded-xl border border-border p-3">
+                <p className="mb-2 text-xs font-semibold text-muted-foreground">תשלומים ({leasePayments.length})</p>
+                <ul className="max-h-40 space-y-2 overflow-y-auto">
+                  {leasePayments.map((p) => (
+                    <li key={p.id}>
+                      <button
+                        type="button"
+                        className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                        onClick={() => openPayment(p)}
+                      >
+                        <span>{formatDate(p.due_date)}</span>
+                        <span className="flex items-center gap-2">
+                          <span className="font-medium">{formatCurrency(p.amount)}</span>
+                          <Badge variant="outline">{PAYMENT_STATUS_LABELS[p.status]}</Badge>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              <Button type="button" size="sm" variant="outline" onClick={() => openTenantById(view.data.tenant_id)}>
                 <User className="h-4 w-4" />
                 שוכר
               </Button>
-            )}
-            {view.data.lease_id && (
-              <Button type="button" size="sm" variant="outline" onClick={() => openLeaseById(view.data.lease_id!)}>
-                <FileText className="h-4 w-4" />
-                חוזה
-              </Button>
-            )}
-            {view.data.lease_id && (
-              <Link to={`/broker/payments?property=${view.data.property_id}`}>
-                <Button type="button" size="sm" variant="outline">
-                  <CreditCard className="h-4 w-4" />
-                  תשלומים
+              {view.data.unit_id && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => openUnitById(view.data.property_id, view.data.unit_id!)}
+                >
+                  <Home className="h-4 w-4" />
+                  יחידה
                 </Button>
-              </Link>
-            )}
-            <Link to={`/broker/properties/${view.data.property_id}`}>
-              <Button type="button" size="sm" variant="ghost">
+              )}
+              <NavLinkButton to={`/broker/payments?property=${view.data.property_id}`} onNavigate={navigateAway}>
+                <CreditCard className="h-4 w-4" />
+                כל התשלומים
+              </NavLinkButton>
+              <NavLinkButton to={`/broker/properties/${view.data.property_id}`} onNavigate={navigateAway} variant="ghost">
                 <Building2 className="h-4 w-4" />
                 דף נכס
-              </Button>
-            </Link>
+              </NavLinkButton>
+              {editButton}
+            </div>
           </div>
-        </div>
+        )}
+
+        {view?.kind === 'payment' && (
+          <div className="space-y-4">
+            <DetailRow
+              label="שוכר"
+              value={
+                view.data.tenant_id ? (
+                  <button
+                    type="button"
+                    className="text-primary hover:underline"
+                    onClick={() => openTenantById(view.data.tenant_id!)}
+                  >
+                    {view.data.tenant_name}
+                  </button>
+                ) : (
+                  view.data.tenant_name
+                )
+              }
+            />
+            <DetailRow
+              label="נכס"
+              value={
+                view.data.property_id ? propertyLink(view.data.property_id, view.data.property_title) : view.data.property_title
+              }
+            />
+            <DetailRow
+              label="יחידה"
+              value={
+                view.data.unit_id && view.data.property_id ? (
+                  <button
+                    type="button"
+                    className="text-primary hover:underline"
+                    onClick={() => openUnitById(view.data.property_id!, view.data.unit_id!)}
+                  >
+                    {view.data.unit_number}
+                  </button>
+                ) : (
+                  view.data.unit_number
+                )
+              }
+            />
+            <DetailRow label="סכום" value={<span className="text-primary">{formatCurrency(view.data.amount)}</span>} />
+            <DetailRow label="תאריך יעד" value={formatDate(view.data.due_date)} />
+            <DetailRow
+              label="סטטוס"
+              value={<Badge variant="outline">{PAYMENT_STATUS_LABELS[view.data.status]}</Badge>}
+            />
+
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              {view.data.tenant_id && (
+                <Button type="button" size="sm" variant="outline" onClick={() => openTenantById(view.data.tenant_id!)}>
+                  <User className="h-4 w-4" />
+                  שוכר
+                </Button>
+              )}
+              {view.data.lease_id && (
+                <Button type="button" size="sm" variant="outline" onClick={() => openLeaseById(view.data.lease_id!)}>
+                  <FileText className="h-4 w-4" />
+                  חוזה
+                </Button>
+              )}
+              {view.data.unit_id && view.data.property_id && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => openUnitById(view.data.property_id!, view.data.unit_id!)}
+                >
+                  <Home className="h-4 w-4" />
+                  יחידה
+                </Button>
+              )}
+              {view.data.property_id && (
+                <NavLinkButton to={`/broker/properties/${view.data.property_id}`} onNavigate={navigateAway} variant="ghost">
+                  <Building2 className="h-4 w-4" />
+                  דף נכס
+                </NavLinkButton>
+              )}
+              {editButton}
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {view?.kind === 'unit' && (
+        <UnitFormModal
+          open={editKind === 'unit'}
+          onClose={() => setEditKind(null)}
+          title="עריכת יחידה"
+          initial={{
+            unit_number: view.data.unit_number,
+            unit_name: view.data.unit_name ?? '',
+            area_sqm: view.data.area_sqm?.toString() ?? '',
+            monthly_rent: view.data.monthly_rent?.toString() ?? '',
+            unit_status: view.data.unit_status,
+            floor: view.data.floor?.toString() ?? '',
+          }}
+          onSubmit={async (values) => {
+            await updateUnit(view.data.id, {
+              unit_number: values.unit_number.trim(),
+              unit_name: values.unit_name.trim() || undefined,
+              area_sqm: values.area_sqm ? Number(values.area_sqm) : undefined,
+              monthly_rent: values.monthly_rent ? Number(values.monthly_rent) : undefined,
+              unit_status: values.unit_status,
+              floor: values.floor ? Number(values.floor) : undefined,
+            });
+            notifyEntityCreated('unit');
+            setEditKind(null);
+            await refreshView();
+          }}
+        />
       )}
 
       {view?.kind === 'tenant' && (
-        <div className="space-y-4">
-          <DetailRow label="שם" value={view.data.full_name} />
-          <DetailRow label="חברה" value={view.data.company_name} />
-          <DetailRow
-            label="טלפון"
-            value={
-              view.data.phone ? (
-                <a href={`tel:${view.data.phone}`} className="text-primary hover:underline">
-                  {view.data.phone}
-                </a>
-              ) : (
-                '—'
-              )
-            }
-          />
-          <DetailRow
-            label="אימייל"
-            value={
-              view.data.email ? (
-                <a href={`mailto:${view.data.email}`} className="text-primary hover:underline">
-                  {view.data.email}
-                </a>
-              ) : (
-                '—'
-              )
-            }
-          />
-          <DetailRow
-            label="סטטוס"
-            value={<Badge variant="outline">{TENANT_STATUS_LABELS[view.data.status]}</Badge>}
-          />
-          <DetailRow
-            label="נכס"
-            value={
-              view.data.property_id ? (
-                <Link to={`/broker/properties/${view.data.property_id}`} className="text-primary hover:underline">
-                  {view.data.property_title}
-                </Link>
-              ) : (
-                view.data.property_title
-              )
-            }
-          />
-          <DetailRow label="יחידה" value={view.data.unit_number} />
-          <DetailRow
-            label="שכ&quot;ד"
-            value={
-              tenantRent(view.data) ? (
-                <span className="text-primary">{formatCurrency(tenantRent(view.data)!)}</span>
-              ) : (
-                '—'
-              )
-            }
-          />
-
-          <div className="flex flex-wrap gap-2 pt-2">
-            {view.data.unit_id && view.data.property_id && (
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => openUnitById(view.data.property_id!, view.data.unit_id!)}
-              >
-                <Home className="h-4 w-4" />
-                יחידה
-              </Button>
-            )}
-            {view.data.lease_id && (
-              <Button type="button" size="sm" variant="outline" onClick={() => openLeaseById(view.data.lease_id!)}>
-                <FileText className="h-4 w-4" />
-                חוזה
-              </Button>
-            )}
-            {view.data.property_id && (
-              <Link to={`/broker/payments?property=${view.data.property_id}`}>
-                <Button type="button" size="sm" variant="outline">
-                  <CreditCard className="h-4 w-4" />
-                  תשלומים
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
+        <TenantFormModal
+          open={editKind === 'tenant'}
+          onClose={() => setEditKind(null)}
+          title="עריכת שוכר"
+          initial={{
+            full_name: view.data.full_name,
+            phone: view.data.phone,
+            email: view.data.email,
+          }}
+          onSubmit={async (values) => {
+            await updateTenant(view.data.id, {
+              full_name: values.full_name,
+              phone: values.phone,
+              email: values.email,
+            });
+            notifyEntityCreated('tenant');
+            setEditKind(null);
+            await refreshView();
+          }}
+        />
       )}
 
       {view?.kind === 'lease' && (
-        <div className="space-y-4">
-          <DetailRow label="שוכר" value={view.data.tenant_name} />
-          <DetailRow
-            label="נכס"
-            value={
-              <Link to={`/broker/properties/${view.data.property_id}`} className="text-primary hover:underline">
-                {view.data.property_title}
-              </Link>
-            }
-          />
-          <DetailRow label="יחידה" value={view.data.unit_number} />
-          <DetailRow
-            label="שכ&quot;ד חודשי"
-            value={<span className="text-primary">{formatCurrency(view.data.monthly_rent)}</span>}
-          />
-          <DetailRow
-            label="פיקדון"
-            value={view.data.deposit ? formatCurrency(view.data.deposit) : '—'}
-          />
-          <DetailRow
-            label="תקופה"
-            value={`${formatDate(view.data.start_date)} – ${formatDate(view.data.end_date)}`}
-          />
-          <DetailRow
-            label="סטטוס"
-            value={
-              <Badge variant={view.data.is_active ? 'success' : 'outline'}>
-                {view.data.is_active ? 'פעיל' : 'לא פעיל'}
-              </Badge>
-            }
-          />
-
-          {leasePayments.length > 0 && (
-            <div className="rounded-xl border border-border p-3">
-              <p className="mb-2 text-xs font-semibold text-muted-foreground">תשלומים ({leasePayments.length})</p>
-              <ul className="max-h-40 space-y-2 overflow-y-auto">
-                {leasePayments.map((p) => (
-                  <li key={p.id}>
-                    <button
-                      type="button"
-                      className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                      onClick={() => openPayment(p)}
-                    >
-                      <span>{formatDate(p.due_date)}</span>
-                      <span className="flex items-center gap-2">
-                        <span className="font-medium">{formatCurrency(p.amount)}</span>
-                        <Badge variant="outline">{PAYMENT_STATUS_LABELS[p.status]}</Badge>
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="flex flex-wrap gap-2 pt-2">
-            <Button type="button" size="sm" variant="outline" onClick={() => openTenantById(view.data.tenant_id)}>
-              <User className="h-4 w-4" />
-              שוכר
-            </Button>
-            {view.data.unit_id && (
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => openUnitById(view.data.property_id, view.data.unit_id!)}
-              >
-                <Home className="h-4 w-4" />
-                יחידה
-              </Button>
-            )}
-            <Link to={`/broker/payments?property=${view.data.property_id}`}>
-              <Button type="button" size="sm" variant="outline">
-                <CreditCard className="h-4 w-4" />
-                כל התשלומים
-              </Button>
-            </Link>
-          </div>
-        </div>
+        <LeaseFormModal
+          open={editKind === 'lease'}
+          onClose={() => setEditKind(null)}
+          title="עריכת חוזה"
+          initial={{
+            tenant_name: view.data.tenant_name,
+            monthly_rent: view.data.monthly_rent.toString(),
+            start_date: view.data.start_date,
+            end_date: view.data.end_date,
+          }}
+          onSubmit={async (values) => {
+            await updateLease(view.data.id, {
+              monthly_rent: values.monthly_rent,
+              start_date: values.start_date,
+              end_date: values.end_date,
+            });
+            notifyEntityCreated('lease');
+            setEditKind(null);
+            await refreshView();
+          }}
+        />
       )}
 
       {view?.kind === 'payment' && (
-        <div className="space-y-4">
-          <DetailRow label="שוכר" value={view.data.tenant_name} />
-          <DetailRow
-            label="נכס"
-            value={
-              view.data.property_id ? (
-                <Link to={`/broker/properties/${view.data.property_id}`} className="text-primary hover:underline">
-                  {view.data.property_title}
-                </Link>
-              ) : (
-                view.data.property_title
-              )
-            }
-          />
-          <DetailRow label="יחידה" value={view.data.unit_number} />
-          <DetailRow label="סכום" value={<span className="text-primary">{formatCurrency(view.data.amount)}</span>} />
-          <DetailRow label="תאריך יעד" value={formatDate(view.data.due_date)} />
-          <DetailRow
-            label="סטטוס"
-            value={<Badge variant="outline">{PAYMENT_STATUS_LABELS[view.data.status]}</Badge>}
-          />
-
-          <div className="flex flex-wrap gap-2 pt-2">
-            {view.data.tenant_id && (
-              <Button type="button" size="sm" variant="outline" onClick={() => openTenantById(view.data.tenant_id!)}>
-                <User className="h-4 w-4" />
-                שוכר
-              </Button>
-            )}
-            {view.data.lease_id && (
-              <Button type="button" size="sm" variant="outline" onClick={() => openLeaseById(view.data.lease_id!)}>
-                <FileText className="h-4 w-4" />
-                חוזה
-              </Button>
-            )}
-            {view.data.unit_id && view.data.property_id && (
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => openUnitById(view.data.property_id!, view.data.unit_id!)}
-              >
-                <Home className="h-4 w-4" />
-                יחידה
-              </Button>
-            )}
-          </div>
-        </div>
+        <PaymentFormModal
+          open={editKind === 'payment'}
+          onClose={() => setEditKind(null)}
+          title="עריכת תשלום"
+          initial={{
+            amount: view.data.amount.toString(),
+            due_date: view.data.due_date,
+            status: view.data.status,
+          }}
+          onSubmit={async (values) => {
+            await updatePayment(view.data.id, {
+              amount: Number(values.amount),
+              due_date: values.due_date,
+              status: values.status,
+            });
+            notifyEntityCreated('payment');
+            setEditKind(null);
+            await refreshView();
+          }}
+        />
       )}
-    </Modal>
+    </>
   );
 }
 
-/** Prevent row click when interacting with action buttons */
 export function stopRowClick(e: React.MouseEvent) {
   e.stopPropagation();
 }

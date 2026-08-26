@@ -1,4 +1,4 @@
-import { useState , useEffect } from "react";
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   notifyEntityCreated,
@@ -15,8 +15,8 @@ import {
   createTenant,
   createUnit,
 } from '../../lib/services';
-import { CLIENT_TYPE_LABELS, TASK_PRIORITY_LABELS } from '../../types/domain';
-import type { ClientType, TaskPriority } from '../../types/domain';
+import { CLIENT_TYPE_LABELS, LEAD_STATUS_LABELS, TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from '../../types/domain';
+import type { ClientType, LeadStatus, TaskPriority, TaskStatus } from '../../types/domain';
 import {
   validateEmail,
   validateName,
@@ -168,17 +168,28 @@ export function QuickAddModals() {
 interface LeadFormModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (values: { full_name: string; phone: string; source?: string }) => Promise<void>;
+  initial?: { full_name?: string; phone?: string; source?: string; status?: LeadStatus };
+  onSubmit: (values: { full_name: string; phone: string; source?: string; status?: LeadStatus }) => Promise<void>;
   title?: string;
-  initial?: Record<string, unknown>;
 }
 
-export function LeadFormModal({ open, title = "ליד חדש", initial, onClose, onSubmit }: LeadFormModalProps) {
+export function LeadFormModal({ open, onClose, initial, onSubmit, title = 'ליד חדש' }: LeadFormModalProps) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [source, setSource] = useState('');
+  const [status, setStatus] = useState<LeadStatus>('new');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setFullName(initial?.full_name ?? '');
+      setPhone(initial?.phone ?? '');
+      setSource(initial?.source ?? '');
+      setStatus(initial?.status ?? 'new');
+      setErrors({});
+    }
+  }, [open, initial]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,7 +203,12 @@ export function LeadFormModal({ open, title = "ליד חדש", initial, onClose,
 
     setSaving(true);
     try {
-      await onSubmit({ full_name: fullName.trim(), phone: phone.trim(), source: source.trim() || undefined });
+      await onSubmit({
+        full_name: fullName.trim(),
+        phone: phone.trim(),
+        source: source.trim() || undefined,
+        status: initial?.status !== undefined ? status : undefined,
+      });
       setFullName('');
       setPhone('');
       setSource('');
@@ -202,14 +218,24 @@ export function LeadFormModal({ open, title = "ליד חדש", initial, onClose,
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="ליד חדש">
+    <Modal open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input label="שם מלא" value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.full_name} required />
         <Input label="טלפון" value={phone} onChange={(e) => setPhone(sanitizePhone(e.target.value))} error={errors.phone} required />
         <Input label="מקור" value={source} onChange={(e) => setSource(e.target.value)} placeholder="פייסבוק, אתר, המלצה..." />
+        {initial?.status !== undefined && (
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">סטטוס</label>
+            <select className={SELECT_CLASS} value={status} onChange={(e) => setStatus(e.target.value as LeadStatus)}>
+              {Object.entries(LEAD_STATUS_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose}>ביטול</Button>
-          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : 'הוסף ליד'}</Button>
+          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : initial?.full_name ? 'שמור' : 'הוסף ליד'}</Button>
         </div>
       </form>
     </Modal>
@@ -219,18 +245,28 @@ export function LeadFormModal({ open, title = "ליד חדש", initial, onClose,
 interface ClientFormModalProps {
   open: boolean;
   onClose: () => void;
+  initial?: { full_name?: string; type?: ClientType; phone?: string; email?: string };
   onSubmit: (values: { full_name: string; type: ClientType; phone?: string; email?: string }) => Promise<void>;
   title?: string;
-  initial?: Record<string, unknown>;
 }
 
-export function ClientFormModal({ open, title = "לקוח חדש", initial, onClose, onSubmit }: ClientFormModalProps) {
+export function ClientFormModal({ open, onClose, initial, onSubmit, title = 'לקוח חדש' }: ClientFormModalProps) {
   const [fullName, setFullName] = useState('');
   const [type, setType] = useState<ClientType>('buyer');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setFullName(initial?.full_name ?? '');
+      setType(initial?.type ?? 'buyer');
+      setPhone(initial?.phone ?? '');
+      setEmail(initial?.email ?? '');
+      setErrors({});
+    }
+  }, [open, initial]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -266,7 +302,7 @@ export function ClientFormModal({ open, title = "לקוח חדש", initial, onCl
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="לקוח חדש">
+    <Modal open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input label="שם מלא" value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.full_name} required />
         <div className="space-y-1.5">
@@ -281,7 +317,7 @@ export function ClientFormModal({ open, title = "לקוח חדש", initial, onCl
         <Input label='דוא"ל' value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose}>ביטול</Button>
-          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : 'הוסף לקוח'}</Button>
+          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : initial?.full_name ? 'שמור' : 'הוסף לקוח'}</Button>
         </div>
       </form>
     </Modal>
@@ -291,30 +327,46 @@ export function ClientFormModal({ open, title = "לקוח חדש", initial, onCl
 interface TaskFormModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (values: { title: string; priority: TaskPriority; due_date?: string }) => Promise<void>;
+  initial?: { title?: string; priority?: TaskPriority; due_date?: string; status?: TaskStatus };
+  onSubmit: (values: { title: string; priority: TaskPriority; due_date?: string; status?: TaskStatus }) => Promise<void>;
   title?: string;
-  initial?: Record<string, unknown>;
 }
 
-export function TaskFormModal({ open, title = "משימה חדשה", initial, onClose, onSubmit }: TaskFormModalProps) {
-  const [title, setTitle] = useState('');
+export function TaskFormModal({ open, onClose, initial, onSubmit, title = 'משימה חדשה' }: TaskFormModalProps) {
+  const [taskTitle, setTaskTitle] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueDate, setDueDate] = useState('');
+  const [status, setStatus] = useState<TaskStatus>('open');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setTaskTitle(initial?.title ?? '');
+      setPriority(initial?.priority ?? 'medium');
+      setDueDate(initial?.due_date ?? '');
+      setStatus(initial?.status ?? 'open');
+      setErrors({});
+    }
+  }, [open, initial]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next: Record<string, string> = {};
-    const titleResult = validateRequired(title, 'כותרת');
+    const titleResult = validateRequired(taskTitle, 'כותרת');
     if (!titleResult.isValid) next.title = titleResult.error!;
     setErrors(next);
     if (Object.keys(next).length) return;
 
     setSaving(true);
     try {
-      await onSubmit({ title: title.trim(), priority, due_date: dueDate || undefined });
-      setTitle('');
+      await onSubmit({
+        title: taskTitle.trim(),
+        priority,
+        due_date: dueDate || undefined,
+        status: initial?.status !== undefined ? status : undefined,
+      });
+      setTaskTitle('');
       setDueDate('');
       setPriority('medium');
     } finally {
@@ -323,9 +375,9 @@ export function TaskFormModal({ open, title = "משימה חדשה", initial, on
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="משימה חדשה">
+    <Modal open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="כותרת" value={title} onChange={(e) => setTitle(e.target.value)} error={errors.title} required />
+        <Input label="כותרת" value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} error={errors.title} required />
         <div className="space-y-1.5">
           <label className="text-sm font-medium">עדיפות</label>
           <select className={SELECT_CLASS} value={priority} onChange={(e) => setPriority(e.target.value as TaskPriority)}>
@@ -335,9 +387,19 @@ export function TaskFormModal({ open, title = "משימה חדשה", initial, on
           </select>
         </div>
         <Input label="תאריך יעד" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+        {initial?.status !== undefined && (
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">סטטוס</label>
+            <select className={SELECT_CLASS} value={status} onChange={(e) => setStatus(e.target.value as TaskStatus)}>
+              {Object.entries(TASK_STATUS_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose}>ביטול</Button>
-          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : 'הוסף משימה'}</Button>
+          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : initial?.title ? 'שמור' : 'הוסף משימה'}</Button>
         </div>
       </form>
     </Modal>
@@ -347,15 +409,26 @@ export function TaskFormModal({ open, title = "משימה חדשה", initial, on
 interface TenantFormModalProps {
   open: boolean;
   onClose: () => void;
+  initial?: { full_name?: string; phone?: string; email?: string };
   onSubmit: (values: { full_name: string; phone?: string; email?: string }) => Promise<void>;
+  title?: string;
 }
 
-function TenantFormModal({ open, onClose, onSubmit }: TenantFormModalProps) {
+export function TenantFormModal({ open, onClose, initial, onSubmit, title = 'שוכר חדש' }: TenantFormModalProps) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setFullName(initial?.full_name ?? '');
+      setPhone(initial?.phone ?? '');
+      setEmail(initial?.email ?? '');
+      setErrors({});
+    }
+  }, [open, initial]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -389,14 +462,14 @@ function TenantFormModal({ open, onClose, onSubmit }: TenantFormModalProps) {
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="שוכר חדש">
+    <Modal open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input label="שם / חברה" value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.full_name} required />
         <Input label="טלפון" value={phone} onChange={(e) => setPhone(sanitizePhone(e.target.value))} error={errors.phone} />
         <Input label='דוא"ל' value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose}>ביטול</Button>
-          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : 'הוסף שוכר'}</Button>
+          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : initial?.full_name ? 'שמור' : 'הוסף שוכר'}</Button>
         </div>
       </form>
     </Modal>
@@ -406,21 +479,38 @@ function TenantFormModal({ open, onClose, onSubmit }: TenantFormModalProps) {
 interface LeaseFormModalProps {
   open: boolean;
   onClose: () => void;
+  initial?: {
+    tenant_name?: string;
+    monthly_rent?: string;
+    start_date?: string;
+    end_date?: string;
+  };
   onSubmit: (values: {
     tenant_name: string;
     monthly_rent: number;
     start_date: string;
     end_date: string;
   }) => Promise<void>;
+  title?: string;
 }
 
-function LeaseFormModal({ open, onClose, onSubmit }: LeaseFormModalProps) {
+export function LeaseFormModal({ open, onClose, initial, onSubmit, title = 'חוזה חדש' }: LeaseFormModalProps) {
   const [tenantName, setTenantName] = useState('');
   const [monthlyRent, setMonthlyRent] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setTenantName(initial?.tenant_name ?? '');
+      setMonthlyRent(initial?.monthly_rent ?? '');
+      setStartDate(initial?.start_date ?? '');
+      setEndDate(initial?.end_date ?? '');
+      setErrors({});
+    }
+  }, [open, initial]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -454,7 +544,7 @@ function LeaseFormModal({ open, onClose, onSubmit }: LeaseFormModalProps) {
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="חוזה חדש">
+    <Modal open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input label="שם שוכר" value={tenantName} onChange={(e) => setTenantName(e.target.value)} error={errors.tenant_name} required />
         <Input label='שכ"ד חודשי (₪)' value={monthlyRent} onChange={(e) => setMonthlyRent(e.target.value)} error={errors.monthly_rent} required />
@@ -462,7 +552,7 @@ function LeaseFormModal({ open, onClose, onSubmit }: LeaseFormModalProps) {
         <Input label="תאריך סיום" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} error={errors.end_date} required />
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose}>ביטול</Button>
-          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : 'הוסף חוזה'}</Button>
+          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : initial?.start_date ? 'שמור' : 'הוסף חוזה'}</Button>
         </div>
       </form>
     </Modal>
