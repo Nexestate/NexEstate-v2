@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState , useEffect } from "react";
 import { useAuth } from '../../contexts/AuthContext';
 import {
   notifyEntityCreated,
@@ -169,9 +169,11 @@ interface LeadFormModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (values: { full_name: string; phone: string; source?: string }) => Promise<void>;
+  title?: string;
+  initial?: Record<string, unknown>;
 }
 
-export function LeadFormModal({ open, onClose, onSubmit }: LeadFormModalProps) {
+export function LeadFormModal({ open, title = "ליד חדש", initial, onClose, onSubmit }: LeadFormModalProps) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [source, setSource] = useState('');
@@ -218,9 +220,11 @@ interface ClientFormModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (values: { full_name: string; type: ClientType; phone?: string; email?: string }) => Promise<void>;
+  title?: string;
+  initial?: Record<string, unknown>;
 }
 
-export function ClientFormModal({ open, onClose, onSubmit }: ClientFormModalProps) {
+export function ClientFormModal({ open, title = "לקוח חדש", initial, onClose, onSubmit }: ClientFormModalProps) {
   const [fullName, setFullName] = useState('');
   const [type, setType] = useState<ClientType>('buyer');
   const [phone, setPhone] = useState('');
@@ -288,9 +292,11 @@ interface TaskFormModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (values: { title: string; priority: TaskPriority; due_date?: string }) => Promise<void>;
+  title?: string;
+  initial?: Record<string, unknown>;
 }
 
-export function TaskFormModal({ open, onClose, onSubmit }: TaskFormModalProps) {
+export function TaskFormModal({ open, title = "משימה חדשה", initial, onClose, onSubmit }: TaskFormModalProps) {
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueDate, setDueDate] = useState('');
