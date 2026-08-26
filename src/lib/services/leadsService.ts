@@ -162,8 +162,48 @@ export async function createClient(
   return data.id as string;
 }
 
+export async function updateClient(
+  id: string,
+  payload: { full_name?: string; type?: Client['type']; phone?: string; email?: string },
+): Promise<void> {
+  if (isDemoMode()) {
+    const clientRow = DEMO_CLIENTS.find((c) => c.id === id);
+    if (clientRow) Object.assign(clientRow, payload);
+    return;
+  }
+
+  const client = requireSupabase();
+  const { error } = await client
+    .from('clients')
+    .update({ ...payload, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  throwIfError(error);
+}
+
+export async function updateLead(
+  id: string,
+  payload: { full_name?: string; phone?: string; source?: string; status?: LeadStatus },
+): Promise<void> {
+  if (isDemoMode()) {
+    const lead = DEMO_LEADS.find((l) => l.id === id);
+    if (lead) Object.assign(lead, payload);
+    return;
+  }
+
+  const client = requireSupabase();
+  const { error } = await client
+    .from('leads')
+    .update({ ...payload, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  throwIfError(error);
+}
+
 export async function updateLeadStatus(id: string, status: LeadStatus): Promise<void> {
-  if (isDemoMode()) return;
+  if (isDemoMode()) {
+    const lead = DEMO_LEADS.find((l) => l.id === id);
+    if (lead) lead.status = status;
+    return;
+  }
 
   const client = requireSupabase();
   const { error } = await client

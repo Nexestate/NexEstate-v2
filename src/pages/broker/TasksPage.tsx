@@ -1,5 +1,6 @@
 import { Calendar } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { CrmDetailModal, type CrmDetailView } from '../../components/broker/CrmDetailModal';
 import { KanbanBoard } from '../../components/ui/KanbanBoard';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { PageLoader } from '../../components/ui/PageLoader';
@@ -24,6 +25,7 @@ export function TasksPage() {
   const { user } = useAuth();
   const [view, setView] = useState<'table' | 'kanban'>('kanban');
   const [search, setSearch] = useState('');
+  const [detailView, setDetailView] = useState<CrmDetailView | null>(null);
   const { data: tasks, loading, reload } = useAsyncData(() => fetchTasks(user?.id), [user?.id]);
 
   useEntityCreated('task', reload);
@@ -53,6 +55,7 @@ export function TasksPage() {
       {view === 'kanban' ? (
         <KanbanBoard
           columns={kanbanColumns}
+          onCardClick={(task) => setDetailView({ kind: 'task', data: task })}
           renderCard={(task: Task) => <TaskCard task={task} />}
         />
       ) : (
@@ -69,7 +72,11 @@ export function TasksPage() {
           </TableHeader>
           <TableBody>
             {filtered.map((task) => (
-              <TableRow key={task.id}>
+              <TableRow
+                key={task.id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => setDetailView({ kind: 'task', data: task })}
+              >
                 <TableCell className="font-medium">{task.title}</TableCell>
                 <TableCell>{task.client_name ?? '—'}</TableCell>
                 <TableCell className="text-muted-foreground">{task.property_title ?? '—'}</TableCell>
@@ -85,6 +92,12 @@ export function TasksPage() {
           </TableBody>
         </Table>
       )}
+
+      <CrmDetailModal
+        view={detailView}
+        onClose={() => setDetailView(null)}
+        onUpdated={reload}
+      />
     </div>
   );
 }

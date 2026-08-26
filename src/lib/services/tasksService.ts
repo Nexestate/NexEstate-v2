@@ -56,8 +56,30 @@ export async function createTask(
   return data.id as string;
 }
 
+export async function updateTask(
+  id: string,
+  payload: { title?: string; priority?: TaskPriority; due_date?: string; status?: TaskStatus },
+): Promise<void> {
+  if (isDemoMode()) {
+    const task = DEMO_TASKS.find((t) => t.id === id);
+    if (task) Object.assign(task, payload);
+    return;
+  }
+
+  const client = requireSupabase();
+  const { error } = await client
+    .from('tasks')
+    .update({ ...payload, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  throwIfError(error);
+}
+
 export async function updateTaskStatus(id: string, status: TaskStatus): Promise<void> {
-  if (isDemoMode()) return;
+  if (isDemoMode()) {
+    const task = DEMO_TASKS.find((t) => t.id === id);
+    if (task) task.status = status;
+    return;
+  }
 
   const client = requireSupabase();
   const { error } = await client.from('tasks').update({ status }).eq('id', id);

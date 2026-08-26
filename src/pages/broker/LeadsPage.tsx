@@ -1,6 +1,7 @@
 import { Phone, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { CrmDetailModal, type CrmDetailView } from '../../components/broker/CrmDetailModal';
 import { Badge } from '../../components/ui/Badge';
 import { FilterBar } from '../../components/ui/FilterBar';
 import { KanbanBoard } from '../../components/ui/KanbanBoard';
@@ -34,6 +35,7 @@ export function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [detailView, setDetailView] = useState<CrmDetailView | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -114,6 +116,7 @@ export function LeadsPage() {
       {section === 'leads' && view === 'kanban' && (
         <KanbanBoard
           columns={kanbanColumns}
+          onCardClick={(lead) => setDetailView({ kind: 'lead', data: lead })}
           renderCard={(lead: Lead) => (
             <div className="space-y-2">
               <p className="font-medium">{lead.full_name}</p>
@@ -146,7 +149,11 @@ export function LeadsPage() {
           </TableHeader>
           <TableBody>
             {filteredLeads.map((lead) => (
-              <TableRow key={lead.id}>
+              <TableRow
+                key={lead.id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => setDetailView({ kind: 'lead', data: lead })}
+              >
                 <TableCell className="font-medium">{lead.full_name}</TableCell>
                 <TableCell>{lead.phone}</TableCell>
                 <TableCell className="text-muted-foreground">
@@ -184,7 +191,11 @@ export function LeadsPage() {
           </TableHeader>
           <TableBody>
             {filteredClients.map((client) => (
-              <TableRow key={client.id}>
+              <TableRow
+                key={client.id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => setDetailView({ kind: 'client', data: client })}
+              >
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
@@ -209,6 +220,12 @@ export function LeadsPage() {
           </TableBody>
         </Table>
       )}
+
+      <CrmDetailModal
+        view={detailView}
+        onClose={() => setDetailView(null)}
+        onUpdated={load}
+      />
     </div>
   );
 }
