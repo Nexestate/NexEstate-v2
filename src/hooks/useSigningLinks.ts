@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { ensureProfile } from '../lib/services/profilesService';
 import { isDemoMode } from '../lib/services/serviceHelpers';
 import { DEMO_SIGNING_LINKS } from '../data/demoData';
 import type { SigningLink } from '../types/domain';
@@ -11,6 +12,11 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 export type SigningLinkInsert = Partial<SigningLink> & {
   client_name: string;
   client_phone: string;
+};
+
+export type CreateLinkResult = {
+  link: SigningLink | null;
+  error: string | null;
 };
 
 function generateToken(length = 12): string {
@@ -93,7 +99,7 @@ export function useSigningLinks() {
     if (!authLoading) void fetchLinks();
   }, [authLoading, fetchLinks]);
 
-  const createLink = async (data: SigningLinkInsert): Promise<SigningLink | null> => {
+  const createLink = async (data: SigningLinkInsert): Promise<CreateLinkResult> => {
     if (isDemoMode()) {
       const token = generateToken();
       const created: SigningLink = {
@@ -110,10 +116,20 @@ export function useSigningLinks() {
       };
       DEMO_SIGNING_LINKS.unshift(created);
       setLinks([...DEMO_SIGNING_LINKS]);
-      return created;
+      return { link: created, error: null };
     }
 
-    if (!supabase || !user) return null;
+    if (!supabase || !user) {
+      return { link: null, error: 'יש להתחבר כדי ליצור קישור חתימה' };
+    }
+
+    try {
+      await ensureProfile(user.id, user.email, user.full_name, user.role);
+    } catch (e) {
+      const msg = (e as Error).message;
+      setError(msg);
+      return { link: null, error: msg };
+    }
 
     const token = generateToken();
     const validDays = data.valid_days ?? 30;
@@ -148,12 +164,13 @@ export function useSigningLinks() {
       .single();
 
     if (err) {
-      setError(err.message);
-      return null;
+      const msg = err.message || 'שגיאה ביצירת קישור החתימה';
+      setError(msg);
+      return { link: null, error: msg };
     }
 
     await fetchLinks();
-    return mapRow(created);
+    return { link: mapRow(created), error: null };
   };
 
   const updateLink = async (id: string, updates: Partial<SigningLink>): Promise<boolean> => {

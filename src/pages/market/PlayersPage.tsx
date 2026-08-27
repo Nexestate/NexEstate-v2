@@ -1,6 +1,6 @@
 import { Briefcase, MapPin, Star } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { PublicLayout } from '../../components/layout/PublicLayout';
 import { PageHero } from '../../components/market/PageHero';
 import { Badge } from '../../components/ui/Badge';
@@ -9,9 +9,26 @@ import { Card, CardContent } from '../../components/ui/Card';
 import { FilterBar } from '../../components/ui/FilterBar';
 import { MARKET_PLAYERS } from '../../data/marketDemo';
 
+const TYPE_TO_ROLE: Record<string, string> = {
+  brokers: 'סוכן',
+  developers: 'יזם',
+  receivers: 'כונס',
+  sellers: 'בעל נכס',
+};
+
 export function PlayersPage() {
+  const [searchParams] = useSearchParams();
+  const typeParam = searchParams.get('type');
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('הכל');
+
+  useEffect(() => {
+    if (typeParam && TYPE_TO_ROLE[typeParam]) {
+      const match = TYPE_TO_ROLE[typeParam];
+      const role = MARKET_PLAYERS.find((p) => p.role.includes(match))?.role;
+      if (role) setRoleFilter(role);
+    }
+  }, [typeParam]);
 
   const roles = ['הכל', ...new Set(MARKET_PLAYERS.map((p) => p.role))];
 

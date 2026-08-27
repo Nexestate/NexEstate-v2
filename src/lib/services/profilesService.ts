@@ -1,5 +1,27 @@
-import type { Profile } from '../../types';
+import type { Profile, UserRole } from '../../types';
 import { isDemoMode, requireSupabase, throwIfError } from './serviceHelpers';
+
+/** Ensures a profiles row exists (required for signing_links FK). */
+export async function ensureProfile(
+  userId: string,
+  email: string,
+  fullName?: string,
+  role: UserRole = 'broker',
+): Promise<void> {
+  if (isDemoMode()) return;
+
+  const client = requireSupabase();
+  const { data: existing } = await client.from('profiles').select('id').eq('id', userId).maybeSingle();
+  if (existing) return;
+
+  const { error } = await client.from('profiles').insert({
+    id: userId,
+    email,
+    full_name: fullName?.trim() || email.split('@')[0] || 'משתמש',
+    role,
+  });
+  throwIfError(error);
+}
 
 function textOrUndefined(value: string | null | undefined): string | undefined {
   return value == null || value === '' ? undefined : value;

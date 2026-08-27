@@ -1,9 +1,10 @@
-import { Copy, ExternalLink, Plus } from 'lucide-react';
+import { Copy, ExternalLink, FileSignature, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { PageLoader } from '../../components/ui/PageLoader';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
@@ -48,6 +49,15 @@ export function AgreementsPage() {
         }
       />
 
+      {links.length === 0 ? (
+        <EmptyState
+          icon={FileSignature}
+          title="אין קישורי חתימה"
+          description="צור קישור חדש ושלוח ללקוח לחתימה דיגיטלית"
+          actionLabel="קישור חדש"
+          onAction={() => openQuickAdd('agreement')}
+        />
+      ) : (
       <Table>
         <TableHeader>
           <TableRow>
@@ -102,6 +112,7 @@ export function AgreementsPage() {
           ))}
         </TableBody>
       </Table>
+      )}
     </div>
   );
 }
