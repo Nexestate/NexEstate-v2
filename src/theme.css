@@ -17,6 +17,10 @@
   --color-warning: #f59e0b;
   --color-destructive: #ef4444;
   --color-accent: #8b5cf6;
+  --color-ring: #3b82f6;
+  --color-secondary: var(--theme-secondary);
+  --color-secondary-foreground: var(--theme-secondary-foreground);
+  --color-detail-panel: var(--theme-detail-panel);
   --color-sidebar: var(--theme-sidebar);
   --color-sidebar-border: var(--theme-sidebar-border);
 }
@@ -33,6 +37,9 @@
   --theme-input: #e2e8f0;
   --theme-sidebar: #ffffff;
   --theme-sidebar-border: #e2e8f0;
+  --theme-secondary: #e2e8f0;
+  --theme-secondary-foreground: #0f172a;
+  --theme-detail-panel: #f8fafc;
 }
 
 html.dark {
@@ -46,6 +53,9 @@ html.dark {
   --theme-input: #151d2e;
   --theme-sidebar: #0f1419;
   --theme-sidebar-border: #1e293b;
+  --theme-secondary: #151d2e;
+  --theme-secondary-foreground: #f8fafc;
+  --theme-detail-panel: #0c1222;
 }
 
 @layer base {
@@ -104,5 +114,9 @@ html.dashboard-shell #root {
 
   .touch-manipulation {
     touch-action: manipulation;
+  }
+
+  .detail-panel-surface {
+    background-color: var(--color-detail-panel);
   }
 }

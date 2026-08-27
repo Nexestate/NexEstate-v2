@@ -69,3 +69,6 @@ export interface NavSection {
   title: string;
   items: NavItem[];
 }
+
+export type { PaymentMethod, PaymentStatus } from './domain';
+export { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_LABELS } from './domain';

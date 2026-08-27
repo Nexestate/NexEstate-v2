@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { ensureProfile } from '../lib/services/profilesService';
 import { isDemoMode } from '../lib/services/serviceHelpers';
 import { DEMO_SIGNING_LINKS } from '../data/demoData';
 import type { SigningLink } from '../types/domain';
@@ -52,6 +53,8 @@ function mapRow(row: Record<string, unknown>): SigningLink {
   };
 }
 
+export type CreateLinkResult = { link: SigningLink | null; error: string | null };
+
 export function useSigningLinks() {
   const { user, loading: authLoading } = useAuth();
   const [links, setLinks] = useState<SigningLink[]>([]);
@@ -93,7 +96,7 @@ export function useSigningLinks() {
     if (!authLoading) void fetchLinks();
   }, [authLoading, fetchLinks]);
 
-  const createLink = async (data: SigningLinkInsert): Promise<SigningLink | null> => {
+  const createLink = async (data: SigningLinkInsert): Promise<CreateLinkResult> => {
     if (isDemoMode()) {
       const token = generateToken();
       const created: SigningLink = {
@@ -110,10 +113,24 @@ export function useSigningLinks() {
       };
       DEMO_SIGNING_LINKS.unshift(created);
       setLinks([...DEMO_SIGNING_LINKS]);
-      return created;
+      return { link: created, error: null };
     }
 
-    if (!supabase || !user) return null;
+    if (!supabase || !user) {
+      return { link: null, error: 'לא מחובר למערכת' };
+    }
+
+    try {
+      await ensureProfile(user.id, {
+        email: user.email,
+        full_name: user.full_name,
+        role: user.role,
+      });
+    } catch (e) {
+      const message = (e as Error).message;
+      setError(message);
+      return { link: null, error: message };
+    }
 
     const token = generateToken();
     const validDays = data.valid_days ?? 30;
@@ -149,11 +166,11 @@ export function useSigningLinks() {
 
     if (err) {
       setError(err.message);
-      return null;
+      return { link: null, error: err.message };
     }
 
     await fetchLinks();
-    return mapRow(created);
+    return { link: mapRow(created), error: null };
   };
 
   const updateLink = async (id: string, updates: Partial<SigningLink>): Promise<boolean> => {

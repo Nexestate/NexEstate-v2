@@ -83,7 +83,7 @@ export function CrmDetailModal({ view, onClose, onUpdated }: CrmDetailModalProps
 
   return (
     <>
-      <Modal open={Boolean(view)} onClose={onClose} title={titles[localView.kind]} className="max-w-lg">
+      <Modal open={Boolean(view)} onClose={onClose} title={titles[localView.kind]} size="lg">
         {localView.kind === 'lead' && (
           <div className="space-y-4">
             <DetailRow label="שם" value={localView.data.full_name} />

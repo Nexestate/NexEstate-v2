@@ -12,6 +12,7 @@ export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type NotificationSeverity = 'info' | 'warning' | 'critical';
 export type AuctionStatus = 'draft' | 'scheduled' | 'active' | 'ended' | 'cancelled';
 export type PaymentStatus = 'pending' | 'paid' | 'overdue' | 'cancelled';
+export type PaymentMethod = 'cash' | 'check' | 'transfer' | 'credit_card' | 'other';
 export type PropertyVisibility = 'private' | 'public' | 'off_market' | 'auction';
 export type PropertyKind =
   | 'apartment'
@@ -158,6 +159,7 @@ export interface Lease {
   monthly_rent: number;
   deposit?: number;
   is_active: boolean;
+  payment_method?: PaymentMethod;
 }
 
 export interface SigningLink {
@@ -296,6 +298,10 @@ export interface Payment {
   amount: number;
   due_date: string;
   status: PaymentStatus;
+  payment_method?: PaymentMethod;
+  receipt_number?: string;
+  notes?: string;
+  paid_at?: string;
 }
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
@@ -331,6 +337,14 @@ export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   paid: 'שולם',
   overdue: 'באיחור',
   cancelled: 'בוטל',
+};
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  cash: 'מזומן',
+  check: "צ'ק",
+  transfer: 'העברה בנקאית',
+  credit_card: 'כרטיס אשראי',
+  other: 'אחר',
 };
 
 export const SIGNING_STATUS_LABELS: Record<SigningStatus, string> = {

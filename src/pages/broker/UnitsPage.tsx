@@ -15,6 +15,7 @@ import { formatCurrency } from '../../lib/utils';
 import type { PropertyUnit, PropertyWithUnits } from '../../types/domain';
 import { UNIT_STATUS_LABELS } from '../../types/domain';
 import { EntityLinkButton } from '../../components/broker/EntityLinkButton';
+import { PropertySubNav } from '../../components/broker/PropertySubNav';
 import { BackButton } from '../../components/ui/BackButton';
 import { useEntityDetail } from '../../contexts/EntityDetailContext';
 
@@ -116,7 +117,10 @@ export function UnitsPage() {
   return (
     <div className="space-y-6">
       {propertyFilter && (
-        <BackButton to="/broker/units" label="חזרה לכל היחידות" />
+        <>
+          <BackButton to="/broker/units" label="חזרה לכל היחידות" />
+          <PropertySubNav propertyId={propertyFilter} />
+        </>
       )}
 
       <div className="flex flex-wrap items-start justify-between gap-4">

@@ -17,14 +17,14 @@ export {
   createNotification,
 } from './notificationsService';
 export type { CreateNotificationPayload } from './notificationsService';
-export { fetchAuctions, fetchPayments, createAuction, fetchPaymentById, updatePayment } from './auctionsService';
-export type { AuctionInsert } from './auctionsService';
+export { fetchAuctions, fetchPayments, createAuction, createPayment, fetchPaymentById, updatePayment } from './auctionsService';
+export type { AuctionInsert, PaymentInsert } from './auctionsService';
 export { fetchSharedWithUser } from './sharedPropertiesService';
 export type { SharedPropertySummary } from './sharedPropertiesService';
 export { fetchFavorites, addFavorite, removeFavorite } from './favoritesService';
 export { searchPublicProperties } from './buyerSearchService';
-export { updateProfile } from './profilesService';
-export type { ProfileUpdatePayload } from './profilesService';
+export { updateProfile, ensureProfile } from './profilesService';
+export type { ProfileUpdatePayload, EnsureProfilePayload } from './profilesService';
 export {
   fetchBrokerDashboardStats,
   fetchManagedPropertySidebar,

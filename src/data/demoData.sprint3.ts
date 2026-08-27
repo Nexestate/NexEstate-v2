@@ -130,6 +130,7 @@ export const DEMO_PAYMENTS: Payment[] = [
     amount: 12_500,
     due_date: '2026-09-01',
     status: 'pending',
+    payment_method: 'transfer',
   },
   {
     id: 'pay-2',
@@ -139,6 +140,7 @@ export const DEMO_PAYMENTS: Payment[] = [
     amount: 9_800,
     due_date: '2026-09-01',
     status: 'pending',
+    payment_method: 'check',
   },
   {
     id: 'pay-3',
@@ -148,6 +150,7 @@ export const DEMO_PAYMENTS: Payment[] = [
     amount: 8_200,
     due_date: '2026-08-01',
     status: 'overdue',
+    payment_method: 'check',
   },
   {
     id: 'pay-4',
@@ -157,6 +160,8 @@ export const DEMO_PAYMENTS: Payment[] = [
     amount: 11_000,
     due_date: '2026-08-01',
     status: 'paid',
+    payment_method: 'transfer',
+    receipt_number: 'RCP-1042',
   },
 ];
 

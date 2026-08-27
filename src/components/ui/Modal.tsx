@@ -3,15 +3,24 @@ import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
 import { cn } from '../../lib/utils';
 import { Button } from './Button';
 
+type ModalSize = 'md' | 'lg' | 'xl';
+
+const MODAL_SIZE_CLASS: Record<ModalSize, string> = {
+  md: 'max-w-lg',
+  lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
+};
+
 interface ModalProps {
   open: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
   className?: string;
+  size?: ModalSize;
 }
 
-export function Modal({ open, onClose, title, children, className }: ModalProps) {
+export function Modal({ open, onClose, title, children, className, size = 'md' }: ModalProps) {
   useBodyScrollLock(open);
   if (!open) return null;
 
@@ -20,7 +29,8 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
       <button type="button" aria-label="סגור" className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div
         className={cn(
-          'relative z-10 flex max-h-[min(92dvh,100%)] w-full max-w-lg flex-col rounded-t-2xl border border-border bg-card shadow-xl sm:rounded-2xl',
+          'relative z-10 flex max-h-[min(92dvh,100%)] w-full flex-col rounded-t-2xl border border-border bg-card shadow-xl sm:rounded-2xl',
+          MODAL_SIZE_CLASS[size],
           className,
         )}
       >
