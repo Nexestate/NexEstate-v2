@@ -203,6 +203,25 @@ export function useSigningLinks() {
       status: 'pending' as const,
     };
 
+    const { data: rpcRow, error: rpcErr } = await supabase.rpc('create_broker_signing_link', {
+      p_payload: payload,
+    });
+
+    if (!rpcErr && rpcRow) {
+      await fetchLinks();
+      return { link: mapRow(rpcRow as Record<string, unknown>), error: null };
+    }
+
+    const rpcUnavailable =
+      rpcErr?.code === '42883' ||
+      rpcErr?.code === 'PGRST202' ||
+      (rpcErr?.message?.includes('create_broker_signing_link') ?? false);
+
+    if (rpcErr && !rpcUnavailable) {
+      setError(rpcErr.message);
+      return { link: null, error: rpcErr.message };
+    }
+
     const { data: created, error: err } = await supabase
       .from('signing_links')
       .insert(payload)
