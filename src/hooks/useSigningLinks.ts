@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { AGREEMENT_TYPE_LABELS } from '../lib/constants';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { ensureProfile } from '../lib/services/profilesService';
 import { isDemoMode } from '../lib/services/serviceHelpers';
@@ -28,6 +29,17 @@ function generateToken(length = 12): string {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return result;
+}
+
+function buildDocumentTitle(data: SigningLinkInsert): string {
+  const agreementType = data.agreement_type || 'exclusive';
+  const typeLabel = AGREEMENT_TYPE_LABELS[agreementType] ?? agreementType;
+  let title = `הסכם ${typeLabel} — ${data.client_name.trim()}`;
+  const propertyDescription = data.property_description?.trim();
+  if (propertyDescription) {
+    title += ` (${propertyDescription})`;
+  }
+  return title;
 }
 
 function mapRow(row: Record<string, unknown>): SigningLink {
@@ -169,6 +181,7 @@ export function useSigningLinks() {
       minimum_commission: data.minimum_commission ?? null,
       payment_days: data.payment_days ?? 3,
       broker_name: data.broker_name || user.full_name || null,
+      document_title: buildDocumentTitle(data),
       token,
       status: 'pending' as const,
     };

@@ -416,6 +416,7 @@ ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS signed_at TIMESTAMPTZ;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS sent_at TIMESTAMPTZ;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS pdf_url TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS broker_name TEXT;
+ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS document_title TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS custom_agreement_text TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS whatsapp_verified BOOLEAN DEFAULT false;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
