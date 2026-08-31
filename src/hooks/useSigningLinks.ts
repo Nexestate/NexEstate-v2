@@ -1,3 +1,11 @@
+export type CreateSigningLinkInput = {
+  property_id: string;
+  recipient_email: string;
+  client_email?: string | null;
+  client_name?: string | null;
+  agreement_id?: string | null;
+};
+
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
@@ -12,7 +20,16 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 export type SigningLinkInsert = Partial<SigningLink> & {
   client_name: string;
   client_phone: string;
+  client_email: string;
 };
+
+function resolveClientEmail(row: Record<string, unknown>): string | undefined {
+  const email =
+    (row.recipient_email as string | null) ??
+    (row.client_email as string | null) ??
+    undefined;
+  return email?.trim() || undefined;
+}
 
 export type CreateLinkResult = {
   link: SigningLink | null;
@@ -35,7 +52,7 @@ function mapRow(row: Record<string, unknown>): SigningLink {
     broker_id: row.broker_id as string | undefined,
     client_name: row.client_name as string,
     client_phone: (row.client_phone as string | null) ?? undefined,
-    client_email: (row.client_email as string | null) ?? undefined,
+    client_email: resolveClientEmail(row),
     deal_type: (row.deal_type as string | null) ?? undefined,
     agreement_type: (row.agreement_type as string) ?? 'exclusive',
     commission_type: (row.commission_type as string | null) ?? undefined,
@@ -123,6 +140,13 @@ export function useSigningLinks() {
       return { link: null, error: 'יש להתחבר כדי ליצור קישור חתימה' };
     }
 
+    const clientEmail = data.client_email?.trim();
+    if (!clientEmail) {
+      const msg = 'אימייל הלקוח הוא שדה חובה';
+      setError(msg);
+      return { link: null, error: msg };
+    }
+
     try {
       await ensureProfile(user.id, user.email, user.full_name, user.role);
     } catch (e) {
@@ -137,7 +161,8 @@ export function useSigningLinks() {
       broker_id: user.id,
       client_name: data.client_name,
       client_phone: data.client_phone,
-      client_email: data.client_email || null,
+      client_email: clientEmail,
+      recipient_email: clientEmail,
       agreement_type: data.agreement_type || 'exclusive',
       commission_percent: data.commission_percent ?? 2,
       valid_days: validDays,
