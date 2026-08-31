@@ -104,7 +104,7 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
     if (!name.isValid) next.client_name = name.error!;
     const phone = validatePhone(form.client_phone);
     if (!phone.isValid) next.client_phone = phone.error!;
-    const email = validateEmail(form.client_email);
+    const email = validateEmail(form.client_email, true);
     if (!email.isValid) next.client_email = email.error!;
     const pct = validatePercent(form.commission_percent);
     if (!pct.isValid) next.commission_percent = pct.error!;
@@ -182,6 +182,7 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
             type="email"
             value={form.client_email}
             onChange={(e) => set('client_email', e.target.value)}
+            required
             error={errors.client_email}
           />
           <div className="grid gap-3 sm:grid-cols-2">

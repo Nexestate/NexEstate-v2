@@ -57,7 +57,7 @@ export function QuickAddModals() {
     const { link, error } = await createLink({
       client_name: values.client_name,
       client_phone: values.client_phone,
-      client_email: values.client_email || undefined,
+      client_email: values.client_email.trim(),
       deal_type: values.deal_type,
       agreement_type: values.agreement_type,
       property_description: values.property_description || undefined,

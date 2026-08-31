@@ -391,6 +391,7 @@ ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS token TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS client_name TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS client_phone TEXT DEFAULT '';
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS client_email TEXT;
+ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS recipient_email TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS signer_id_number TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS signer_company_name TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS signer_address TEXT;
