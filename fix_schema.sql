@@ -421,6 +421,25 @@ ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS custom_agreement_text 
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS whatsapp_verified BOOLEAN DEFAULT false;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
+-- signing_links_target_required: each link must reference property_id OR have both
+-- property_description and an address (exact_address or property_address).
+DO $$
+BEGIN
+  IF to_regclass('public.signing_links') IS NOT NULL THEN
+    ALTER TABLE public.signing_links DROP CONSTRAINT IF EXISTS signing_links_target_required;
+    ALTER TABLE public.signing_links
+      ADD CONSTRAINT signing_links_target_required CHECK (
+        property_id IS NOT NULL
+        OR (
+          NULLIF(TRIM(property_description), '') IS NOT NULL
+          AND NULLIF(TRIM(COALESCE(exact_address, property_address)), '') IS NOT NULL
+        )
+      );
+  END IF;
+EXCEPTION WHEN others THEN
+  RAISE NOTICE 'Skip signing_links_target_required: %', SQLERRM;
+END $$;
+
 -- auctions
 ALTER TABLE public.auctions ADD COLUMN IF NOT EXISTS property_id UUID;
 ALTER TABLE public.auctions ADD COLUMN IF NOT EXISTS creator_id UUID REFERENCES public.profiles(id);

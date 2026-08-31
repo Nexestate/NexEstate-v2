@@ -10,7 +10,9 @@ import {
   validatePercent,
   validatePhone,
   validatePositiveNumber,
+  validateRequired,
 } from '../../lib/validation';
+import { cn } from '../../lib/utils';
 import type { SigningLink } from '../../types/domain';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -112,6 +114,10 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
     if (!vd.isValid) next.valid_days = vd.error!;
     const pd = validatePositiveNumber(form.payment_days, true);
     if (!pd.isValid) next.payment_days = pd.error!;
+    const desc = validateRequired(form.property_description, 'תיאור נכס');
+    if (!desc.isValid) next.property_description = desc.error!;
+    const addr = validateRequired(form.exact_address, 'כתובת מדויקת');
+    if (!addr.isValid) next.exact_address = addr.error!;
     if (form.price) {
       const pr = validatePositiveNumber(form.price);
       if (!pr.isValid) next.price = pr.error!;
@@ -216,17 +222,29 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
             </div>
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">תיאור נכס</label>
+            <label className="text-sm font-medium">
+              תיאור נכס
+              <span className="text-destructive mr-1">*</span>
+            </label>
             <textarea
-              className="min-h-20 w-full rounded-xl border border-border bg-muted/50 px-4 py-3 text-sm"
+              className={cn(
+                'min-h-20 w-full rounded-xl border border-border bg-muted/50 px-4 py-3 text-sm',
+                errors.property_description && 'border-destructive',
+              )}
               value={form.property_description}
               onChange={(e) => set('property_description', e.target.value)}
+              required
             />
+            {errors.property_description && (
+              <p className="text-sm text-destructive">{errors.property_description}</p>
+            )}
           </div>
           <Input
             label="כתובת מדויקת"
             value={form.exact_address}
             onChange={(e) => set('exact_address', e.target.value)}
+            required
+            error={errors.exact_address}
           />
           <label className="flex items-center gap-2 text-sm">
             <input

@@ -31,6 +31,13 @@ function generateToken(length = 12): string {
   return result;
 }
 
+function hasSigningTarget(data: SigningLinkInsert): boolean {
+  if (data.property_id) return true;
+  const description = data.property_description?.trim();
+  const address = (data.exact_address ?? data.property_address)?.trim();
+  return Boolean(description && address);
+}
+
 function buildDocumentTitle(data: SigningLinkInsert): string {
   const agreementType = data.agreement_type || 'exclusive';
   const typeLabel = AGREEMENT_TYPE_LABELS[agreementType] ?? agreementType;
@@ -158,6 +165,15 @@ export function useSigningLinks() {
       return { link: null, error: message };
     }
 
+    if (!hasSigningTarget(data)) {
+      const message = 'יש לציין נכס: בחר נכס קיים או מלא תיאור נכס וכתובת מדויקת';
+      setError(message);
+      return { link: null, error: message };
+    }
+
+    const propertyDescription = data.property_description?.trim() || null;
+    const exactAddress = (data.exact_address ?? data.property_address)?.trim() || null;
+
     const token = generateToken();
     const validDays = data.valid_days ?? 30;
     const payload = {
@@ -172,9 +188,10 @@ export function useSigningLinks() {
       expires_at: new Date(Date.now() + validDays * 86400000).toISOString(),
       property_id: data.property_id || null,
       deal_type: data.deal_type || 'sale',
-      property_description: data.property_description || null,
+      property_description: propertyDescription,
       show_address_before_signing: data.show_address_before_signing ?? false,
-      exact_address: data.exact_address || null,
+      exact_address: exactAddress,
+      property_address: exactAddress,
       price: data.price ?? null,
       hidden_details: data.hidden_details || null,
       commission_type: data.commission_type || 'percentage',
