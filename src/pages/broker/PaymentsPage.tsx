@@ -1,18 +1,24 @@
-import { PageHeader } from '../../components/ui/PageHeader';
-import { PageLoader } from '../../components/ui/PageLoader';
-import { Badge } from '../../components/ui/Badge';
-import { FilterBar } from '../../components/ui/FilterBar';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
-import { useAuth } from '../../contexts/AuthContext';
-import { useAsyncData } from '../../hooks/useAsyncData';
-import { fetchAccessiblePropertyIds, fetchPayments } from '../../lib/services';
-import { formatCurrency } from '../../lib/utils';
-import { PAYMENT_STATUS_LABELS } from '../../types/domain';
+import { CreditCard, Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { BackButton } from '../../components/ui/BackButton';
 import { EntityLinkButton } from '../../components/broker/EntityLinkButton';
+import { PropertySubNav } from '../../components/broker/PropertySubNav';
+import { BackButton } from '../../components/ui/BackButton';
+import { Badge } from '../../components/ui/Badge';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { FilterBar } from '../../components/ui/FilterBar';
+import { PageHeader } from '../../components/ui/PageHeader';
+import { PageLoader } from '../../components/ui/PageLoader';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
+import { useAuth } from '../../contexts/AuthContext';
+import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useEntityDetail } from '../../contexts/EntityDetailContext';
+import { useAsyncData } from '../../hooks/useAsyncData';
+import { useEntityCreated } from '../../hooks/useEntityCreated';
+import { fetchAccessiblePropertyIds, fetchPayments } from '../../lib/services';
+import { formatCurrency } from '../../lib/utils';
+import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_LABELS } from '../../types/domain';
+import { Button } from '../../components/ui/Button';
 
 const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'destructive' | 'outline'> = {
   paid: 'success',
@@ -23,6 +29,7 @@ const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'destructive' | 'ou
 
 export function PaymentsPage() {
   const { user } = useAuth();
+  const { openQuickAdd } = useQuickAdd();
   const [searchParams] = useSearchParams();
   const { openPayment, openPaymentById, openTenantById, openUnitById, openLeaseById } = useEntityDetail();
   const propertyFilter = searchParams.get('property');
@@ -37,11 +44,12 @@ export function PaymentsPage() {
     return fetchPayments(propertyIds);
   }, [propertyFilter, user?.id, user?.role]);
 
-  const { data: payments, loading, error } = useAsyncData(loadPayments, [loadPayments]);
+  const { data: payments, loading, error, reload } = useAsyncData(loadPayments, [loadPayments]);
+
+  useEntityCreated('payment', reload);
 
   const scoped = useMemo(
-    () =>
-      payments?.filter((p) => !propertyFilter || p.property_id === propertyFilter) ?? [],
+    () => payments?.filter((p) => !propertyFilter || p.property_id === propertyFilter) ?? [],
     [payments, propertyFilter],
   );
 
@@ -73,23 +81,25 @@ export function PaymentsPage() {
 
   if (loading) return <PageLoader />;
 
-  if (error) {
-    return (
-      <div className="py-12 text-center text-sm text-muted-foreground">
-        שגיאה בטעינת תשלומים. נסה לרענן את הדף.
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      {propertyFilter && <BackButton to="/broker/payments" label="חזרה לכל התשלומים" />}
+      {propertyFilter && (
+        <>
+          <BackButton to="/broker/payments" label="חזרה לכל התשלומים" />
+          <PropertySubNav propertyId={propertyFilter} />
+        </>
+      )}
+
       <PageHeader
         title="תשלומים"
         description={
-          propertyFilter
-            ? 'תשלומים עבור הנכס שנבחר'
-            : "מעקב תשלומי שכירות וצ'קים"
+          propertyFilter ? 'תשלומים עבור הנכס שנבחר' : "מעקב תשלומי שכירות וצ'קים"
+        }
+        action={
+          <Button onClick={() => openQuickAdd('payment', propertyFilter ? { propertyId: propertyFilter } : undefined)}>
+            <Plus className="h-4 w-4" />
+            תשלום חדש
+          </Button>
         }
       />
 
@@ -97,6 +107,12 @@ export function PaymentsPage() {
         <Link to="/broker/payments" className="text-sm text-primary hover:underline">
           הצג את כל התשלומים
         </Link>
+      )}
+
+      {error && (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          שגיאה בטעינת תשלומים. נסה לרענן את הדף.
+        </div>
       )}
 
       <div className="grid grid-cols-3 gap-3">
@@ -116,7 +132,13 @@ export function PaymentsPage() {
       <FilterBar search={search} onSearchChange={setSearch} placeholder="חיפוש שוכר, נכס או יחידה..." />
 
       {filtered.length === 0 ? (
-        <p className="py-12 text-center text-muted-foreground">אין תשלומים להצגה</p>
+        <EmptyState
+          icon={CreditCard}
+          title="אין תשלומים להצגה"
+          description="צור תשלום חדש עבור חוזה פעיל כדי להתחיל מעקב"
+          actionLabel="תשלום חדש"
+          onAction={() => openQuickAdd('payment', propertyFilter ? { propertyId: propertyFilter } : undefined)}
+        />
       ) : (
         <Table>
           <TableHeader>
@@ -125,6 +147,7 @@ export function PaymentsPage() {
               <TableHead>נכס</TableHead>
               <TableHead>יחידה</TableHead>
               <TableHead>סכום</TableHead>
+              <TableHead>אמצעי תשלום</TableHead>
               <TableHead>תאריך יעד</TableHead>
               <TableHead>סטטוס</TableHead>
               <TableHead>חוזה</TableHead>
@@ -135,12 +158,12 @@ export function PaymentsPage() {
               <TableRow key={p.id} className="cursor-pointer" onClick={() => openPayment(p)}>
                 <TableCell className="font-medium">
                   {p.tenant_id ? (
-                  <EntityLinkButton onClick={() => void openTenantById(p.tenant_id!)}>
-                    {p.tenant_name}
-                  </EntityLinkButton>
-                ) : (
-                  p.tenant_name
-                )}
+                    <EntityLinkButton onClick={() => void openTenantById(p.tenant_id!)}>
+                      {p.tenant_name}
+                    </EntityLinkButton>
+                  ) : (
+                    p.tenant_name
+                  )}
                 </TableCell>
                 <TableCell>
                   {p.property_id ? (
@@ -153,26 +176,29 @@ export function PaymentsPage() {
                 </TableCell>
                 <TableCell>
                   {p.unit_id && p.property_id ? (
-                  <EntityLinkButton onClick={() => void openUnitById(p.property_id!, p.unit_id!)}>
-                    {p.unit_number}
-                  </EntityLinkButton>
-                ) : (
-                  p.unit_number
-                )}
+                    <EntityLinkButton onClick={() => void openUnitById(p.property_id!, p.unit_id!)}>
+                      {p.unit_number}
+                    </EntityLinkButton>
+                  ) : (
+                    p.unit_number
+                  )}
                 </TableCell>
                 <TableCell className="font-medium">{formatCurrency(p.amount)}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {p.payment_method ? PAYMENT_METHOD_LABELS[p.payment_method] : '—'}
+                </TableCell>
                 <TableCell>{new Date(p.due_date).toLocaleDateString('he-IL')}</TableCell>
                 <TableCell>
                   <Badge variant={STATUS_VARIANT[p.status]}>{PAYMENT_STATUS_LABELS[p.status]}</Badge>
                 </TableCell>
                 <TableCell>
                   {p.lease_id ? (
-                  <EntityLinkButton onClick={() => void openLeaseById(p.lease_id!)}>
-                    צפייה
-                  </EntityLinkButton>
-                ) : (
-                  '—'
-                )}
+                    <EntityLinkButton onClick={() => void openLeaseById(p.lease_id!)}>
+                      צפייה
+                    </EntityLinkButton>
+                  ) : (
+                    '—'
+                  )}
                 </TableCell>
               </TableRow>
             ))}

@@ -3,6 +3,14 @@ import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
 import { cn } from '../../lib/utils';
 import { Button } from './Button';
 
+type ModalSize = 'md' | 'lg' | 'xl';
+
+const MODAL_SIZE_CLASS: Record<ModalSize, string> = {
+  md: 'max-w-lg',
+  lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
+};
+
 interface ModalProps {
   open: boolean;
   onClose: () => void;

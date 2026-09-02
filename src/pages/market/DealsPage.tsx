@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { MARKET_DEALS } from '../../data/marketDemo';
 import { formatCurrency } from '../../lib/utils';
 
+const ENDED_CUTOFF = '2026-08-10';
+
 export function DealsPage() {
   const [searchParams] = useSearchParams();
   const statusParam = searchParams.get('status');
@@ -19,15 +21,32 @@ export function DealsPage() {
     setTab(statusParam === 'ended' ? 'ended' : 'recent');
   }, [statusParam]);
 
+  useEffect(() => {
+    if (searchParams.get('status') === 'ended') return;
+    if (searchParams.has('status')) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('status');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  const scoped = useMemo(
+    () =>
+      MARKET_DEALS.filter((deal) =>
+        status === 'ended' ? deal.date < ENDED_CUTOFF : deal.date >= ENDED_CUTOFF,
+      ),
+    [status],
+  );
+
   const filtered = useMemo(
     () =>
-      MARKET_DEALS.filter(
+      scoped.filter(
         (d) =>
           d.city.includes(search) ||
           d.type.includes(search) ||
           d.address.includes(search),
       ),
-    [search],
+    [scoped, search],
   );
 
   const displayDeals = useMemo(() => {
@@ -50,10 +69,19 @@ export function DealsPage() {
       />
 
       <div className="mx-auto max-w-7xl space-y-8 px-4 py-10">
+        <Tabs
+          tabs={[
+            { id: 'recent', label: 'עסקאות אחרונות', count: MARKET_DEALS.filter((d) => d.date >= ENDED_CUTOFF).length },
+            { id: 'ended', label: 'מכירות שהסתיימו', count: MARKET_DEALS.filter((d) => d.date < ENDED_CUTOFF).length },
+          ]}
+          active={status}
+          onChange={setStatus}
+        />
+
         <div className="overflow-hidden rounded-2xl border border-border bg-card/30">
           <div className="relative flex h-72 items-center justify-center bg-gradient-to-br from-primary/5 via-card to-accent/5 sm:h-96">
             <div className="absolute inset-0 opacity-20">
-              {MARKET_DEALS.map((deal) => (
+              {filtered.map((deal) => (
                 <div
                   key={deal.id}
                   className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary shadow-lg shadow-primary/50"
@@ -68,7 +96,7 @@ export function DealsPage() {
             <div className="relative z-10 rounded-2xl border border-border bg-card/90 px-6 py-4 text-center backdrop-blur-sm">
               <MapPin className="mx-auto mb-2 h-8 w-8 text-primary" />
               <p className="font-semibold">מפת עסקאות אינטראקטיבית</p>
-              <p className="text-sm text-muted-foreground">{MARKET_DEALS.length} עסקאות מוצגות על המפה</p>
+              <p className="text-sm text-muted-foreground">{filtered.length} עסקאות מוצגות על המפה</p>
             </div>
           </div>
         </div>

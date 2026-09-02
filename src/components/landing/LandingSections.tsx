@@ -179,10 +179,10 @@ const FOOTER_LINKS: Record<string, { label: string; to: string }[]> = {
   עזרה: [
     { label: 'מרכז תמיכה', to: '/login' },
     { label: 'שאלות נפוצות', to: '/#faq' },
-    { label: 'צור קשר', to: '/login' },
+    { label: 'צור קשר', to: 'mailto:info@nexestate.co' },
     { label: 'מדריכים', to: '/market' },
-    { label: 'תנאי שימוש', to: '/register' },
-    { label: 'מדיניות פרטיות', to: '/register' },
+    { label: 'תנאי שימוש', to: '/terms' },
+    { label: 'מדיניות פרטיות', to: '/privacy' },
   ],
 };
 
@@ -623,9 +623,15 @@ export function LandingFooter() {
               <ul className="space-y-2.5">
                 {links.map((link) => (
                   <li key={link.label}>
-                    <Link to={link.to} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                      {link.label}
-                    </Link>
+                    {link.to.startsWith('mailto:') ? (
+                      <a href={link.to} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link to={link.to} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -658,8 +664,8 @@ export function LandingFooter() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/50 pt-8 sm:flex-row">
           <p className="text-xs text-muted-foreground">© 2026 NexEstate. כל הזכויות שמורות.</p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <Link to="/register" className="hover:text-foreground">תנאי שימוש</Link>
-            <Link to="/register" className="hover:text-foreground">מדיניות פרטיות</Link>
+            <Link to="/terms" className="hover:text-foreground">תנאי שימוש</Link>
+            <Link to="/privacy" className="hover:text-foreground">מדיניות פרטיות</Link>
             <span>נבנה בישראל 🇮🇱</span>
           </div>
         </div>

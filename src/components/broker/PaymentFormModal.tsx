@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Modal } from '../ui/Modal';
-import { Input } from '../ui/Input';
-import { Button } from '../ui/Button';
+import type { Lease } from '../../types/domain';
+import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_LABELS, type PaymentMethod, type PaymentStatus } from '../../types/domain';
 import { validatePositiveNumber, validateRequired } from '../../lib/validation';
 import {
   PAYMENT_METHOD_LABELS,
@@ -14,6 +13,7 @@ const SELECT_CLASS =
   'flex h-11 w-full rounded-xl border border-border bg-muted/50 px-4 text-sm';
 
 export interface PaymentFormValues {
+  lease_id?: string;
   amount: string;
   due_date: string;
   payment_date: string;

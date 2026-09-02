@@ -10,13 +10,16 @@ import {
   createClient,
   createLead,
   createLease,
+  createPayment,
   createProperty,
   createTask,
   createTenant,
   createUnit,
+  fetchAccessiblePropertyIds,
+  fetchLeasesForProperties,
 } from '../../lib/services';
 import { CLIENT_TYPE_LABELS, LEAD_STATUS_LABELS, TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from '../../types/domain';
-import type { ClientType, LeadStatus, TaskPriority, TaskStatus } from '../../types/domain';
+import type { ClientType, LeadStatus, Lease, TaskPriority, TaskStatus } from '../../types/domain';
 import {
   validateEmail,
   validateName,
@@ -32,6 +35,7 @@ import {
   type PropertyFormValues,
 } from '../property/PropertyFormModal';
 import { UnitFormModal, type UnitFormValues } from '../property/UnitFormModal';
+import { PaymentFormModal } from './PaymentFormModal';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Modal } from '../ui/Modal';
@@ -53,11 +57,11 @@ export function QuickAddModals() {
     const created = await createLink({
       client_name: values.client_name,
       client_phone: values.client_phone,
-      client_email: values.client_email || undefined,
+      client_email: values.client_email.trim(),
       deal_type: values.deal_type,
       agreement_type: values.agreement_type,
-      property_description: values.property_description || undefined,
-      exact_address: values.exact_address || undefined,
+      property_description: values.property_description.trim() || undefined,
+      exact_address: values.exact_address.trim() || undefined,
       show_address_before_signing: values.show_address_before_signing,
       price: values.price ? Number(values.price) : undefined,
       commission_type: values.commission_type,
@@ -67,9 +71,11 @@ export function QuickAddModals() {
       payment_days: Number(values.payment_days),
       broker_name: user?.full_name,
     });
-    if (!created) throw new Error('create failed');
+    if (error) return { error };
+    if (!link) return { error: 'יצירת הקישור נכשלה' };
     await fetchLinks();
-    closeAfterSuccess('agreement', closeQuickAdd);
+    notifyEntityCreated('agreement');
+    return { link };
   };
 
   const handlePropertyCreate = async (values: PropertyFormValues) => {
@@ -161,7 +167,63 @@ export function QuickAddModals() {
         }}
         title="׳™׳—׳™׳“׳” ׳—׳“׳©׳”"
       />
+
+      <PaymentQuickAddModal
+        open={state.type === 'payment'}
+        propertyId={state.propertyId}
+        onClose={closeQuickAdd}
+      />
     </>
+  );
+}
+
+function PaymentQuickAddModal({
+  open,
+  propertyId,
+  onClose,
+}: {
+  open: boolean;
+  propertyId?: string;
+  onClose: () => void;
+}) {
+  const { user } = useAuth();
+  const [leases, setLeases] = useState<Lease[]>([]);
+  const [loadingLeases, setLoadingLeases] = useState(false);
+
+  useEffect(() => {
+    if (!open || !user?.id) return;
+    setLoadingLeases(true);
+    fetchAccessiblePropertyIds(user.id, user.role)
+      .then((ids) => {
+        const scoped = propertyId ? ids.filter((id) => id === propertyId) : ids;
+        return fetchLeasesForProperties(scoped);
+      })
+      .then((data) => setLeases(data.filter((l) => l.is_active)))
+      .finally(() => setLoadingLeases(false));
+  }, [open, user?.id, user?.role, propertyId]);
+
+  return (
+    <PaymentFormModal
+      open={open}
+      onClose={onClose}
+      title="תשלום חדש"
+      mode="create"
+      leases={leases}
+      loadingLeases={loadingLeases}
+      onSubmit={async (values) => {
+        if (!values.lease_id) throw new Error('lease required');
+        await createPayment({
+          lease_id: values.lease_id,
+          amount: Number(values.amount),
+          due_date: values.due_date,
+          status: values.status,
+          payment_method: values.payment_method,
+          receipt_number: values.receipt_number || undefined,
+          notes: values.notes || undefined,
+        });
+        closeAfterSuccess('payment', onClose);
+      }}
+    />
   );
 }
 

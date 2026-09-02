@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { AGREEMENT_TYPE_LABELS } from '../lib/constants';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { ensureProfile } from '../lib/services/profilesService';
 import { isDemoMode } from '../lib/services/serviceHelpers';
 import { DEMO_SIGNING_LINKS } from '../data/demoData';
 import type { SigningLink } from '../types/domain';
@@ -11,6 +13,7 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 export type SigningLinkInsert = Partial<SigningLink> & {
   client_name: string;
   client_phone: string;
+  client_email: string;
 };
 
 export type CreateLinkResult = { link: SigningLink | null; error?: string };
@@ -24,6 +27,24 @@ function generateToken(length = 12): string {
   return result;
 }
 
+function hasSigningTarget(data: SigningLinkInsert): boolean {
+  if (data.property_id) return true;
+  const description = data.property_description?.trim();
+  const address = (data.exact_address ?? data.property_address)?.trim();
+  return Boolean(description && address);
+}
+
+function buildDocumentTitle(data: SigningLinkInsert): string {
+  const agreementType = data.agreement_type || 'exclusive';
+  const typeLabel = AGREEMENT_TYPE_LABELS[agreementType] ?? agreementType;
+  let title = `הסכם ${typeLabel} — ${data.client_name.trim()}`;
+  const propertyDescription = data.property_description?.trim();
+  if (propertyDescription) {
+    title += ` (${propertyDescription})`;
+  }
+  return title;
+}
+
 function mapRow(row: Record<string, unknown>): SigningLink {
   return {
     id: row.id as string,
@@ -31,7 +52,7 @@ function mapRow(row: Record<string, unknown>): SigningLink {
     broker_id: row.broker_id as string | undefined,
     client_name: row.client_name as string,
     client_phone: (row.client_phone as string | null) ?? undefined,
-    client_email: (row.client_email as string | null) ?? undefined,
+    client_email: resolveClientEmail(row),
     deal_type: (row.deal_type as string | null) ?? undefined,
     agreement_type: (row.agreement_type as string) ?? 'exclusive',
     commission_type: (row.commission_type as string | null) ?? undefined,
@@ -53,6 +74,8 @@ function mapRow(row: Record<string, unknown>): SigningLink {
     broker_name: (row.broker_name as string | null) ?? undefined,
   };
 }
+
+export type CreateLinkResult = { link: SigningLink | null; error: string | null };
 
 export function useSigningLinks() {
   const { user, loading: authLoading } = useAuth();
@@ -123,25 +146,47 @@ export function useSigningLinks() {
       broker_id: user.id,
       client_name: data.client_name,
       client_phone: data.client_phone,
-      client_email: data.client_email || null,
+      recipient_email: clientEmail,
+      client_email: clientEmail,
       agreement_type: data.agreement_type || 'exclusive',
       commission_percent: data.commission_percent ?? 2,
       valid_days: validDays,
       expires_at: new Date(Date.now() + validDays * 86400000).toISOString(),
       property_id: data.property_id || null,
       deal_type: data.deal_type || 'sale',
-      property_description: data.property_description || null,
+      property_description: propertyDescription,
       show_address_before_signing: data.show_address_before_signing ?? false,
-      exact_address: data.exact_address || null,
+      exact_address: exactAddress,
+      property_address: exactAddress,
       price: data.price ?? null,
       hidden_details: data.hidden_details || null,
       commission_type: data.commission_type || 'percentage',
       minimum_commission: data.minimum_commission ?? null,
       payment_days: data.payment_days ?? 3,
       broker_name: data.broker_name || user.full_name || null,
+      document_title: buildDocumentTitle(data),
       token,
       status: 'pending' as const,
     };
+
+    const { data: rpcRow, error: rpcErr } = await supabase.rpc('create_broker_signing_link', {
+      p_payload: payload,
+    });
+
+    if (!rpcErr && rpcRow) {
+      await fetchLinks();
+      return { link: mapRow(rpcRow as Record<string, unknown>), error: null };
+    }
+
+    const rpcUnavailable =
+      rpcErr?.code === '42883' ||
+      rpcErr?.code === 'PGRST202' ||
+      (rpcErr?.message?.includes('create_broker_signing_link') ?? false);
+
+    if (rpcErr && !rpcUnavailable) {
+      setError(rpcErr.message);
+      return { link: null, error: rpcErr.message };
+    }
 
     const { data: created, error: err } = await supabase
       .from('signing_links')

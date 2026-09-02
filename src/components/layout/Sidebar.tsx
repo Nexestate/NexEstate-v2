@@ -1,4 +1,4 @@
-import { ChevronLeft, CreditCard, Eye, FileText, Layers, LogOut, Pencil, Plus, Shield, Users } from 'lucide-react';
+import { ChevronLeft, CreditCard, Eye, Layers, LogOut, Pencil, Plus, Shield, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -6,6 +6,7 @@ import { useQuickAdd, type QuickAddType } from '../../contexts/QuickAddContext';
 import type { ManagedPropertySidebarItem } from '../../lib/services/brokerStatsService';
 import { ROLE_LABELS } from '../../lib/roles';
 import { cn, getInitials } from '../../lib/utils';
+import { isPropertyNavActive, propertyNavHref } from '../../lib/propertyNav';
 import type { NavSection, PermissionLevel } from '../../types';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
@@ -208,28 +209,24 @@ export function Sidebar({
                                 {[
                                   {
                                     label: 'יחידות',
-                                    to: `/broker/units?property=${prop.id}`,
+                                    to: propertyNavHref(prop.id, 'units'),
+                                    tab: 'units' as const,
                                     count: prop.totalUnits,
                                     icon: Layers,
                                     addNew: 'unit' as const,
                                   },
                                   {
                                     label: 'שוכרים',
-                                    to: `/broker/tenants?property=${prop.id}`,
+                                    to: propertyNavHref(prop.id, 'tenants'),
+                                    tab: 'tenants' as const,
                                     count: prop.tenantCount,
                                     icon: Users,
                                     addNew: 'tenant' as const,
                                   },
                                   {
-                                    label: 'חוזים',
-                                    to: `/broker/leases?property=${prop.id}`,
-                                    count: prop.leaseCount,
-                                    icon: FileText,
-                                    addNew: 'lease' as const,
-                                  },
-                                  {
                                     label: 'תשלומים',
-                                    to: `/broker/payments?property=${prop.id}`,
+                                    to: propertyNavHref(prop.id, 'payments'),
+                                    tab: 'payments' as const,
                                     count: prop.paymentCount,
                                     icon: CreditCard,
                                   },
@@ -244,10 +241,11 @@ export function Sidebar({
                                             e.stopPropagation();
                                             onClose?.();
                                           }}
-                                          className={({ isActive }) =>
+                                          className={() =>
                                             cn(
                                               'flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors',
-                                              isActive
+                                              isPropertyNavActive(sub.tab, location.pathname, location.search) &&
+                                                activePropertyId === prop.id
                                                 ? 'bg-primary/10 font-medium text-primary'
                                                 : 'text-muted-foreground hover:text-foreground',
                                             )

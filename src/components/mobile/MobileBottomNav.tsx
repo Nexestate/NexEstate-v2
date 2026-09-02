@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePropertyNavContext } from '../../hooks/usePropertyNavContext';
+import { propertyNavHref } from '../../lib/propertyNav';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/Button';
 
@@ -39,24 +40,21 @@ const BROKER_MAIN: NavItem[] = [
 
 const BROKER_MORE: NavItem[] = [
   { label: 'שוכרים', to: '/broker/tenants', icon: Users },
-  { label: 'חוזים', to: '/broker/leases', icon: FileText },
   { label: 'תשלומים', to: '/broker/payments', icon: CreditCard },
   { label: 'לקוחות', to: '/broker/clients', icon: Users },
   { label: 'משימות', to: '/broker/tasks', icon: ClipboardList },
   { label: 'הגדרות', to: '/broker/settings', icon: Settings },
 ];
 
-function propertyNav(propertyId: string): { main: NavItem[]; more: NavItem[] } {
-  const base = `/broker/properties/${propertyId}`;
+function buildPropertyNav(propertyId: string): { main: NavItem[]; more: NavItem[] } {
   return {
     main: [
-      { label: 'דף נכס', to: base, icon: Building2, end: true },
-      { label: 'יחידות', to: `/broker/units?property=${propertyId}`, icon: Home },
-      { label: 'שוכרים', to: `/broker/tenants?property=${propertyId}`, icon: Users },
-      { label: 'חוזים', to: `/broker/leases?property=${propertyId}`, icon: FileText },
+      { label: 'דף נכס', to: propertyNavHref(propertyId, 'overview'), icon: Building2, end: true },
+      { label: 'יחידות', to: propertyNavHref(propertyId, 'units'), icon: Home },
+      { label: 'שוכרים', to: propertyNavHref(propertyId, 'tenants'), icon: Users },
+      { label: 'תשלומים', to: propertyNavHref(propertyId, 'payments'), icon: CreditCard },
     ],
     more: [
-      { label: 'תשלומים', to: `/broker/payments?property=${propertyId}`, icon: CreditCard },
       { label: 'לוח בקרה', to: '/broker', icon: LayoutDashboard, end: true },
       { label: 'כל הנכסים', to: '/broker/properties', icon: Building2 },
       { label: 'לקוחות', to: '/broker/clients', icon: Users },
@@ -135,7 +133,7 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
 
   const config = useMemo(() => {
     if (variant === 'broker' && propertyId) {
-      return propertyNav(propertyId);
+      return buildPropertyNav(propertyId);
     }
     return CONFIG[variant];
   }, [variant, propertyId]);

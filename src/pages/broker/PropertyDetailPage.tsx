@@ -13,6 +13,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ManagedUnitsTable } from '../../components/broker/ManagedUnitsTable';
+import { PropertySubNav } from '../../components/broker/PropertySubNav';
 import { PropertyUnitCards } from '../../components/broker/PropertyUnitCards';
 import {
   PropertyFormModal,
@@ -30,26 +31,15 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { createUnit, fetchProperty, updateProperty, updateUnit } from '../../lib/services';
 import { supabase } from '../../lib/supabase';
-import { cn, formatCurrency, getOccupancyPercent } from '../../lib/utils';
+import { formatCurrency, getOccupancyPercent } from '../../lib/utils';
 import type { PropertyKind, PropertyStatus, PropertyVisibility } from '../../types';
 import type { PropertyUnit, PropertyWithUnits } from '../../types/domain';
-
-type PropertyTab = 'overview' | 'units' | 'tenants' | 'leases' | 'payments';
-
-const TABS: { id: PropertyTab; label: string; to: (id: string) => string }[] = [
-  { id: 'overview', label: 'סקירה', to: (id) => `/broker/properties/${id}` },
-  { id: 'units', label: 'יחידות', to: (id) => `/broker/units?property=${id}` },
-  { id: 'tenants', label: 'שוכרים', to: (id) => `/broker/tenants?property=${id}` },
-  { id: 'leases', label: 'חוזים', to: (id) => `/broker/leases?property=${id}` },
-  { id: 'payments', label: 'תשלומים', to: (id) => `/broker/payments?property=${id}` },
-];
 
 export function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [property, setProperty] = useState<PropertyWithUnits | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<PropertyTab>('overview');
   const [shareOpen, setShareOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editInitial, setEditInitial] = useState<Partial<PropertyFormValues> | undefined>();
@@ -246,65 +236,37 @@ export function PropertyDetailPage() {
         />
       </StatCardGrid>
 
-      <div className="flex flex-wrap gap-2 border-b border-border pb-1">
-        {TABS.map((t) =>
-          t.id === 'overview' ? (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab('overview')}
-              className={cn(
-                'rounded-t-lg px-4 py-2 text-sm font-medium transition-colors',
-                tab === 'overview'
-                  ? 'border-b-2 border-primary text-primary'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              {t.label}
-            </button>
-          ) : (
-            <Link
-              key={t.id}
-              to={t.to(property.id)}
-              className="rounded-t-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {t.label}
-            </Link>
-          ),
-        )}
-      </div>
+      <PropertySubNav propertyId={property.id} />
 
-      {tab === 'overview' ? (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-2">
-            <CardTitle className="text-base">יחידות בנכס</CardTitle>
-            <Button size="sm" onClick={openUnitCreate}>
-              <Plus className="h-4 w-4" />
-              יחידה חדשה
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <PropertyUnitCards units={property.units} />
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-2">
-            <CardTitle className="text-base">טבלת יחידות ({property.units.length})</CardTitle>
-            <Button size="sm" onClick={openUnitCreate}>
-              <Plus className="h-4 w-4" />
-              יחידה חדשה
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <ManagedUnitsTable
-              propertyId={property.id}
-              units={property.units}
-              onEdit={openUnitEdit}
-            />
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle className="text-base">יחידות בנכס</CardTitle>
+          <Button size="sm" onClick={openUnitCreate}>
+            <Plus className="h-4 w-4" />
+            יחידה חדשה
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <PropertyUnitCards units={property.units} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle className="text-base">טבלת יחידות ({property.units.length})</CardTitle>
+          <Button size="sm" onClick={openUnitCreate}>
+            <Plus className="h-4 w-4" />
+            יחידה חדשה
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <ManagedUnitsTable
+            propertyId={property.id}
+            units={property.units}
+            onEdit={openUnitEdit}
+          />
+        </CardContent>
+      </Card>
 
       <SharePropertyModal
         open={shareOpen}

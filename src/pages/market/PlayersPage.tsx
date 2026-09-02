@@ -96,14 +96,14 @@ export function PlayersPage() {
                     <p className="text-xs text-muted-foreground">עסקאות</p>
                   </div>
                   <div className="rounded-lg bg-muted/50 py-2">
-                    <p className="flex items-center justify-center gap-0.5 font-bold">
-                      <Star className="h-3.5 w-3.5 fill-warning text-warning" />
+                    <p className="flex items-center justify-center gap-1 font-bold">
+                      <Star className="h-3.5 w-3.5 text-warning" />
                       {player.rating}
                     </p>
                     <p className="text-xs text-muted-foreground">דירוג</p>
                   </div>
                 </div>
-                <Link to="/login">
+                <Link to="/register">
                   <Button variant="outline" className="w-full">צור קשר</Button>
                 </Link>
               </CardContent>

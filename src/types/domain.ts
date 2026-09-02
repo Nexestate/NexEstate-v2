@@ -448,6 +448,14 @@ export const PAYMENT_PROVIDER_VENDOR_LABELS: Record<PaymentProviderVendor, strin
   invoice4u: 'Invoice4u',
 };
 
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  cash: 'מזומן',
+  check: "צ'ק",
+  transfer: 'העברה בנקאית',
+  credit_card: 'כרטיס אשראי',
+  other: 'אחר',
+};
+
 export const SIGNING_STATUS_LABELS: Record<SigningStatus, string> = {
   pending: 'ממתין',
   sent: 'נשלח',

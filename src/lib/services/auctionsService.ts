@@ -1,6 +1,46 @@
 import { DEMO_AUCTIONS, DEMO_LEASES, DEMO_PAYMENTS } from '../../data/demoData';
-import type { Auction, Payment, PaymentStatus } from '../../types/domain';
+import type { Auction, Payment, PaymentMethod, PaymentStatus } from '../../types/domain';
 import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
+
+export type PaymentInsert = {
+  lease_id: string;
+  amount: number;
+  due_date: string;
+  status?: PaymentStatus;
+  payment_method?: PaymentMethod;
+  receipt_number?: string;
+  notes?: string;
+};
+
+function mapPaymentRow(row: Record<string, unknown>): Payment {
+  const lease = row.leases as {
+    id?: string;
+    property_id?: string;
+    unit_id?: string;
+    tenant_id?: string;
+    tenants?: { full_name?: string } | null;
+    properties?: { title?: string } | null;
+    property_units?: { unit_number?: string } | null;
+  } | null;
+
+  return {
+    id: row.id as string,
+    tenant_name: lease?.tenants?.full_name ?? '',
+    property_title: lease?.properties?.title ?? '',
+    property_id: lease?.property_id,
+    unit_number: lease?.property_units?.unit_number ?? '',
+    unit_id: lease?.unit_id,
+    tenant_id: lease?.tenant_id,
+    lease_id: lease?.id,
+    amount: row.amount as number,
+    due_date: (row.due_date as string) ?? (row.payment_date as string),
+    status: ((row.payment_status as Payment['status']) ?? 'pending') as Payment['status'],
+    payment_method: (row.payment_method as PaymentMethod | null) ?? undefined,
+    receipt_number: (row.receipt_number as string | null) ?? undefined,
+    notes: (row.notes as string | null) ?? undefined,
+    paid_at: (row.paid_at as string | null) ?? undefined,
+  };
+}
 
 export async function fetchAuctions(): Promise<Auction[]> {
   if (isDemoMode()) return DEMO_AUCTIONS;
@@ -70,31 +110,7 @@ export async function fetchPayments(propertyIds?: string[]): Promise<Payment[]> 
     return [];
   }
 
-  return (data ?? []).map((row) => {
-    const lease = row.leases as {
-      id?: string;
-      property_id?: string;
-      unit_id?: string;
-      tenant_id?: string;
-      tenants?: { full_name?: string } | null;
-      properties?: { title?: string } | null;
-      property_units?: { unit_number?: string } | null;
-    } | null;
-
-    return {
-      id: row.id,
-      tenant_name: lease?.tenants?.full_name ?? '',
-      property_title: lease?.properties?.title ?? '',
-      property_id: lease?.property_id,
-      unit_number: lease?.property_units?.unit_number ?? '',
-      unit_id: lease?.unit_id,
-      tenant_id: lease?.tenant_id,
-      lease_id: lease?.id,
-      amount: row.amount,
-      due_date: row.due_date ?? row.payment_date,
-      status: (row.payment_status as Payment['status']) ?? 'pending',
-    };
-  });
+  return (data ?? []).map((row) => mapPaymentRow(row as Record<string, unknown>));
 }
 
 export type AuctionInsert = {
@@ -140,11 +156,65 @@ export async function createAuction(payload: AuctionInsert): Promise<string> {
   return data.id as string;
 }
 
+export async function createPayment(payload: PaymentInsert): Promise<string> {
+  if (isDemoMode()) {
+    const lease = DEMO_LEASES.find((l) => l.id === payload.lease_id);
+    const id = `pay-${Date.now()}`;
+    DEMO_PAYMENTS.unshift({
+      id,
+      tenant_name: lease?.tenant_name ?? '',
+      property_title: lease?.property_title ?? '',
+      property_id: lease?.property_id,
+      unit_id: lease?.unit_id,
+      tenant_id: lease?.tenant_id,
+      lease_id: payload.lease_id,
+      unit_number: lease?.unit_number ?? '',
+      amount: payload.amount,
+      due_date: payload.due_date,
+      status: payload.status ?? 'pending',
+      payment_method: payload.payment_method,
+      receipt_number: payload.receipt_number,
+      notes: payload.notes,
+    });
+    return id;
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('lease_payments')
+    .insert({
+      lease_id: payload.lease_id,
+      amount: payload.amount,
+      due_date: payload.due_date,
+      payment_status: payload.status ?? 'pending',
+      payment_method: payload.payment_method ?? null,
+      receipt_number: payload.receipt_number ?? null,
+      notes: payload.notes ?? null,
+    })
+    .select('id')
+    .single();
+
+  throwIfError(error);
+  if (!data) throw new ServiceError('Payment insert returned no data');
+  return data.id as string;
+}
+
 export async function fetchPaymentById(id: string): Promise<Payment | undefined> {
   const payments = await fetchPayments();
   return payments.find((p) => p.id === id);
 }
-export async function updatePayment(id: string, payload: { amount?: number; due_date?: string; status?: PaymentStatus }): Promise<void> {
+
+export async function updatePayment(
+  id: string,
+  payload: {
+    amount?: number;
+    due_date?: string;
+    status?: PaymentStatus;
+    payment_method?: PaymentMethod;
+    receipt_number?: string;
+    notes?: string;
+  },
+): Promise<void> {
   if (isDemoMode()) {
     const payment = DEMO_PAYMENTS.find((p) => p.id === id);
     if (payment) Object.assign(payment, payload);
@@ -155,6 +225,9 @@ export async function updatePayment(id: string, payload: { amount?: number; due_
   if (payload.amount !== undefined) update.amount = payload.amount;
   if (payload.due_date !== undefined) update.due_date = payload.due_date;
   if (payload.status !== undefined) update.payment_status = payload.status;
+  if (payload.payment_method !== undefined) update.payment_method = payload.payment_method;
+  if (payload.receipt_number !== undefined) update.receipt_number = payload.receipt_number;
+  if (payload.notes !== undefined) update.notes = payload.notes;
   const { error } = await client.from('lease_payments').update(update).eq('id', id);
   throwIfError(error);
 }

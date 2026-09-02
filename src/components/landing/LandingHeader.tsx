@@ -5,6 +5,7 @@ import {
   ChevronDown,
   HardHat,
   Heart,
+  LayoutDashboard,
   LayoutGrid,
   LogIn,
   Map,
@@ -21,10 +22,12 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { getDashboardPath } from '../../lib/roles';
+import { cn } from '../../lib/utils';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Logo } from '../layout/Logo';
 import { Button } from '../ui/Button';
-import { cn } from '../../lib/utils';
 
 type DropdownId = 'sales' | 'players';
 
@@ -74,7 +77,11 @@ export function LandingHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<DropdownId | null>(null);
   const { theme, toggleTheme } = useTheme();
+  const { user, loading } = useAuth();
   const { pathname } = useLocation();
+
+  const favoritesHref = user?.role === 'buyer' ? '/buyer/favorites' : '/login';
+  const dashboardHref = user ? getDashboardPath(user.role) : '/login';
 
   const isActive = (to: string) => {
     const base = to.split('?')[0];
@@ -167,19 +174,29 @@ export function LandingHeader() {
             {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
           </button>
           <Link
-            to="/login"
+            to={favoritesHref}
             className="hidden h-8 w-8 place-items-center rounded-full border border-border/60 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground md:grid"
             aria-label="מועדפים"
           >
             <Heart className="h-3.5 w-3.5" />
           </Link>
-          <Link to="/login" className="hidden md:block">
-            <Button size="sm" className="h-8 rounded-full px-3.5 text-xs shadow-lg shadow-primary/25 lg:h-9 lg:px-4 lg:text-sm">
-              <LogIn className="h-3.5 w-3.5 shrink-0" />
-              <span className="hidden xl:inline">התחברות/הרשמה</span>
-              <span className="xl:hidden">התחברות</span>
-            </Button>
-          </Link>
+          {!loading && user ? (
+            <Link to={dashboardHref} className="hidden md:block">
+              <Button size="sm" className="h-8 rounded-full px-3.5 text-xs shadow-lg shadow-primary/25 lg:h-9 lg:px-4 lg:text-sm">
+                <LayoutDashboard className="h-3.5 w-3.5 shrink-0" />
+                <span className="hidden xl:inline">לדשבורד</span>
+                <span className="xl:hidden">דשבורד</span>
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/login" className="hidden md:block">
+              <Button size="sm" className="h-8 rounded-full px-3.5 text-xs shadow-lg shadow-primary/25 lg:h-9 lg:px-4 lg:text-sm">
+                <LogIn className="h-3.5 w-3.5 shrink-0" />
+                <span className="hidden xl:inline">התחברות/הרשמה</span>
+                <span className="xl:hidden">התחברות</span>
+              </Button>
+            </Link>
+          )}
           <Link to="/register" className="hidden sm:block">
             <Button variant="success" size="sm" className="h-8 rounded-full px-3.5 text-xs shadow-lg shadow-success/25 lg:h-9 lg:px-4 lg:text-sm">
               <Plus className="h-3.5 w-3.5 shrink-0" />
@@ -241,9 +258,18 @@ export function LandingHeader() {
             })}
           </nav>
           <div className="mt-4 flex flex-col gap-2">
-            <Link to="/login" onClick={() => setMobileOpen(false)}>
-              <Button className="w-full rounded-full">התחברות/הרשמה</Button>
-            </Link>
+            {!loading && user ? (
+              <Link to={dashboardHref} onClick={() => setMobileOpen(false)}>
+                <Button className="w-full rounded-full">
+                  <LayoutDashboard className="h-4 w-4" />
+                  לדשבורד
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/login" onClick={() => setMobileOpen(false)}>
+                <Button className="w-full rounded-full">התחברות/הרשמה</Button>
+              </Link>
+            )}
             <Link to="/register" onClick={() => setMobileOpen(false)}>
               <Button variant="success" className="w-full rounded-full">פרסם מודעה</Button>
             </Link>

@@ -391,6 +391,7 @@ ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS token TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS client_name TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS client_phone TEXT DEFAULT '';
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS client_email TEXT;
+ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS recipient_email TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS signer_id_number TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS signer_company_name TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS signer_address TEXT;
@@ -415,9 +416,29 @@ ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS signed_at TIMESTAMPTZ;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS sent_at TIMESTAMPTZ;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS pdf_url TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS broker_name TEXT;
+ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS document_title TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS custom_agreement_text TEXT;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS whatsapp_verified BOOLEAN DEFAULT false;
 ALTER TABLE public.signing_links ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
+-- signing_links_target_required: each link must reference property_id OR have both
+-- property_description and an address (exact_address or property_address).
+DO $$
+BEGIN
+  IF to_regclass('public.signing_links') IS NOT NULL THEN
+    ALTER TABLE public.signing_links DROP CONSTRAINT IF EXISTS signing_links_target_required;
+    ALTER TABLE public.signing_links
+      ADD CONSTRAINT signing_links_target_required CHECK (
+        property_id IS NOT NULL
+        OR (
+          NULLIF(TRIM(property_description), '') IS NOT NULL
+          AND NULLIF(TRIM(COALESCE(exact_address, property_address)), '') IS NOT NULL
+        )
+      );
+  END IF;
+EXCEPTION WHEN others THEN
+  RAISE NOTICE 'Skip signing_links_target_required: %', SQLERRM;
+END $$;
 
 -- auctions
 ALTER TABLE public.auctions ADD COLUMN IF NOT EXISTS property_id UUID;

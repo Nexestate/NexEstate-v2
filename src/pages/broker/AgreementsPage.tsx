@@ -1,5 +1,6 @@
 import { Copy, ExternalLink, FileDown, FileSignature, MoreHorizontal, Plus, Send, Trash2, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { PageLoader } from '../../components/ui/PageLoader';
 import { Badge } from '../../components/ui/Badge';

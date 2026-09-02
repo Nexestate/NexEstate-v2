@@ -24,6 +24,7 @@ import { BrokerDashboard } from './pages/broker/Dashboard';
 import { BrokerHome } from './pages/broker/Home';
 import { LeadsPage } from './pages/broker/LeadsPage';
 import { LeasesPage } from './pages/broker/LeasesPage';
+import { TenantsPage } from './pages/broker/TenantsPage';
 import { MyPropertiesPage } from './pages/broker/MyPropertiesPage';
 import { NotificationsPage } from './pages/broker/NotificationsPage';
 import { PaymentsPage } from './pages/broker/PaymentsPage';
@@ -42,6 +43,7 @@ import { BuyerSearchPage } from './pages/buyer/SearchPage';
 import { SharedPropertiesPage } from './pages/buyer/SharedPropertiesPage';
 import { SharedPropertyDetailPage } from './pages/buyer/SharedPropertyDetailPage';
 import { LandingPage } from './pages/landing/LandingPage';
+import { PrivacyPage, TermsPage } from './pages/legal/LegalPage';
 import { AuctionsPublicPage } from './pages/market/AuctionsPublicPage';
 import { CalculatorPage } from './pages/market/CalculatorPage';
 import { DealsPage } from './pages/market/DealsPage';
@@ -62,6 +64,8 @@ export function App() {
       <Route path="/opportunities" element={<OpportunitiesPage />} />
       <Route path="/calculator" element={<CalculatorPage />} />
       <Route path="/prices" element={<PricesPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/sign/:token" element={<SignPage />} />
 
       <Route element={<PublicOnlyRoute />}>
@@ -91,10 +95,10 @@ export function App() {
           <Route path="reports" element={<ReportsPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="settings" element={<SettingsPage />} />
-          <Route path="tenants" element={<LeasesPage />} />
+          <Route path="tenants" element={<TenantsPage />} />
           <Route path="tenants/:id" element={<OpenEntityRedirect listPath="/broker/tenants" />} />
           <Route path="leases" element={<LeasesPage />} />
-          <Route path="leases/:id" element={<OpenEntityRedirect listPath="/broker/leases" />} />
+          <Route path="leases/:id" element={<LeasesPage />} />
           <Route path="payments" element={<PaymentsPage />} />
           <Route path="payments/:id" element={<OpenEntityRedirect listPath="/broker/payments" />} />
           <Route path="*" element={<Navigate to="/broker" replace />} />
