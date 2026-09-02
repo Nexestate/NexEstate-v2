@@ -1,4 +1,5 @@
-import { Bed, Car, FileText, MapPin, Maximize, MessageCircle } from 'lucide-react';
+import { Bed, Building, Car, FileText, MapPin, Maximize, MessageCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
@@ -29,7 +30,7 @@ export function PropertyLandingPage() {
       setLoading(false);
       return;
     }
-    getPublicLandingPage(slug).then((data) => {
+    getPublicLandingPage(slug).then((data: PublicLandingPage | null) => {
       if (!data) setError('דף הנחיתה לא נמצא');
       else setPage(data);
       setLoading(false);
@@ -113,7 +114,7 @@ export function PropertyLandingPage() {
             <Spec icon={Maximize} label="שטח" value={`${page.area_sqm} מ"ר`} />
           )}
           {page.rooms != null && <Spec icon={Bed} label="חדרים" value={String(page.rooms)} />}
-          {page.floor != null && <Spec icon={BuildingIcon} label="קומה" value={String(page.floor)} />}
+          {page.floor != null && <Spec icon={Building} label="קומה" value={String(page.floor)} />}
           {page.parking_spots != null && (
             <Spec icon={Car} label="חנייה" value={String(page.parking_spots)} />
           )}
@@ -121,7 +122,7 @@ export function PropertyLandingPage() {
 
         {page.images.length > 1 && (
           <div className="flex gap-2 overflow-x-auto pb-1">
-            {page.images.slice(1).map((img) => (
+            {page.images.slice(1).map((img: string) => (
               <img
                 key={img}
                 src={img}
@@ -145,7 +146,7 @@ export function PropertyLandingPage() {
           <section>
             <h2 className="mb-2 text-lg font-semibold">מסמכים</h2>
             <div className="space-y-2">
-              {page.documents.map((doc) => (
+              {page.documents.map((doc: string) => (
                 <a
                   key={doc}
                   href={doc}
@@ -214,7 +215,7 @@ export function PropertyLandingPage() {
   );
 }
 
-function Spec({ icon: Icon, label, value }: { icon: typeof Bed; label: string; value: string }) {
+function Spec({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
   return (
     <div className="rounded-xl border border-border bg-muted/30 p-3 text-center">
       <Icon className="mx-auto h-4 w-4 text-primary" />
@@ -224,11 +225,3 @@ function Spec({ icon: Icon, label, value }: { icon: typeof Bed; label: string; v
   );
 }
 
-function BuildingIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
-      <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
-      <path d="M6 12h12M10 6h.01M10 10h.01M10 14h.01M10 18h.01M14 6h.01M14 10h.01M14 14h.01M14 18h.01" />
-    </svg>
-  );
-}

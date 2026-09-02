@@ -89,9 +89,9 @@ function mapPaymentRow(
   };
 }
 
-export async function fetchPayments(): Promise<Payment[]> {
+export async function fetchPayments(propertyIds?: string[]): Promise<Payment[]> {
   if (isDemoMode()) {
-    return DEMO_PAYMENTS.map((payment) => {
+    let rows = DEMO_PAYMENTS.map((payment) => {
       const lease = DEMO_LEASES.find((l) => l.tenant_name === payment.tenant_name && l.is_active);
       return {
         ...payment,
@@ -101,15 +101,23 @@ export async function fetchPayments(): Promise<Payment[]> {
         lease_id: lease?.id,
       };
     });
+    if (propertyIds?.length) {
+      rows = rows.filter((p) => p.property_id && propertyIds.includes(p.property_id));
+    }
+    return rows;
   }
 
   const client = requireSupabase();
-  const { data, error } = await client
+  let query = client
     .from('lease_payments')
     .select(
       '*, leases(id, property_id, unit_id, tenant_id, tenants(full_name), properties(title), property_units(unit_number))',
     )
     .order('due_date', { ascending: false });
+  if (propertyIds?.length) {
+    query = query.in('property_id', propertyIds);
+  }
+  const { data, error } = await query;
   throwIfError(error);
 
   return (data ?? []).map((row) => {

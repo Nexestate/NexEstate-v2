@@ -1,0 +1,3 @@
+src/components/broker/QuickAddModals.tsx(86,9): error TS2322: Type '(values: SigningLinkFormValues) => Promise<void>' is not assignable to type '(values: SigningLinkFormValues) => Promise<{ token: string; }>'.
+  Type 'Promise<void>' is not assignable to type 'Promise<{ token: string; }>'.
+    Type 'void' is not assignable to type '{ token: string; }'.

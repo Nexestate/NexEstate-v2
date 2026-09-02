@@ -75,7 +75,7 @@ export function scorePropertyForDemand(
   property: MatchProperty,
   demand: ClientDemand,
 ): ScoredMatch<MatchProperty> | null {
-  if (demand.preferred_kinds?.length && !demand.preferred_kinds.includes(property.kind)) {
+  if (demand.preferred_kinds?.length && !(demand.preferred_kinds as string[]).includes(property.kind)) {
     return null;
   }
   if (demand.preferred_cities?.length && property.city && !cityMatches(property.city, demand.preferred_cities)) {

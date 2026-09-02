@@ -37,7 +37,7 @@ export function PaymentCheckoutPage() {
       setLoading(false);
       return;
     }
-    getPublicPaymentCheckout(slug).then((data) => {
+    getPublicPaymentCheckout(slug).then((data: PublicPaymentCheckout | null) => {
       if (!data) setError('דרישת התשלום לא נמצאה');
       else {
         setCheckout(data);
@@ -66,7 +66,7 @@ export function PaymentCheckoutPage() {
         return;
       }
       setDone(true);
-      setCheckout((c) =>
+      setCheckout((c: PublicPaymentCheckout | null) =>
         c
           ? {
               ...c,
@@ -97,7 +97,7 @@ export function PaymentCheckoutPage() {
         return;
       }
       setDone(true);
-      setCheckout((c) => (c ? { ...c, payment_status: 'pending_verification' } : c));
+      setCheckout((c: PublicPaymentCheckout | null) => (c ? { ...c, payment_status: 'pending_verification' } : c));
     } catch {
       setFormError('שגיאה בהעלאת האסמכתא.');
     } finally {

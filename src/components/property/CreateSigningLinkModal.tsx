@@ -53,7 +53,7 @@ const DEFAULTS: SigningLinkFormValues = {
 interface CreateSigningLinkModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (values: SigningLinkFormValues) => Promise<{ token: string }>;
+  onSubmit: (values: SigningLinkFormValues) => Promise<{ token: string } | void>;
 }
 
 export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSigningLinkModalProps) {
@@ -111,7 +111,11 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
     setErrors({});
     try {
       const result = await onSubmit(form);
-      setCreatedToken(result.token);
+      if (result?.token) {
+        setCreatedToken(result.token);
+      } else {
+        onClose();
+      }
     } catch (err) {
       setErrors({ form: (err as Error).message || 'שגיאה ביצירת הקישור' });
     } finally {

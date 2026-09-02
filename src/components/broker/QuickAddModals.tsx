@@ -49,7 +49,7 @@ export function QuickAddModals() {
   const { state, closeQuickAdd } = useQuickAdd();
   const { createLink, fetchLinks } = useSigningLinks();
 
-  const handleAgreementCreate = async (values: SigningLinkFormValues) => {
+  const handleAgreementCreate = async (values: SigningLinkFormValues): Promise<{ token: string } | void> => {
     const created = await createLink({
       client_name: values.client_name,
       client_phone: values.client_phone,
@@ -159,7 +159,7 @@ export function QuickAddModals() {
           });
           closeAfterSuccess('unit', closeQuickAdd);
         }}
-        title="יחידה חדשה"
+        title="׳™׳—׳™׳“׳” ׳—׳“׳©׳”"
       />
     </>
   );
@@ -173,7 +173,7 @@ interface LeadFormModalProps {
   title?: string;
 }
 
-export function LeadFormModal({ open, onClose, initial, onSubmit, title = 'ליד חדש' }: LeadFormModalProps) {
+export function LeadFormModal({ open, onClose, initial, onSubmit, title = '׳׳™׳“ ׳—׳“׳©' }: LeadFormModalProps) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [source, setSource] = useState('');
@@ -220,12 +220,12 @@ export function LeadFormModal({ open, onClose, initial, onSubmit, title = 'לי�
   return (
     <Modal open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="שם מלא" value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.full_name} required />
-        <Input label="טלפון" value={phone} onChange={(e) => setPhone(sanitizePhone(e.target.value))} error={errors.phone} required />
-        <Input label="מקור" value={source} onChange={(e) => setSource(e.target.value)} placeholder="פייסבוק, אתר, המלצה..." />
+        <Input label="׳©׳ ׳׳׳" value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.full_name} required />
+        <Input label="׳˜׳׳₪׳•׳" value={phone} onChange={(e) => setPhone(sanitizePhone(e.target.value))} error={errors.phone} required />
+        <Input label="׳׳§׳•׳¨" value={source} onChange={(e) => setSource(e.target.value)} placeholder="׳₪׳™׳™׳¡׳‘׳•׳§, ׳׳×׳¨, ׳”׳׳׳¦׳”..." />
         {initial?.status !== undefined && (
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">סטטוס</label>
+            <label className="text-sm font-medium">׳¡׳˜׳˜׳•׳¡</label>
             <select className={SELECT_CLASS} value={status} onChange={(e) => setStatus(e.target.value as LeadStatus)}>
               {Object.entries(LEAD_STATUS_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
@@ -234,8 +234,8 @@ export function LeadFormModal({ open, onClose, initial, onSubmit, title = 'לי�
           </div>
         )}
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>ביטול</Button>
-          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : initial?.full_name ? 'שמור' : 'הוסף ליד'}</Button>
+          <Button type="button" variant="outline" onClick={onClose}>׳‘׳™׳˜׳•׳</Button>
+          <Button type="submit" disabled={saving}>{saving ? '׳©׳•׳׳¨...' : initial?.full_name ? '׳©׳׳•׳¨' : '׳”׳•׳¡׳£ ׳׳™׳“'}</Button>
         </div>
       </form>
     </Modal>
@@ -250,7 +250,7 @@ interface ClientFormModalProps {
   title?: string;
 }
 
-export function ClientFormModal({ open, onClose, initial, onSubmit, title = 'לקוח חדש' }: ClientFormModalProps) {
+export function ClientFormModal({ open, onClose, initial, onSubmit, title = '׳׳§׳•׳— ׳—׳“׳©' }: ClientFormModalProps) {
   const [fullName, setFullName] = useState('');
   const [type, setType] = useState<ClientType>('buyer');
   const [phone, setPhone] = useState('');
@@ -304,20 +304,20 @@ export function ClientFormModal({ open, onClose, initial, onSubmit, title = 'ל�
   return (
     <Modal open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="שם מלא" value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.full_name} required />
+        <Input label="׳©׳ ׳׳׳" value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.full_name} required />
         <div className="space-y-1.5">
-          <label className="text-sm font-medium">סוג לקוח</label>
+          <label className="text-sm font-medium">׳¡׳•׳’ ׳׳§׳•׳—</label>
           <select className={SELECT_CLASS} value={type} onChange={(e) => setType(e.target.value as ClientType)}>
             {Object.entries(CLIENT_TYPE_LABELS).map(([value, label]) => (
               <option key={value} value={value}>{label}</option>
             ))}
           </select>
         </div>
-        <Input label="טלפון" value={phone} onChange={(e) => setPhone(sanitizePhone(e.target.value))} error={errors.phone} />
-        <Input label='דוא"ל' value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
+        <Input label="׳˜׳׳₪׳•׳" value={phone} onChange={(e) => setPhone(sanitizePhone(e.target.value))} error={errors.phone} />
+        <Input label='׳“׳•׳"׳' value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>ביטול</Button>
-          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : initial?.full_name ? 'שמור' : 'הוסף לקוח'}</Button>
+          <Button type="button" variant="outline" onClick={onClose}>׳‘׳™׳˜׳•׳</Button>
+          <Button type="submit" disabled={saving}>{saving ? '׳©׳•׳׳¨...' : initial?.full_name ? '׳©׳׳•׳¨' : '׳”׳•׳¡׳£ ׳׳§׳•׳—'}</Button>
         </div>
       </form>
     </Modal>
@@ -332,7 +332,7 @@ interface TaskFormModalProps {
   title?: string;
 }
 
-export function TaskFormModal({ open, onClose, initial, onSubmit, title = 'משימה חדשה' }: TaskFormModalProps) {
+export function TaskFormModal({ open, onClose, initial, onSubmit, title = '׳׳©׳™׳׳” ׳—׳“׳©׳”' }: TaskFormModalProps) {
   const [taskTitle, setTaskTitle] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueDate, setDueDate] = useState('');
@@ -353,7 +353,7 @@ export function TaskFormModal({ open, onClose, initial, onSubmit, title = 'מש�
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next: Record<string, string> = {};
-    const titleResult = validateRequired(taskTitle, 'כותרת');
+    const titleResult = validateRequired(taskTitle, '׳›׳•׳×׳¨׳×');
     if (!titleResult.isValid) next.title = titleResult.error!;
     setErrors(next);
     if (Object.keys(next).length) return;
@@ -377,19 +377,19 @@ export function TaskFormModal({ open, onClose, initial, onSubmit, title = 'מש�
   return (
     <Modal open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="כותרת" value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} error={errors.title} required />
+        <Input label="׳›׳•׳×׳¨׳×" value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} error={errors.title} required />
         <div className="space-y-1.5">
-          <label className="text-sm font-medium">עדיפות</label>
+          <label className="text-sm font-medium">׳¢׳“׳™׳₪׳•׳×</label>
           <select className={SELECT_CLASS} value={priority} onChange={(e) => setPriority(e.target.value as TaskPriority)}>
             {Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => (
               <option key={value} value={value}>{label}</option>
             ))}
           </select>
         </div>
-        <Input label="תאריך יעד" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+        <Input label="׳×׳׳¨׳™׳ ׳™׳¢׳“" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
         {initial?.status !== undefined && (
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">סטטוס</label>
+            <label className="text-sm font-medium">׳¡׳˜׳˜׳•׳¡</label>
             <select className={SELECT_CLASS} value={status} onChange={(e) => setStatus(e.target.value as TaskStatus)}>
               {Object.entries(TASK_STATUS_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
@@ -398,8 +398,8 @@ export function TaskFormModal({ open, onClose, initial, onSubmit, title = 'מש�
           </div>
         )}
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>ביטול</Button>
-          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : initial?.title ? 'שמור' : 'הוסף משימה'}</Button>
+          <Button type="button" variant="outline" onClick={onClose}>׳‘׳™׳˜׳•׳</Button>
+          <Button type="submit" disabled={saving}>{saving ? '׳©׳•׳׳¨...' : initial?.title ? '׳©׳׳•׳¨' : '׳”׳•׳¡׳£ ׳׳©׳™׳׳”'}</Button>
         </div>
       </form>
     </Modal>
@@ -414,7 +414,7 @@ interface TenantFormModalProps {
   title?: string;
 }
 
-export function TenantFormModal({ open, onClose, initial, onSubmit, title = 'שוכר חדש' }: TenantFormModalProps) {
+export function TenantFormModal({ open, onClose, initial, onSubmit, title = '׳©׳•׳›׳¨ ׳—׳“׳©' }: TenantFormModalProps) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -464,12 +464,12 @@ export function TenantFormModal({ open, onClose, initial, onSubmit, title = 'ש�
   return (
     <Modal open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="שם / חברה" value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.full_name} required />
-        <Input label="טלפון" value={phone} onChange={(e) => setPhone(sanitizePhone(e.target.value))} error={errors.phone} />
-        <Input label='דוא"ל' value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
+        <Input label="׳©׳ / ׳—׳‘׳¨׳”" value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.full_name} required />
+        <Input label="׳˜׳׳₪׳•׳" value={phone} onChange={(e) => setPhone(sanitizePhone(e.target.value))} error={errors.phone} />
+        <Input label='׳“׳•׳"׳' value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>ביטול</Button>
-          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : initial?.full_name ? 'שמור' : 'הוסף שוכר'}</Button>
+          <Button type="button" variant="outline" onClick={onClose}>׳‘׳™׳˜׳•׳</Button>
+          <Button type="submit" disabled={saving}>{saving ? '׳©׳•׳׳¨...' : initial?.full_name ? '׳©׳׳•׳¨' : '׳”׳•׳¡׳£ ׳©׳•׳›׳¨'}</Button>
         </div>
       </form>
     </Modal>
@@ -494,7 +494,7 @@ interface LeaseFormModalProps {
   title?: string;
 }
 
-export function LeaseFormModal({ open, onClose, initial, onSubmit, title = 'חוזה חדש' }: LeaseFormModalProps) {
+export function LeaseFormModal({ open, onClose, initial, onSubmit, title = '׳—׳•׳–׳” ׳—׳“׳©' }: LeaseFormModalProps) {
   const [tenantName, setTenantName] = useState('');
   const [monthlyRent, setMonthlyRent] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -519,9 +519,9 @@ export function LeaseFormModal({ open, onClose, initial, onSubmit, title = 'חו
     if (!name.isValid) next.tenant_name = name.error!;
     const rent = validatePositiveNumber(monthlyRent, true);
     if (!rent.isValid) next.monthly_rent = rent.error!;
-    const start = validateRequired(startDate, 'תאריך התחלה');
+    const start = validateRequired(startDate, '׳×׳׳¨׳™׳ ׳”׳×׳—׳׳”');
     if (!start.isValid) next.start_date = start.error!;
-    const end = validateRequired(endDate, 'תאריך סיום');
+    const end = validateRequired(endDate, '׳×׳׳¨׳™׳ ׳¡׳™׳•׳');
     if (!end.isValid) next.end_date = end.error!;
     setErrors(next);
     if (Object.keys(next).length) return;
@@ -546,15 +546,16 @@ export function LeaseFormModal({ open, onClose, initial, onSubmit, title = 'חו
   return (
     <Modal open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="שם שוכר" value={tenantName} onChange={(e) => setTenantName(e.target.value)} error={errors.tenant_name} required />
-        <Input label='שכ"ד חודשי (₪)' value={monthlyRent} onChange={(e) => setMonthlyRent(e.target.value)} error={errors.monthly_rent} required />
-        <Input label="תאריך התחלה" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} error={errors.start_date} required />
-        <Input label="תאריך סיום" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} error={errors.end_date} required />
+        <Input label="׳©׳ ׳©׳•׳›׳¨" value={tenantName} onChange={(e) => setTenantName(e.target.value)} error={errors.tenant_name} required />
+        <Input label='׳©׳›"׳“ ׳—׳•׳“׳©׳™ (ג‚×)' value={monthlyRent} onChange={(e) => setMonthlyRent(e.target.value)} error={errors.monthly_rent} required />
+        <Input label="׳×׳׳¨׳™׳ ׳”׳×׳—׳׳”" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} error={errors.start_date} required />
+        <Input label="׳×׳׳¨׳™׳ ׳¡׳™׳•׳" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} error={errors.end_date} required />
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>ביטול</Button>
-          <Button type="submit" disabled={saving}>{saving ? 'שומר...' : initial?.start_date ? 'שמור' : 'הוסף חוזה'}</Button>
+          <Button type="button" variant="outline" onClick={onClose}>׳‘׳™׳˜׳•׳</Button>
+          <Button type="submit" disabled={saving}>{saving ? '׳©׳•׳׳¨...' : initial?.start_date ? '׳©׳׳•׳¨' : '׳”׳•׳¡׳£ ׳—׳•׳–׳”'}</Button>
         </div>
       </form>
     </Modal>
   );
 }
+
