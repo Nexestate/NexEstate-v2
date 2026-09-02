@@ -1,34 +1,25 @@
 import type { Profile, UserRole } from '../../types';
 import { isDemoMode, requireSupabase, throwIfError } from './serviceHelpers';
 
-export type EnsureProfilePayload = {
-  email?: string;
-  full_name?: string;
-  role?: UserRole;
-};
-
-/** Ensures a profiles row exists for the user (required before signing_links FK insert). */
-export async function ensureProfile(userId: string, payload?: EnsureProfilePayload): Promise<void> {
+/** Ensures a profiles row exists (required for signing_links FK). */
+export async function ensureProfile(
+  userId: string,
+  email: string,
+  fullName?: string,
+  role: UserRole = 'broker',
+): Promise<void> {
   if (isDemoMode()) return;
 
   const client = requireSupabase();
-  const { data: existing, error: readError } = await client
-    .from('profiles')
-    .select('id')
-    .eq('id', userId)
-    .maybeSingle();
-
-  throwIfError(readError);
+  const { data: existing } = await client.from('profiles').select('id').eq('id', userId).maybeSingle();
   if (existing) return;
 
   const { error } = await client.from('profiles').insert({
     id: userId,
-    email: payload?.email ?? '',
-    full_name: payload?.full_name ?? '',
-    role: payload?.role ?? 'broker',
-    updated_at: new Date().toISOString(),
+    email,
+    full_name: fullName?.trim() || email.split('@')[0] || 'משתמש',
+    role,
   });
-
   throwIfError(error);
 }
 
@@ -41,6 +32,13 @@ export type ProfileUpdatePayload = {
   phone?: string | null;
   company?: string | null;
   license_number?: string | null;
+  business_name?: string | null;
+  tax_id?: string | null;
+  bank_name?: string | null;
+  bank_branch?: string | null;
+  bank_account?: string | null;
+  bank_account_holder?: string | null;
+  invoice_footer?: string | null;
 };
 
 export async function updateProfile(
@@ -68,6 +66,13 @@ export async function updateProfile(
       phone: payload.phone,
       company: payload.company,
       license_number: payload.license_number,
+      business_name: payload.business_name,
+      tax_id: payload.tax_id,
+      bank_name: payload.bank_name,
+      bank_branch: payload.bank_branch,
+      bank_account: payload.bank_account,
+      bank_account_holder: payload.bank_account_holder,
+      invoice_footer: payload.invoice_footer,
       updated_at: new Date().toISOString(),
     })
     .eq('id', userId)

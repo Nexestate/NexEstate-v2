@@ -11,8 +11,12 @@ export type TaskStatus = 'open' | 'in_progress' | 'done';
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type NotificationSeverity = 'info' | 'warning' | 'critical';
 export type AuctionStatus = 'draft' | 'scheduled' | 'active' | 'ended' | 'cancelled';
-export type PaymentStatus = 'pending' | 'paid' | 'overdue' | 'cancelled';
-export type PaymentMethod = 'cash' | 'check' | 'transfer' | 'credit_card' | 'other';
+export type PaymentStatus = 'pending' | 'paid' | 'overdue' | 'cancelled' | 'failed' | 'pending_verification';
+export type PaymentMethod = 'check' | 'transfer' | 'cash' | 'credit' | 'direct_debit' | 'bit' | 'recurring' | 'other';
+export type PaymentRequestType = 'rent' | 'vaad_bayit' | 'one_off' | 'repair';
+export type PaymentProviderType = 'acquiring' | 'invoicing';
+export type PaymentProviderVendor = 'grow' | 'tranzila' | 'meshulam' | 'icount' | 'morning' | 'invoice4u';
+export type IntegrationStatus = 'disconnected' | 'connected' | 'error';
 export type PropertyVisibility = 'private' | 'public' | 'off_market' | 'auction';
 export type PropertyKind =
   | 'apartment'
@@ -125,9 +129,23 @@ export interface Client {
   budget_max?: number;
   preferred_cities?: string[];
   preferred_kinds?: PropertyKind[];
+  min_rooms?: number;
+  min_area?: number;
+  linked_property_id?: string;
   notes?: string;
   source?: string;
   created_at: string;
+}
+
+export type MatchLevel = 'perfect' | 'high' | 'none';
+
+export interface PropertyLandingPageRow {
+  id: string;
+  property_id: string;
+  broker_id: string;
+  slug: string;
+  is_active: boolean;
+  created_at?: string;
 }
 
 export interface Tenant {
@@ -144,6 +162,7 @@ export interface Tenant {
   property_id?: string;
   unit_id?: string;
   lease_id?: string;
+  monthly_rent?: number;
 }
 
 export interface Lease {
@@ -297,11 +316,72 @@ export interface Payment {
   lease_id?: string;
   amount: number;
   due_date: string;
+  payment_date?: string;
   status: PaymentStatus;
-  payment_method?: PaymentMethod;
+  payment_method?: PaymentMethod | string;
+  payment_type?: PaymentRequestType | string;
+  checkout_slug?: string;
+  pdf_invoice_url?: string;
+  invoice_number?: string;
+  transfer_proof_url?: string;
   receipt_number?: string;
   notes?: string;
   paid_at?: string;
+}
+
+export interface PaymentIntegration {
+  id: string;
+  owner_id: string;
+  provider_type: PaymentProviderType;
+  vendor: PaymentProviderVendor;
+  display_name?: string;
+  is_active: boolean;
+  is_sandbox: boolean;
+  status: IntegrationStatus;
+  last_error?: string;
+  connected_at?: string;
+}
+
+export interface OutboundWebhook {
+  id: string;
+  owner_id: string;
+  url: string;
+  events: string[];
+  is_active: boolean;
+  created_at?: string;
+}
+
+export interface PaymentSessionResult {
+  mode: 'simulate' | 'redirect';
+  checkout_slug: string;
+  session_id?: string;
+  redirect_url?: string;
+  vendor?: string | null;
+}
+
+export interface InvoiceResult {
+  success: boolean;
+  invoice_number?: string;
+  pdf_invoice_url?: string;
+  already_issued?: boolean;
+}
+
+export interface PublicPaymentCheckout {
+  id: string;
+  amount: number;
+  due_date?: string;
+  payment_type: string;
+  payment_status: string;
+  notes?: string;
+  tenant_name: string;
+  property_title: string;
+  property_address?: string;
+  unit_number?: string;
+  manager_name: string;
+  bank_name?: string;
+  bank_branch?: string;
+  bank_account?: string;
+  bank_account_holder?: string;
 }
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
@@ -337,6 +417,35 @@ export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   paid: 'שולם',
   overdue: 'באיחור',
   cancelled: 'בוטל',
+  failed: 'נכשל',
+  pending_verification: 'ממתין לאימות',
+};
+
+export const PAYMENT_REQUEST_TYPE_LABELS: Record<PaymentRequestType, string> = {
+  rent: 'דמי שכירות',
+  vaad_bayit: 'ועד בית',
+  one_off: 'תשלום חריג',
+  repair: 'תיקון',
+};
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  check: "צ'ק",
+  transfer: 'העברה בנקאית',
+  cash: 'מזומן',
+  credit: 'כרטיס אשראי',
+  direct_debit: 'הוראת קבע',
+  bit: 'Bit',
+  recurring: 'חיוב חוזר',
+  other: 'אחר',
+};
+
+export const PAYMENT_PROVIDER_VENDOR_LABELS: Record<PaymentProviderVendor, string> = {
+  grow: 'Grow (משולם)',
+  tranzila: 'Tranzila',
+  meshulam: 'Meshulam',
+  icount: 'iCount',
+  morning: 'Morning (Green Invoice)',
+  invoice4u: 'Invoice4u',
 };
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {

@@ -1,0 +1,120 @@
+On branch cursor/entity-edit-and-property-nav
+Your branch is up to date with 'origin/cursor/entity-edit-and-property-nav'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .gitignore
+	deleted:    _build.log
+	deleted:    _git_out.txt
+	deleted:    _status.txt
+	modified:   apply-ux-fixes.mjs
+	modified:   build-out.txt
+	modified:   commit-crm-changes.ps1
+	modified:   do-push.ps1
+	modified:   finish-deploy.ps1
+	modified:   fix-and-push.ps1
+	modified:   fix-vercel-tsc.ps1
+	modified:   push-green-build.ps1
+	modified:   src/components/broker/CrmDetailModal.tsx
+	modified:   src/components/broker/PaymentFormModal.tsx
+	modified:   src/components/property/CreateSigningLinkModal.tsx
+	modified:   src/contexts/QuickAddContext.tsx
+	modified:   src/hooks/useSigningLinks.ts
+	modified:   src/lib/services/profilesService.ts
+	modified:   src/pages/broker/AgreementsPage.tsx
+	modified:   src/pages/landing/LandingPage.tsx
+	modified:   src/pages/market/DealsPage.tsx
+	modified:   src/pages/market/PlayersPage.tsx
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.git-commit-files
+	.git-current-branch
+	.git-followup.txt
+	.git-head
+	.publish-error.txt
+	.publish-verify.txt
+	.tools/
+	BUILD_RESULT.txt
+	COMMITTED_FILES.txt
+	COMMIT_HASH.txt
+	COMMIT_SHA.txt
+	GIT_DIFF_STAT.txt
+	GIT_STATUS.txt
+	SHA256_OF_COMMIT.txt
+	__pycache__/
+	_agent_publish_log.txt
+	_gh-head.json
+	_nav-check.txt
+	_nav-disk-check.txt
+	_nav-publish-error.txt
+	_pub/
+	_publish-result.txt
+	_sha.txt
+	_shell-out.txt
+	build-check.txt
+	build-log.txt
+	build-output.txt
+	git-status-snapshot.txt
+	git-status.txt
+	mobile-hits.txt
+	public/LAST_COMMIT_SHA.txt
+	public/_bits1.txt
+	public/_imp_bits.txt
+	public/_imports.txt
+	public/_local_bits.txt
+	public/_local_included_bits.txt
+	public/_pycands.txt
+	public/_pycands2.txt
+	public/_pycands2_copy.txt
+	public/_pycands_len.txt
+	public/_pyfind.txt
+	public/_pyfound.txt
+	public/_python3.txt
+	public/_python3_len.txt
+	public/_result.txt
+	public/_sum_bits.txt
+	public/_sum_tail.txt
+	public/_winget.txt
+	public/debug-publish.txt
+	shell-test.txt
+	src/components/broker/PropertySubNav.tsx
+	src/components/ui/DetailPanel.tsx
+	src/components/ui/FormSection.tsx
+	src/lib/propertyNav.ts
+	src/pages/legal/
+	tsc-errors.txt
+	tsc-out.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apply-ux-fixes.mjs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'commit-crm-changes.ps1', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'do-push.ps1', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'finish-deploy.ps1', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'fix-and-push.ps1', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'fix-vercel-tsc.ps1', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'push-green-build.ps1', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/broker/CrmDetailModal.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/broker/PaymentFormModal.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/contexts/QuickAddContext.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/lib/services/profilesService.ts', LF will be replaced by CRLF the next time Git touches it
+ _build.log                                         |  11 --
+ _git_out.txt                                       |  25 -----
+ _status.txt                                        |  16 ---
+ build-out.txt                                      | Bin 2944 -> 2505 bytes
+ src/components/broker/CrmDetailModal.tsx           |   2 +-
+ src/components/broker/PaymentFormModal.tsx         | 123 +++++++++++++++++----
+ src/components/property/CreateSigningLinkModal.tsx |  63 +++++++++--
+ src/contexts/QuickAddContext.tsx                   |  11 +-
+ src/hooks/useSigningLinks.ts                       |  29 ++++-
+ src/lib/services/profilesService.ts                |  24 +++-
+ src/pages/broker/AgreementsPage.tsx                |  13 ++-
+ src/pages/landing/LandingPage.tsx                  |  11 ++
+ src/pages/market/DealsPage.tsx                     |  36 +++++-
+ src/pages/market/PlayersPage.tsx                   |  21 +++-
+ 14 files changed, 288 insertions(+), 97 deletions(-)
+db6df16 fix: restore typecheck-safe CRM forms, entity edit, and property-scoped mobile nav
+9b0cb1f fix: upload edit-capable CRM form modals so Vercel typecheck passes
+f192ebf fix: upload edit-capable CRM form modals so Vercel typecheck passes

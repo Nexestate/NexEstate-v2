@@ -1,0 +1,6 @@
+src\components\broker\CrmDetailModal.tsx => CrmDetailModal,updateLead,updateTask,updateClient,QuickAddContext
+src\pages\broker\LeadsPage.tsx => CrmDetailModal
+src\pages\broker\TasksPage.tsx => CrmDetailModal
+src\components\broker\QuickAddModals.tsx => QuickAddContext
+src\components\broker\PaymentFormModal.tsx => PaymentFormModal
+src\contexts\QuickAddContext.tsx => QuickAddContext

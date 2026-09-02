@@ -1,0 +1,6 @@
+bits=255
+COMMIT_SHA=1a916606f4840a9f7208439aed780bd51e99d208
+UPDATELEAD_ON_GITHUB=yes
+UPDATELEAD_ON_RAW=yes
+LOCAL_FILES=src/components/broker/CrmDetailModal.tsx,src/components/broker/PaymentFormModal.tsx,src/contexts/QuickAddContext.tsx,src/pages/broker/LeadsPage.tsx,src/pages/broker/TasksPage.tsx,src/lib/services/leadsService.ts,src/lib/services/tasksService.ts,src/hooks/usePropertyNavContext.ts
+SKIPPED_LOCAL=EntityDetail cluster (incomplete),src/components/mobile/MobileBottomNav.tsx (missing 'usePropertyNavContext'),src/components/broker/QuickAddModals.tsx (no export function LeadFormModal; using GitHub-patched)

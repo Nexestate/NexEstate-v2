@@ -1,12 +1,43 @@
 export { ServiceError, isDemoMode, getSupabaseClient, requireSupabase, throwIfError } from './serviceHelpers';
 
-export { fetchAccessibleProperties, fetchAccessiblePropertyIds, isSharedOnlyRole } from './accessiblePropertiesService';
+export {
+  fetchAccessibleProperties,
+  fetchAccessiblePropertyIds,
+  isSharedOnlyRole,
+} from './accessiblePropertiesService';
 export { fetchProperties, fetchProperty, createProperty, updateProperty } from './propertiesService';
 export { createUnit, updateUnit } from './unitsService';
 export type { UnitInsert, UnitUpdate } from './unitsService';
 export type { PropertyInsert } from './propertiesService';
 export { fetchLeads, fetchClients, createLead, createClient, updateClient, updateLead, updateLeadStatus } from './leadsService';
-export { fetchLeases, fetchLeasesForProperties, fetchTenants, fetchTenantsForProperties, createTenant, createLease, updateTenant, updateLease, fetchLeaseById, fetchTenantById } from './leasesService';
+export type { ClientPayload } from './leadsService';
+export {
+  findMatchesForClient,
+  findMatchesForLead,
+  findMatchingClientsForProperty,
+  notifyReverseMatches,
+  notifyLeadPropertyMatches,
+} from './matchingService';
+export type { LeadMatchResult } from './matchingService';
+export {
+  createLandingPage,
+  fetchLandingPageForProperty,
+  getPublicLandingPage,
+  submitPublicLead,
+} from './landingPagesService';
+export type { PropertyLandingPage, PublicLandingPage } from './landingPagesService';
+export {
+  fetchLeases,
+  fetchLeasesForProperties,
+  fetchTenants,
+  fetchTenantsForProperties,
+  createTenant,
+  createLease,
+  updateTenant,
+  updateLease,
+  fetchLeaseById,
+  fetchTenantById,
+} from './leasesService';
 export { fetchSigningLink, completeSigning, fetchSigningLinks } from './signingService';
 export { fetchTasks, createTask, updateTask, updateTaskStatus } from './tasksService';
 export {
@@ -17,14 +48,35 @@ export {
   createNotification,
 } from './notificationsService';
 export type { CreateNotificationPayload } from './notificationsService';
-export { fetchAuctions, fetchPayments, createAuction, createPayment, fetchPaymentById, updatePayment } from './auctionsService';
-export type { AuctionInsert, PaymentInsert } from './auctionsService';
+export {
+  fetchPayments,
+  fetchPaymentById,
+  createPayment,
+  createPaymentRequest,
+  updatePayment,
+  confirmTransferPayment,
+  getPublicPaymentCheckout,
+  submitPaymentTransferProof,
+  initPaymentSession,
+  completePublicPayment,
+  simulateCardPayment,
+  issueInvoice,
+  fetchPaymentIntegrations,
+  upsertPaymentIntegration,
+  fetchOutboundWebhooks,
+  upsertOutboundWebhook,
+  deleteOutboundWebhook,
+  getPaymentCheckoutUrl,
+} from './paymentsService';
+export type { PaymentInsert } from './paymentsService';
+export { fetchAuctions, createAuction } from './auctionsService';
+export type { AuctionInsert } from './auctionsService';
 export { fetchSharedWithUser } from './sharedPropertiesService';
 export type { SharedPropertySummary } from './sharedPropertiesService';
 export { fetchFavorites, addFavorite, removeFavorite } from './favoritesService';
 export { searchPublicProperties } from './buyerSearchService';
 export { updateProfile, ensureProfile } from './profilesService';
-export type { ProfileUpdatePayload, EnsureProfilePayload } from './profilesService';
+export type { ProfileUpdatePayload } from './profilesService';
 export {
   fetchBrokerDashboardStats,
   fetchManagedPropertySidebar,

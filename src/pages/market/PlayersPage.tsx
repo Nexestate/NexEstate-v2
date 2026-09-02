@@ -9,11 +9,11 @@ import { Card, CardContent } from '../../components/ui/Card';
 import { FilterBar } from '../../components/ui/FilterBar';
 import { MARKET_PLAYERS } from '../../data/marketDemo';
 
-const TYPE_ROLE_MAP: Record<string, string[]> = {
-  sellers: ['בעל נכס'],
-  receivers: ['כונס / עו"ד'],
-  brokers: ['סוכן נדל"ן'],
-  developers: ['יזם / קבלן'],
+const TYPE_TO_ROLE: Record<string, string> = {
+  brokers: 'סוכן',
+  developers: 'יזם',
+  receivers: 'כונס',
+  sellers: 'בעל נכס',
 };
 
 export function PlayersPage() {
@@ -23,12 +23,11 @@ export function PlayersPage() {
   const [roleFilter, setRoleFilter] = useState('הכל');
 
   useEffect(() => {
-    if (!typeParam || !TYPE_ROLE_MAP[typeParam]) {
-      setRoleFilter('הכל');
-      return;
+    if (typeParam && TYPE_TO_ROLE[typeParam]) {
+      const match = TYPE_TO_ROLE[typeParam];
+      const role = MARKET_PLAYERS.find((p) => p.role.includes(match))?.role;
+      if (role) setRoleFilter(role);
     }
-    const roles = TYPE_ROLE_MAP[typeParam];
-    setRoleFilter(roles[0] ?? 'הכל');
   }, [typeParam]);
 
   const roles = ['הכל', ...new Set(MARKET_PLAYERS.map((p) => p.role))];

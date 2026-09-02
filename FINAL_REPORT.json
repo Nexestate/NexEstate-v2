@@ -1,0 +1,12 @@
+{
+  "buildExit": 2,
+  "buildPassed": false,
+  "commitSha": "105ca2e6b5194372f49c928f2ff9b7eb68b43fc2",
+  "commitMessage": "fix: require recipient_email when creating signing links",
+  "pushSuccess": false,
+  "pushExit": 1,
+  "headMatchesOrigin": false,
+  "localHead": "105ca2e6b5194372f49c928f2ff9b7eb68b43fc2",
+  "remoteMain": "3c7984c09726c73b4fc5c558898f1c68efbf5189",
+  "pushed": false
+}

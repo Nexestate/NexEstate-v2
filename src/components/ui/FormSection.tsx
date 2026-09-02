@@ -1,23 +1,20 @@
-import type { ReactNode } from 'react';
 import { cn } from '../../lib/utils';
 
 interface FormSectionProps {
-  title?: string;
+  title: string;
   description?: string;
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
 }
 
 export function FormSection({ title, description, children, className }: FormSectionProps) {
   return (
     <section className={cn('space-y-3', className)}>
-      {title ? (
-        <div>
-          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-          {description ? <p className="text-xs text-muted-foreground">{description}</p> : null}
-        </div>
-      ) : null}
-      {children}
+      <div>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">{children}</div>
     </section>
   );
 }

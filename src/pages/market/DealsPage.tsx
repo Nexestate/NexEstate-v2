@@ -12,9 +12,14 @@ import { formatCurrency } from '../../lib/utils';
 const ENDED_CUTOFF = '2026-08-10';
 
 export function DealsPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const status = searchParams.get('status') === 'ended' ? 'ended' : 'recent';
+  const [searchParams] = useSearchParams();
+  const statusParam = searchParams.get('status');
   const [search, setSearch] = useState('');
+  const [tab, setTab] = useState<'recent' | 'ended'>(statusParam === 'ended' ? 'ended' : 'recent');
+
+  useEffect(() => {
+    setTab(statusParam === 'ended' ? 'ended' : 'recent');
+  }, [statusParam]);
 
   useEffect(() => {
     if (searchParams.get('status') === 'ended') return;
@@ -44,18 +49,23 @@ export function DealsPage() {
     [scoped, search],
   );
 
-  const setStatus = (id: string) => {
-    const next = new URLSearchParams(searchParams);
-    if (id === 'ended') next.set('status', 'ended');
-    else next.delete('status');
-    setSearchParams(next, { replace: true });
-  };
+  const displayDeals = useMemo(() => {
+    const sorted = [...filtered].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
+    if (tab === 'ended') return sorted.slice(Math.ceil(sorted.length / 2));
+    return sorted.slice(0, Math.ceil(sorted.length / 2) || sorted.length);
+  }, [filtered, tab]);
 
   return (
     <PublicLayout>
       <PageHero
         title="מפת עסקאות"
-        subtitle="עסקאות שנסגרו לאחרונה ברחבי הארץ — נתונים בזמן אמת"
+        subtitle={
+          tab === 'ended'
+            ? 'עסקאות שהסתיימו — ארכיון עסקאות אחרונות'
+            : 'עסקאות שנסגרו לאחרונה ברחבי הארץ — נתונים בזמן אמת'
+        }
       />
 
       <div className="mx-auto max-w-7xl space-y-8 px-4 py-10">
@@ -92,9 +102,14 @@ export function DealsPage() {
         </div>
 
         <div>
-          <h2 className="mb-4 text-xl font-bold">
-            {status === 'ended' ? 'מכירות שהסתיימו' : 'עסקאות אחרונות'}
-          </h2>
+          <Tabs
+            tabs={[
+              { id: 'recent', label: 'עסקאות אחרונות' },
+              { id: 'ended', label: 'עסקאות שהסתיימו' },
+            ]}
+            active={tab}
+            onChange={(id) => setTab(id as 'recent' | 'ended')}
+          />
           <FilterBar search={search} onSearchChange={setSearch} placeholder="חיפוש לפי עיר או סוג..." />
           <Table className="mt-4">
             <TableHeader>
@@ -107,7 +122,7 @@ export function DealsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((deal) => (
+              {displayDeals.map((deal) => (
                 <TableRow key={deal.id}>
                   <TableCell className="font-medium">{deal.type}</TableCell>
                   <TableCell>{deal.city}</TableCell>

@@ -1,0 +1,17 @@
+CMD python -> C:\Users\office\AppData\Local\Microsoft\WindowsApps\python.exe Application
+CMD python3 -> C:\Users\office\AppData\Local\Microsoft\WindowsApps\python3.exe Application
+CMD py MISSING
+CMD py.exe MISSING
+NO C:\Python313\python.exe
+NO C:\Python312\python.exe
+NO C:\Python311\python.exe
+NO C:\Python310\python.exe
+NO C:\Python39\python.exe
+NO C:\Users\office\AppData\Local\Programs\Python\Python313\python.exe
+NO C:\Users\office\AppData\Local\Programs\Python\Python312\python.exe
+NO C:\Users\office\AppData\Local\Programs\Python\Python311\python.exe
+NO C:\Users\office\AppData\Local\Programs\Python\Python310\python.exe
+NO C:\Users\office\AppData\Local\Programs\Python\Python312\python.exe
+NO C:\Program Files\Python312\python.exe
+NO C:\Program Files\Python311\python.exe
+EXISTS C:\Users\office\AppData\Local\Microsoft\WindowsApps\python.exe

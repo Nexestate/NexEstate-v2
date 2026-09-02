@@ -17,8 +17,16 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   className?: string;
-  size?: ModalSize;
+  size?: 'md' | 'lg' | 'xl' | 'drawer';
 }
+
+const SIZE_CLASS: Record<NonNullable<ModalProps['size']>, string> = {
+  md: 'max-w-lg',
+  lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
+  drawer:
+    'max-w-lg sm:max-h-full sm:max-w-xl sm:ms-auto sm:me-0 sm:rounded-none sm:rounded-s-2xl sm:rounded-t-2xl',
+};
 
 export function Modal({ open, onClose, title, children, className, size = 'md' }: ModalProps) {
   useBodyScrollLock(open);
@@ -30,7 +38,7 @@ export function Modal({ open, onClose, title, children, className, size = 'md' }
       <div
         className={cn(
           'relative z-10 flex max-h-[min(92dvh,100%)] w-full flex-col rounded-t-2xl border border-border bg-card shadow-xl sm:rounded-2xl',
-          MODAL_SIZE_CLASS[size],
+          SIZE_CLASS[size],
           className,
         )}
       >
@@ -40,7 +48,10 @@ export function Modal({ open, onClose, title, children, className, size = 'md' }
             <X className="h-5 w-5" />
           </Button>
         </div>
-        <div data-modal-scroll className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-4">
+        <div
+          data-modal-scroll
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-4"
+        >
           {children}
         </div>
       </div>

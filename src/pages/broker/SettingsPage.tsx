@@ -1,4 +1,4 @@
-import { Bell, Lock, Palette, Shield, User } from 'lucide-react';
+import { Bell, CreditCard, Lock, Palette, Shield, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -15,6 +15,15 @@ import {
   requestPushPermission,
 } from '../../lib/pushNotifications';
 import { ROLE_LABELS } from '../../lib/roles';
+import {
+  deleteOutboundWebhook,
+  fetchOutboundWebhooks,
+  fetchPaymentIntegrations,
+  upsertOutboundWebhook,
+  upsertPaymentIntegration,
+} from '../../lib/services';
+import type { PaymentIntegration } from '../../types/domain';
+import { PAYMENT_PROVIDER_VENDOR_LABELS } from '../../types/domain';
 import { validatePassword, validatePasswordMatch, validateRequired } from '../../lib/validation';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -31,6 +40,8 @@ const TABS = [
   { id: 'appearance', label: 'תצוגה', icon: Palette },
   { id: 'privacy', label: 'פרטיות', icon: Shield },
 ];
+
+const BILLING_TAB = { id: 'billing', label: 'גבייה וחשבוניות', icon: CreditCard };
 
 interface SettingsPageProps {
   variant?: 'broker' | 'buyer' | 'admin';
@@ -54,11 +65,48 @@ export function SettingsPage({ variant = 'broker' }: SettingsPageProps) {
   const [password, setPassword] = useState({ new: '', confirm: '' });
   const [prefs, setPrefs] = useState<NotificationPrefs>(DEFAULT_NOTIFICATION_PREFS);
   const [pushStatus, setPushStatus] = useState(getPushPermission());
+  const [meshulamKey, setMeshulamKey] = useState('');
+  const [morningKey, setMorningKey] = useState('');
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [integrations, setIntegrations] = useState<PaymentIntegration[]>([]);
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookId, setWebhookId] = useState<string | undefined>();
+  const [billingForm, setBillingForm] = useState({
+    business_name: '',
+    tax_id: '',
+    bank_name: '',
+    bank_branch: '',
+    bank_account: '',
+    bank_account_holder: '',
+  });
 
   useEffect(() => {
     setPrefs(loadNotificationPrefs());
     setPushStatus(getPushPermission());
   }, []);
+
+  useEffect(() => {
+    if (!user || variant === 'buyer' || active !== 'billing') return;
+    setBillingLoading(true);
+    setBillingForm({
+      business_name: user.business_name ?? '',
+      tax_id: user.tax_id ?? '',
+      bank_name: user.bank_name ?? '',
+      bank_branch: user.bank_branch ?? '',
+      bank_account: user.bank_account ?? '',
+      bank_account_holder: user.bank_account_holder ?? '',
+    });
+    Promise.all([fetchPaymentIntegrations(user.id), fetchOutboundWebhooks(user.id)])
+      .then(([ints, hooks]) => {
+        setIntegrations(ints);
+        const hook = hooks[0];
+        setWebhookUrl(hook?.url ?? '');
+        setWebhookId(hook?.id);
+      })
+      .finally(() => setBillingLoading(false));
+  }, [user, variant, active]);
+
+  const tabs = variant === 'buyer' ? TABS : [...TABS.slice(0, 3), BILLING_TAB, ...TABS.slice(3)];
 
   useEffect(() => {
     if (!user) return;
@@ -160,6 +208,61 @@ export function SettingsPage({ variant = 'broker' }: SettingsPageProps) {
     }
   };
 
+  const handleSaveBilling = async () => {
+    if (!user) return;
+    setError('');
+    setSaving(true);
+    try {
+      await updateProfile({
+        business_name: billingForm.business_name.trim() || null,
+        tax_id: billingForm.tax_id.trim() || null,
+        bank_name: billingForm.bank_name.trim() || null,
+        bank_branch: billingForm.bank_branch.trim() || null,
+        bank_account: billingForm.bank_account.trim() || null,
+        bank_account_holder: billingForm.bank_account_holder.trim() || null,
+      });
+
+      if (meshulamKey.trim()) {
+        await upsertPaymentIntegration(user.id, {
+          provider_type: 'acquiring',
+          vendor: 'meshulam',
+          display_name: PAYMENT_PROVIDER_VENDOR_LABELS.meshulam,
+          is_active: true,
+          is_sandbox: true,
+          credentials: { api_key: meshulamKey.trim() },
+        });
+      }
+      if (morningKey.trim()) {
+        await upsertPaymentIntegration(user.id, {
+          provider_type: 'invoicing',
+          vendor: 'morning',
+          display_name: PAYMENT_PROVIDER_VENDOR_LABELS.morning,
+          is_active: true,
+          is_sandbox: true,
+          credentials: { api_key: morningKey.trim() },
+        });
+      }
+
+      if (webhookUrl.trim()) {
+        await upsertOutboundWebhook(user.id, { id: webhookId, url: webhookUrl.trim() });
+      } else if (webhookId) {
+        await deleteOutboundWebhook(webhookId);
+        setWebhookId(undefined);
+      }
+
+      setMeshulamKey('');
+      setMorningKey('');
+      const ints = await fetchPaymentIntegrations(user.id);
+      setIntegrations(ints);
+      flashSaved();
+    } catch (err) {
+      const display = getAuthErrorDisplay(err);
+      setError(display.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (!user) return <PageLoader />;
 
   return (
@@ -168,7 +271,7 @@ export function SettingsPage({ variant = 'broker' }: SettingsPageProps) {
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <nav className="flex shrink-0 flex-row gap-1 overflow-x-auto lg:w-48 lg:flex-col">
-          {TABS.map(({ id, label, icon: Icon }) => (
+          {tabs.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               type="button"
@@ -336,6 +439,104 @@ export function SettingsPage({ variant = 'broker' }: SettingsPageProps) {
                   </div>
                 )}
                 <Button onClick={() => void handleSavePrefs()}>שמור העדפות</Button>
+              </div>
+            )}
+
+            {active === 'billing' && variant !== 'buyer' && (
+              <div className="space-y-6">
+                <CardTitle className="text-base">גבייה וחשבוניות</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  הגדר פרטי חשבון בנק, חבר ספקי סליקה וחשבוניות, וקבל התראות webhook על תשלומים.
+                </p>
+
+                <div className="space-y-3 rounded-xl border border-border p-4">
+                  <p className="font-medium">פרטי חשבון לקבלת העברות</p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <Input
+                      label="שם עסק (לחשבונית)"
+                      value={billingForm.business_name}
+                      onChange={(e) => setBillingForm((f) => ({ ...f, business_name: e.target.value }))}
+                    />
+                    <Input
+                      label="ח.פ / ע.מ"
+                      value={billingForm.tax_id}
+                      onChange={(e) => setBillingForm((f) => ({ ...f, tax_id: e.target.value }))}
+                    />
+                    <Input
+                      label="בנק"
+                      value={billingForm.bank_name}
+                      onChange={(e) => setBillingForm((f) => ({ ...f, bank_name: e.target.value }))}
+                    />
+                    <Input
+                      label="סניף"
+                      value={billingForm.bank_branch}
+                      onChange={(e) => setBillingForm((f) => ({ ...f, bank_branch: e.target.value }))}
+                    />
+                    <Input
+                      label="מספר חשבון"
+                      value={billingForm.bank_account}
+                      onChange={(e) => setBillingForm((f) => ({ ...f, bank_account: e.target.value }))}
+                    />
+                    <Input
+                      label="בעל החשבון"
+                      value={billingForm.bank_account_holder}
+                      onChange={(e) => setBillingForm((f) => ({ ...f, bank_account_holder: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                {integrations.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {integrations.map((i) => (
+                      <Badge key={i.id} variant={i.status === 'connected' ? 'success' : 'outline'}>
+                        {PAYMENT_PROVIDER_VENDOR_LABELS[i.vendor]} · {i.status === 'connected' ? 'מחובר' : 'לא מחובר'}
+                        {i.is_sandbox ? ' (sandbox)' : ''}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                <div className="space-y-3 rounded-xl border border-border p-4">
+                  <p className="font-medium">{PAYMENT_PROVIDER_VENDOR_LABELS.meshulam}</p>
+                  <p className="text-xs text-muted-foreground">סליקת אשראי (Grow / Meshulam)</p>
+                  <Input
+                    label="מפתח API"
+                    type="password"
+                    value={meshulamKey}
+                    onChange={(e) => setMeshulamKey(e.target.value)}
+                    placeholder="הזן מפתח API חדש..."
+                  />
+                </div>
+
+                <div className="space-y-3 rounded-xl border border-border p-4">
+                  <p className="font-medium">{PAYMENT_PROVIDER_VENDOR_LABELS.morning}</p>
+                  <p className="text-xs text-muted-foreground">הפקת חשבוניות (Green Invoice / Morning)</p>
+                  <Input
+                    label="מפתח API"
+                    type="password"
+                    value={morningKey}
+                    onChange={(e) => setMorningKey(e.target.value)}
+                    placeholder="הזן מפתח API חדש..."
+                  />
+                </div>
+
+                <div className="space-y-3 rounded-xl border border-border p-4">
+                  <p className="font-medium">Webhook יוצא</p>
+                  <p className="text-xs text-muted-foreground">
+                    URL שיקבל POST עם אירוע payment.success לאחר תשלום מוצלח
+                  </p>
+                  <Input
+                    label="Webhook URL"
+                    value={webhookUrl}
+                    onChange={(e) => setWebhookUrl(e.target.value)}
+                    placeholder="https://..."
+                    dir="ltr"
+                  />
+                </div>
+
+                <Button onClick={() => void handleSaveBilling()} disabled={saving || billingLoading}>
+                  {saved ? 'נשמר!' : saving ? 'שומר...' : 'שמור הגדרות גבייה'}
+                </Button>
               </div>
             )}
 

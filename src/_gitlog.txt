@@ -1,0 +1,3 @@
+﻿105ca2e fix: require recipient_email when creating signing links
+e2ba879 fix: improve dashboard UX for signing, tenants nav, payments, and public auth
+db6df16 fix: restore typecheck-safe CRM forms, entity edit, and property-scoped mobile nav

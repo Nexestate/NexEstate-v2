@@ -1,0 +1,55 @@
+9b0cb1f99442cb183662dac73af8810c905d2ce6
+initial?:=true
+message="fix: upload edit-capable CRM form modals so Vercel typecheck passes"
+repo=Nexestate/NexEstate-v2
+---prior---
+9b0cb1f99442cb183662dac73af8810c905d2ce6
+initial?:=true
+files=src/components/broker/QuickAddModals.tsx,src/components/broker/NavLinkButton.tsx
+=== INSPECT LOCAL ===
+QuickAddModals exists=true
+len=17433
+export function LeadFormModal=false
+initial?:=false
+LEAD_STATUS_LABELS=false
+useEffect=false
+EntityDetailModal files=["src/components/broker/EntityDetailModal.tsx"]
+NavLinkButton files=["src/components/broker/NavLinkButton.tsx"]
+EntityDetailContext files=["src/contexts/EntityDetailContext.tsx"]
+MobileBottomNav files=["src/components/mobile/MobileBottomNav.tsx"]
+repo=Nexestate/NexEstate-v2
+github QuickAddModals len=17719
+github has initial?:=true
+LOCAL STALE or incomplete; will surgically patch GitHub file
+patched has initial?:=true
+patched has title?:=true
+consider src/components/broker/EntityDetailModal.tsx needles=["NavLinkButton"] ok=false
+consider src/components/broker/NavLinkButton.tsx needles=[] ok=true
+consider src/contexts/EntityDetailContext.tsx needles=["refreshView"] ok=false
+consider src/components/mobile/MobileBottomNav.tsx usePropertyNavContext+propertyNav ok=false
+UPLOAD FILES=src/components/broker/QuickAddModals.tsx, src/components/broker/NavLinkButton.tsx
+HEAD=f192ebfc06a5d13946469b4a1a3b00ace0d4220b
+base_tree=05529a525c7c0fd7b2d0f647a3bda67a0ef45628
+blob src/components/broker/QuickAddModals.tsx sha=900724944ba446d9902e427db0efa9e7f8315344 size=17719
+blob src/components/broker/NavLinkButton.tsx sha=184d5713104638b317436ef4d13e6d0030e609fd size=971
+new_tree=05529a525c7c0fd7b2d0f647a3bda67a0ef45628
+NEW_COMMIT=9b0cb1f99442cb183662dac73af8810c905d2ce6
+updated ref=9b0cb1f99442cb183662dac73af8810c905d2ce6
+VERIFY github QuickAddModals initial?:=true
+COMMIT_SHA=9b0cb1f99442cb183662dac73af8810c905d2ce6
+deleted _inspect_crm.mjs
+deleted _inspect_crm.cjs
+deleted _blob_tmp.json
+deleted _tree_tmp.json
+deleted _commit_tmp.json
+deleted _ref_tmp.json
+deleted _status_all.txt
+deleted _gh_qa.tsx
+deleted _ping.txt
+deleted _check_err.txt
+deleted _check_exit.txt
+deleted _check_inspect.txt
+deleted _check_publish.txt
+deleted _head.json
+deleted _repo.json
+

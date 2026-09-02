@@ -1,0 +1,15 @@
+---
+pid: 15280
+cwd: "C:\\Users\\office\\Projects\\NexEstate-v2"
+command: "Set-Location \"C:\\Users\\office\\Projects\\NexEstate-v2\"; npx tsc -b; node -e \"process.exit(0)\"; exit $LASTEXITCODE"
+title: "Run tsc -b only, return exit code"
+status: succeeded
+started_at: 2026-08-31T18:52:05.691Z
+running_for_ms: 41441    
+---
+
+---
+exit_code: 0
+elapsed_ms: 41440
+ended_at: 2026-08-31T18:52:47.131Z
+---

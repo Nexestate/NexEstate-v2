@@ -1,0 +1,9 @@
+src/components/broker/CrmDetailModal.tsx(86,84): error TS2322: Type '{ children: (false | Element)[]; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+src/components/broker/PaymentFormModal.tsx(7,3): error TS2305: Module '"../../types/domain"' has no exported member 'PAYMENT_METHOD_LABELS'.
+src/components/broker/PaymentFormModal.tsx(9,8): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentMethod'.
+src/components/broker/PaymentFormModal.tsx(91,56): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+src/components/broker/PaymentFormModal.tsx(148,19): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/broker/QuickAddModals.tsx(56,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+src/components/broker/QuickAddModals.tsx(86,9): error TS2322: Type '(values: SigningLinkFormValues) => Promise<void>' is not assignable to type '(values: SigningLinkFormValues) => Promise<{ token: string; }>'.
+src/components/property/CreateSigningLinkModal.tsx(124,70): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+src/components/property/CreateSigningLinkModal.tsx(149,66): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.

@@ -130,7 +130,9 @@ export const DEMO_PAYMENTS: Payment[] = [
     amount: 12_500,
     due_date: '2026-09-01',
     status: 'pending',
-    payment_method: 'transfer',
+    payment_type: 'rent',
+    checkout_slug: 'demo-rent1',
+    lease_id: 'lease-1',
   },
   {
     id: 'pay-2',
@@ -140,7 +142,9 @@ export const DEMO_PAYMENTS: Payment[] = [
     amount: 9_800,
     due_date: '2026-09-01',
     status: 'pending',
-    payment_method: 'check',
+    payment_type: 'rent',
+    checkout_slug: 'demo-rent2',
+    lease_id: 'lease-2',
   },
   {
     id: 'pay-3',
@@ -150,7 +154,9 @@ export const DEMO_PAYMENTS: Payment[] = [
     amount: 8_200,
     due_date: '2026-08-01',
     status: 'overdue',
-    payment_method: 'check',
+    payment_type: 'rent',
+    checkout_slug: 'demo-overdue',
+    lease_id: 'lease-3',
   },
   {
     id: 'pay-4',
@@ -160,8 +166,10 @@ export const DEMO_PAYMENTS: Payment[] = [
     amount: 11_000,
     due_date: '2026-08-01',
     status: 'paid',
-    payment_method: 'transfer',
-    receipt_number: 'RCP-1042',
+    payment_type: 'rent',
+    lease_id: 'lease-4',
+    invoice_number: 'INV-2026-001',
+    pdf_invoice_url: '#',
   },
 ];
 

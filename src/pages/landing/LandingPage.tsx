@@ -17,10 +17,8 @@ export function LandingPage() {
   useEffect(() => {
     if (!hash) return;
     const id = hash.replace('#', '');
-    const timer = window.setTimeout(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-    return () => window.clearTimeout(timer);
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [hash]);
 
   return (

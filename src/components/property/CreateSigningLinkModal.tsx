@@ -1,7 +1,8 @@
 import { Check, Copy } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { appUrl } from '../../lib/appUrl';
-import { AGREEMENT_TYPE_LABELS, DEAL_TYPE_LABELS } from '../../lib/constants';
+import { Modal } from '../ui/Modal';
+import { Input } from '../ui/Input';
+import { Button } from '../ui/Button';
 import {
   sanitizePhone,
   sanitizePrice,
@@ -59,21 +60,21 @@ export type SigningLinkSubmitResult = { link?: SigningLink; error?: string };
 interface CreateSigningLinkModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (values: SigningLinkFormValues) => Promise<SigningLinkSubmitResult>;
+  onSubmit: (values: SigningLinkFormValues) => Promise<{ token: string } | void>;
 }
 
 export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSigningLinkModalProps) {
   const [form, setForm] = useState(DEFAULTS);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
-  const [createdLink, setCreatedLink] = useState<SigningLink | null>(null);
+  const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!open) {
       setForm(DEFAULTS);
       setErrors({});
-      setCreatedLink(null);
+      setCreatedToken(null);
       setCopied(false);
     }
   }, [open]);
@@ -82,21 +83,13 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
     setForm((f) => ({ ...f, [key]: value }));
   };
 
-  const signingUrl = createdLink ? appUrl(`/sign/${createdLink.token}`) : '';
+  const signingUrl = createdToken ? `${window.location.origin}/sign/${createdToken}` : '';
 
-  const copyUrl = async () => {
+  const copyUrl = () => {
     if (!signingUrl) return;
-    await navigator.clipboard.writeText(signingUrl);
+    void navigator.clipboard.writeText(signingUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleClose = () => {
-    setForm(DEFAULTS);
-    setErrors({});
-    setCreatedLink(null);
-    setCopied(false);
-    onClose();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -126,26 +119,86 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
     if (Object.keys(next).length) return;
 
     setSaving(true);
+    setErrors({});
     try {
       const result = await onSubmit(form);
-      if (result.error) {
-        setErrors({ form: result.error });
-        return;
+      if (result?.token) {
+        setCreatedToken(result.token);
+      } else {
+        onClose();
       }
-      if (result.link) {
-        setCreatedLink(result.link);
-      }
+    } catch (err) {
+      setErrors({ form: (err as Error).message || 'שגיאה ביצירת הקישור' });
     } finally {
       setSaving(false);
     }
   };
 
+  if (createdToken) {
+    return (
+      <Modal open={open} onClose={onClose} title="קישור נוצר בהצלחה" size="lg">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 rounded-xl border border-success/30 bg-success/10 p-4">
+            <Check className="h-6 w-6 shrink-0 text-success" />
+            <p className="text-sm">קישור החתימה מוכן לשליחה ללקוח</p>
+          </div>
+          <div className="rounded-xl border border-border bg-muted/30 p-3">
+            <p className="mb-2 text-xs font-medium text-muted-foreground">קישור לחתימה</p>
+            <p className="break-all text-sm font-mono">{signingUrl}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" onClick={copyUrl} className="flex-1 sm:flex-none">
+              <Copy className="h-4 w-4" />
+              {copied ? 'הועתק!' : 'העתק קישור'}
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              סגור
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
+
   return (
-    <Modal open={open} onClose={handleClose} title="קישור חתימה חדש" size="lg">
-      {createdLink ? (
-        <div className="space-y-4 text-center">
-          <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-success/15 text-success">
-            <Check className="h-7 w-7" />
+    <Modal open={open} onClose={onClose} title="קישור חתימה חדש" size="lg">
+      <form onSubmit={handleSubmit} className="max-h-[70vh] space-y-3 overflow-y-auto pe-1">
+        <Input
+          label="שם לקוח"
+          value={form.client_name}
+          onChange={(e) => set('client_name', e.target.value)}
+          required
+          error={errors.client_name}
+        />
+        <Input
+          label="טלפון"
+          value={form.client_phone}
+          onChange={(e) => set('client_phone', sanitizePhone(e.target.value))}
+          required
+          error={errors.client_phone}
+        />
+        <Input
+          label="אימייל"
+          type="email"
+          value={form.client_email}
+          onChange={(e) => set('client_email', e.target.value)}
+          required
+          error={errors.client_email}
+        />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">סוג עסקה</label>
+            <select
+              className="flex h-11 w-full rounded-xl border border-border bg-muted/50 px-4 text-sm"
+              value={form.deal_type}
+              onChange={(e) => set('deal_type', e.target.value)}
+            >
+              {Object.entries(DEAL_TYPE_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <p className="font-semibold">הקישור נוצר בהצלחה</p>

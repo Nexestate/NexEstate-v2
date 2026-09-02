@@ -16,11 +16,7 @@ export type SigningLinkInsert = Partial<SigningLink> & {
   client_email: string;
 };
 
-function resolveClientEmail(row: Record<string, unknown>): string | undefined {
-  const recipient = row.recipient_email as string | null | undefined;
-  const client = row.client_email as string | null | undefined;
-  return (recipient ?? client) ?? undefined;
-}
+export type CreateLinkResult = { link: SigningLink | null; error?: string };
 
 function generateToken(length = 12): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
@@ -139,40 +135,10 @@ export function useSigningLinks() {
       };
       DEMO_SIGNING_LINKS.unshift(created);
       setLinks([...DEMO_SIGNING_LINKS]);
-      return { link: created, error: null };
+      return { link: created };
     }
 
-    if (!supabase || !user) {
-      return { link: null, error: 'לא מחובר למערכת' };
-    }
-
-    try {
-      await ensureProfile(user.id, {
-        email: user.email,
-        full_name: user.full_name,
-        role: user.role,
-      });
-    } catch (e) {
-      const message = (e as Error).message;
-      setError(message);
-      return { link: null, error: message };
-    }
-
-    const clientEmail = data.client_email.trim();
-    if (!clientEmail) {
-      const message = 'יש להזין כתובת אימייל';
-      setError(message);
-      return { link: null, error: message };
-    }
-
-    if (!hasSigningTarget(data)) {
-      const message = 'יש לציין נכס: בחר נכס קיים או מלא תיאור נכס וכתובת מדויקת';
-      setError(message);
-      return { link: null, error: message };
-    }
-
-    const propertyDescription = data.property_description?.trim() || null;
-    const exactAddress = (data.exact_address ?? data.property_address)?.trim() || null;
+    if (!supabase || !user) return { link: null, error: 'לא מחובר' };
 
     const token = generateToken();
     const validDays = data.valid_days ?? 30;
@@ -234,7 +200,7 @@ export function useSigningLinks() {
     }
 
     await fetchLinks();
-    return { link: mapRow(created), error: null };
+    return { link: mapRow(created) };
   };
 
   const updateLink = async (id: string, updates: Partial<SigningLink>): Promise<boolean> => {
@@ -273,6 +239,10 @@ export function useSigningLinks() {
     return updateLink(id, { status: 'expired' });
   };
 
+  const markAsSent = async (id: string): Promise<boolean> => {
+    return updateLink(id, { status: 'sent' });
+  };
+
   const getPublicLink = async (token: string): Promise<SigningLink | null> => {
     if (isDemoMode() || !isSupabaseConfigured) {
       return DEMO_SIGNING_LINKS.find((l) => l.token === token) ?? null;
@@ -289,7 +259,6 @@ export function useSigningLinks() {
       });
 
       if (!response.ok) {
-        // Fallback to RPC if edge function not deployed
         if (!supabase) return null;
         const { data } = await supabase.rpc('get_signing_link_by_token', { p_token: token });
         const row = Array.isArray(data) ? data[0] : data;
@@ -376,6 +345,7 @@ export function useSigningLinks() {
     updateLink,
     deleteLink,
     cancelLink,
+    markAsSent,
     getPublicLink,
     completeSignature,
     getStats,

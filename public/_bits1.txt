@@ -1,0 +1,9 @@
+bits=32
+len=614
+head=C:\Users\office\AppData\Local\Microsoft\WindowsApps\python.exe
+where.exe : INFO: Could not find files for the given pattern(s).
+At C:\Users\office\AppData\Local\Temp\ps-script-255fd0cc-bbab-47fd-92eb-63bd3452e7c9.ps1:7 char:90
++ ... h.txt 2>&1; where.exe py 1>> C:\Users\office\Projects\NexEstate-v2\pu ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (INFO: Could not...ven pattern(s).:String) [], RemoteException
+    

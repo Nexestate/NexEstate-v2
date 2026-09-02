@@ -1,0 +1,13 @@
+N C:\Windows\py.exe
+N C:\Windows\System32\py.exe
+N C:\Users\office\AppData\Local\Programs\Python
+N C:\Program Files\Python311
+N C:\Program Files\Python312
+N C:\ProgramData\miniconda3\python.exe
+N C:\ProgramData\anaconda3\python.exe
+N C:\Users\office\miniconda3\python.exe
+N C:\Users\office\anaconda3\python.exe
+N C:\Users\office\AppData\Local\uv\python
+N C:\Users\office\.local\bin\python.exe
+N C:\Users\office\scoop\apps\python
+GC python3.exe C:\Users\office\AppData\Local\Microsoft\WindowsApps\python3.exe

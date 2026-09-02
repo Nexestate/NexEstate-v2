@@ -11,7 +11,8 @@ function mapSigningRow(row: Record<string, unknown>): SigningLink {
     client_name: row.client_name as string,
     client_phone: (row.client_phone as string | null) ?? undefined,
     client_email:
-      ((row.recipient_email as string | null) ?? (row.client_email as string | null)) ?? undefined,
+      ((row.recipient_email as string | null) ?? (row.client_email as string | null))?.trim() ||
+      undefined,
     agreement_type: row.agreement_type as string,
     commission_percent: (row.commission_percent as number | null) ?? undefined,
     property_title: prop?.title,

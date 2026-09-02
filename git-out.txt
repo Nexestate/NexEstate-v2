@@ -1,0 +1,153 @@
+On branch cursor/entity-edit-and-property-nav
+Your branch is ahead of 'origin/cursor/entity-edit-and-property-nav' by 2 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .gitignore
+	deleted:    _build.log
+	modified:   _git_out.txt
+	modified:   _status.txt
+	modified:   build-out.txt
+	modified:   src/components/broker/CrmDetailModal.tsx
+	modified:   src/data/demoData.extended.ts
+	modified:   src/data/demoData.sprint3.ts
+	modified:   src/lib/services/leadsService.ts
+	modified:   src/lib/services/profilesService.ts
+	modified:   src/lib/services/storageService.ts
+	modified:   src/pages/broker/AgreementsPage.tsx
+	modified:   src/pages/broker/SettingsPage.tsx
+	modified:   src/types/index.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.agent-status.txt
+	.cursor-git-dump.txt
+	.git-commit-files
+	.git-current-branch
+	.git-followup.txt
+	.git-head
+	.git-status-out.txt
+	.publish-error.txt
+	.publish-verify.txt
+	.tools/
+	105ca2e6b5194372f49c928f2ff9b7eb68b43fc2.txt
+	BUILD_RESULT.txt
+	COMMITTED_FILES.txt
+	COMMIT_HASH.txt
+	COMMIT_SHA.txt
+	COMMIT_SHA_ONE_LINE.txt
+	EXTRACTED_SHA.txt
+	FINAL_REPORT.json
+	FR_SHA.txt
+	GIT_DIFF_STAT.txt
+	GIT_STATUS.txt
+	PUSH_FLAGS.txt
+	PUSH_RESULT.txt
+	SHA256_OF_COMMIT.txt
+	__pycache__/
+	_agent_publish_log.txt
+	_gh-head.json
+	_git_status.txt
+	_nav-check.txt
+	_nav-disk-check.txt
+	_nav-publish-error.txt
+	_pub/
+	_publish-result.txt
+	_raw-verify.txt
+	_remote-nav.tsx
+	_sha.txt
+	_shell-out.txt
+	_term_copy.txt
+	agent-shell-report.txt
+	build-check.txt
+	build-errors-only.txt
+	build-errors.txt
+	build-log.txt
+	build-output.txt
+	changed-all.txt
+	code-counts.txt
+	commit-files.txt
+	commit-sha.txt
+	dir-txt-names.txt
+	e0-msg-len.txt
+	error-codes.txt
+	error-files.txt
+	first-error-line.meta
+	git-out.txt
+	git-status-capture.txt
+	git-status-snapshot.txt
+	git-status.json
+	git-status.txt
+	git-version.txt
+	grep-recipient.txt
+	last-commit-files.txt
+	missing-exports.txt
+	mobile-hits.txt
+	pkg-build-script.txt
+	public/LAST_COMMIT_SHA.txt
+	public/_bits1.txt
+	public/_imp_bits.txt
+	public/_imports.txt
+	public/_local_bits.txt
+	public/_local_included_bits.txt
+	public/_pycands.txt
+	public/_pycands2.txt
+	public/_pycands2_copy.txt
+	public/_pycands_len.txt
+	public/_pyfind.txt
+	public/_pyfound.txt
+	public/_python3.txt
+	public/_python3_len.txt
+	public/_result.txt
+	public/_sum_bits.txt
+	public/_sum_tail.txt
+	public/_winget.txt
+	public/debug-publish.txt
+	publish-log.txt
+	schema.migration.lead_matching_notify.sql
+	schema.migration.matching_and_landing.sql
+	schema.migration.payments_hub.sql
+	schema.migration.signing_links_target.sql
+	scripts/signing-tsc-fix.cjs
+	sha-chunks.txt
+	shell-test.txt
+	signing-tsc-fix.result
+	src/.agent-status.txt
+	src/_git_report.txt
+	src/_gitlog.txt
+	src/agent-status.json
+	src/components/broker/ClientFormModal.tsx
+	src/components/broker/MatchResultsList.tsx
+	src/components/broker/PaymentRequestModal.tsx
+	src/data/tsc-errors.txt
+	src/lib/matching.ts
+	src/lib/services/landingPagesService.ts
+	src/lib/services/matchingService.ts
+	src/lib/services/paymentsService.ts
+	src/pages/public/
+	src/publish-log.txt
+	src/publish-result.txt
+	status-brief.txt
+	status.txt
+	supabase/functions/_shared/payments.ts
+	supabase/functions/complete-payment-checkout/
+	supabase/functions/init-payment-session/
+	supabase/functions/issue-invoice/
+	supabase/functions/payment-webhook/
+	tsc-errors.txt
+	tsc-out.txt
+	uniq-codes.txt
+	wf-parse.txt
+	workflow-result.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+* cursor/entity-edit-and-property-nav 105ca2e [origin/cursor/entity-edit-and-property-nav: ahead 2] fix: require recipient_email when creating signing links
+  main                                1248fa6 [origin/main: ahead 1, behind 18] fix: open unit cards in popup instead of sending users to home
+  master                              0979aad Improve managed properties UX - unit editing, cross-links, property cards, sidebar hierarchy
+105ca2e fix: require recipient_email when creating signing links
+e2ba879 fix: improve dashboard UX for signing, tenants nav, payments, and public auth
+db6df16 fix: restore typecheck-safe CRM forms, entity edit, and property-scoped mobile nav
+9b0cb1f fix: upload edit-capable CRM form modals so Vercel typecheck passes
+f192ebf fix: upload edit-capable CRM form modals so Vercel typecheck passes

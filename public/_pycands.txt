@@ -1,0 +1,13 @@
+N C:\Python313\python.exe
+N C:\Python312\python.exe
+N C:\Python311\python.exe
+N C:\Python310\python.exe
+N C:\Users\office\AppData\Local\Programs\Python\Python313\python.exe
+N C:\Users\office\AppData\Local\Programs\Python\Python312\python.exe
+N C:\Users\office\AppData\Local\Programs\Python\Python311\python.exe
+N C:\Users\office\AppData\Local\Programs\Python\Python310\python.exe
+Y C:\Users\office\AppData\Local\Microsoft\WindowsApps\python.exe
+N C:\Program Files\Python312\python.exe
+N C:\Program Files\Python311\python.exe
+Y C:\Program Files\GitHub CLI\gh.exe
+Get-Command python Source=C:\Users\office\AppData\Local\Microsoft\WindowsApps\python.exe Type=Application Def=C:\Users\office\AppData\Local\Microsoft\WindowsApps\python.exe

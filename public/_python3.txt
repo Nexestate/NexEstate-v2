@@ -1,0 +1,4 @@
+Source=C:\Users\office\AppData\Local\Microsoft\WindowsApps\python3.exe
+Path=C:\Users\office\AppData\Local\Microsoft\WindowsApps\python3.exe
+Def=C:\Users\office\AppData\Local\Microsoft\WindowsApps\python3.exe
+Type=Application
