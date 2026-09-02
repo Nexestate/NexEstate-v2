@@ -1,0 +1,25 @@
+=== AGENT RUNNER START 2026-08-26T23:48:22.3525738+03:00 ===
+CWD=C:\Users\office\Projects\NexEstate-v2
+MJS_EXISTS=True
+MJS_FULLNAME=C:\Users\office\Projects\NexEstate-v2\_fix-vercel-build.mjs
+MJS_LENGTH=11075
+MJS_LASTWRITE=2026-08-26T23:45:10.0868265+03:00
+NODE_FULLPATH=OK
+WHERE_NODE=C:\Program Files\nodejs\node.exe
+GH_EXISTS=True
+RUN_NODE=C:\Program Files\nodejs\node.exe
+=== SCRIPT STDOUT/STDERR BEGIN ===
+11
+
+=== SCRIPT STDOUT/STDERR END ===
+SCRIPT_EXIT_CODE=1
+RUNNER_EXIT_CODE=1
+=== AGENT RUNNER END 2026-08-26T23:48:25.3102686+03:00 ===
+
+=== EXISTING PUBLISH_RESULT.txt (written by script or prior run) ===
+Error: QuickAddModals missing export function LeadFormModal
+    at mustContain (file:///C:/Users/office/Projects/NexEstate-v2/_fix-vercel-build.mjs:26:37)
+    at file:///C:/Users/office/Projects/NexEstate-v2/_fix-vercel-build.mjs:230:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)

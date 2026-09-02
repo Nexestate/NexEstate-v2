@@ -1,0 +1,27 @@
+ROOT=C:\Users\office\Projects\NexEstate-v2
+gh auth: github.com
+  ✓ Logged in to github.com account Nexestate (keyring)
+  - Active account: true
+  - Git operations protocol: https
+  - Token: gho_************************************
+  - Token scopes: 'gist', 'read:org', 'repo', 'workflow'
+base=ee267ddfbde15637c90a1c661150739f2c36e854
+blob src/App.tsx
+blob src/hooks/useSigningLinks.ts
+blob src/types/domain.ts
+blob src/components/ui/Modal.tsx
+blob src/components/ui/DetailPanel.tsx
+blob src/components/ui/FormSection.tsx
+blob src/lib/services/profilesService.ts
+blob src/lib/services/auctionsService.ts
+blob src/lib/services/leasesService.ts
+blob src/lib/services/index.ts
+blob src/lib/propertyNav.ts
+blob src/components/property/CreateSigningLinkModal.tsx
+blob src/components/broker/QuickAddModals.tsx
+blob src/components/broker/PaymentFormModal.tsx
+blob src/components/broker/PropertySubNav.tsx
+blob src/components/broker/EntityDetailModal.tsx
+blob src/components/broker/CrmDetailModal.tsx
+blob src/pages/broker/LeasesPage.tsx
+ERROR: ENOENT: no such file or directory, open 'C:\Users\office\Projects\NexEstate-v2\src\pages\broker\TenantsPage.tsx'

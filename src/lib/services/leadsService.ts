@@ -1,5 +1,5 @@
 import { DEMO_CLIENTS, DEMO_LEADS } from '../../data/demoData';
-import type { Client, Lead, LeadStatus } from '../../types/domain';
+import type { Client, ClientType, Lead, LeadStatus, PropertyKind } from '../../types/domain';
 import { loadNotificationPrefs } from '../notificationPrefs';
 import { showBrowserNotification } from '../pushNotifications';
 import { createNotification } from './notificationsService';
@@ -26,8 +26,10 @@ export async function fetchLeads(brokerId?: string): Promise<Lead[]> {
     property_title: (row.properties as { title?: string } | null)?.title,
     full_name: row.full_name,
     phone: row.phone,
+    email: (row.email as string | null) ?? undefined,
     status: row.status as LeadStatus,
     source: row.source ?? undefined,
+    interest: (row.interest as string | null) ?? undefined,
     created_at: row.created_at,
   }));
 }
@@ -42,19 +44,45 @@ export async function fetchClients(brokerId?: string): Promise<Client[]> {
   const { data, error } = await query;
   throwIfError(error);
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    broker_id: row.broker_id,
-    full_name: row.full_name,
-    type: row.type,
-    email: row.email ?? undefined,
-    phone: row.phone ?? undefined,
-    budget_min: row.budget_min ?? undefined,
-    budget_max: row.budget_max ?? undefined,
-    preferred_cities: row.preferred_cities ?? undefined,
-    created_at: row.created_at,
-  }));
+  return (data ?? []).map((row) => mapClientRow(row));
 }
+
+function mapClientRow(row: Record<string, unknown>): Client {
+  return {
+    id: row.id as string,
+    broker_id: (row.broker_id as string | null) ?? undefined,
+    full_name: row.full_name as string,
+    type: row.type as Client['type'],
+    email: (row.email as string | null) ?? undefined,
+    phone: (row.phone as string | null) ?? undefined,
+    budget_min: (row.budget_min as number | null) ?? undefined,
+    budget_max: (row.budget_max as number | null) ?? undefined,
+    preferred_cities: (row.preferred_cities as string[] | null) ?? undefined,
+    preferred_kinds: (row.preferred_kinds as PropertyKind[] | null) ?? undefined,
+    min_rooms: (row.min_rooms as number | null) ?? undefined,
+    min_area: (row.min_area as number | null) ?? undefined,
+    linked_property_id: (row.linked_property_id as string | null) ?? undefined,
+    notes: (row.notes as string | null) ?? undefined,
+    source: (row.source as string | null) ?? undefined,
+    created_at: row.created_at as string,
+  };
+}
+
+export type ClientPayload = {
+  full_name: string;
+  type: ClientType;
+  phone?: string;
+  email?: string;
+  budget_min?: number;
+  budget_max?: number;
+  preferred_cities?: string[];
+  preferred_kinds?: PropertyKind[];
+  min_rooms?: number;
+  min_area?: number;
+  linked_property_id?: string;
+  notes?: string;
+  source?: string;
+};
 
 export async function createLead(
   brokerId: string,
@@ -127,10 +155,7 @@ async function notifyLeadCreated(
   }
 }
 
-export async function createClient(
-  brokerId: string,
-  payload: { full_name: string; type: Client['type']; phone?: string; email?: string },
-): Promise<string> {
+export async function createClient(brokerId: string, payload: ClientPayload): Promise<string> {
   if (isDemoMode()) {
     const id = `client-${Date.now()}`;
     DEMO_CLIENTS.unshift({
@@ -140,6 +165,15 @@ export async function createClient(
       type: payload.type,
       phone: payload.phone,
       email: payload.email,
+      budget_min: payload.budget_min,
+      budget_max: payload.budget_max,
+      preferred_cities: payload.preferred_cities,
+      preferred_kinds: payload.preferred_kinds,
+      min_rooms: payload.min_rooms,
+      min_area: payload.min_area,
+      linked_property_id: payload.linked_property_id,
+      notes: payload.notes,
+      source: payload.source,
       created_at: new Date().toISOString(),
     });
     return id;
@@ -154,6 +188,15 @@ export async function createClient(
       type: payload.type,
       phone: payload.phone,
       email: payload.email,
+      budget_min: payload.budget_min ?? null,
+      budget_max: payload.budget_max ?? null,
+      preferred_cities: payload.preferred_cities ?? [],
+      preferred_kinds: payload.preferred_kinds ?? [],
+      min_rooms: payload.min_rooms ?? null,
+      min_area: payload.min_area ?? null,
+      linked_property_id: payload.linked_property_id ?? null,
+      notes: payload.notes ?? null,
+      source: payload.source ?? null,
     })
     .select('id')
     .single();
@@ -162,10 +205,7 @@ export async function createClient(
   return data.id as string;
 }
 
-export async function updateClient(
-  id: string,
-  payload: { full_name?: string; type?: Client['type']; phone?: string; email?: string },
-): Promise<void> {
+export async function updateClient(id: string, payload: Partial<ClientPayload>): Promise<void> {
   if (isDemoMode()) {
     const clientRow = DEMO_CLIENTS.find((c) => c.id === id);
     if (clientRow) Object.assign(clientRow, payload);

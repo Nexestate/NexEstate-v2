@@ -1,0 +1,400 @@
+BUILD_EXIT=2
+node.exe : npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm 
+help npmrc` for supported config options.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn Unknow...config options.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+> nexestate@0.1.0 build
+> tsc -b && vite build
+
+src/components/broker/CrmDetailModal.tsx(86,84): error TS2322: Type '{ children: (false | Element)[]; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/broker/PaymentFormModal.tsx(7,3): error TS2305: Module '"../../types/domain"' has no exported member 'PAYMENT_METHOD_LABELS'.
+src/components/broker/PaymentFormModal.tsx(9,8): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentMethod'.
+src/components/broker/PaymentFormModal.tsx(91,56): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/broker/PaymentFormModal.tsx(148,19): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/broker/QuickAddModals.tsx(56,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/components/broker/QuickAddModals.tsx(86,9): error TS2322: Type '(values: SigningLinkFormValues) => Promise<void>' is not assignable to type '(values: SigningLinkFormValues) => Promise<{ token: string; }>'.
+  Type 'Promise<void>' is not assignable to type 'Promise<{ token: string; }>'.
+    Type 'void' is not assignable to type '{ token: string; }'.
+src/components/property/CreateSigningLinkModal.tsx(124,70): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/property/CreateSigningLinkModal.tsx(149,66): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+
+=== GIT STATUS ===
+On branch cursor/entity-edit-and-property-nav
+Your branch is ahead of 'origin/cursor/entity-edit-and-property-nav' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .gitignore
+	deleted:    _build.log
+	modified:   _git_out.txt
+	modified:   _status.txt
+	modified:   build-out.txt
+	modified:   src/components/property/CreateSigningLinkModal.tsx
+	modified:   src/hooks/useSigningLinks.ts
+	modified:   src/lib/services/signingService.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.git-commit-files
+	.git-current-branch
+	.git-followup.txt
+	.git-head
+	.publish-error.txt
+	.publish-verify.txt
+	.tools/
+	BUILD_RESULT.txt
+	COMMITTED_FILES.txt
+	COMMIT_HASH.txt
+	COMMIT_SHA.txt
+	GIT_DIFF_STAT.txt
+	GIT_STATUS.txt
+	SHA256_OF_COMMIT.txt
+	__pycache__/
+	_agent_publish_log.txt
+	_gh-head.json
+	_git_status.txt
+	_nav-check.txt
+	_nav-disk-check.txt
+	_nav-publish-error.txt
+	_pub/
+	_publish-result.txt
+	_raw-verify.txt
+	_remote-nav.tsx
+	_sha.txt
+	_shell-out.txt
+	agent-shell-report.txt
+	build-check.txt
+	build-log.txt
+	build-output.txt
+	git-out.txt
+	git-status-snapshot.txt
+	git-status.txt
+	git-version.txt
+	mobile-hits.txt
+	public/LAST_COMMIT_SHA.txt
+	public/_bits1.txt
+	public/_imp_bits.txt
+	public/_imports.txt
+	public/_local_bits.txt
+	public/_local_included_bits.txt
+	public/_pycands.txt
+	public/_pycands2.txt
+	public/_pycands2_copy.txt
+	public/_pycands_len.txt
+	public/_pyfind.txt
+	public/_pyfound.txt
+	public/_python3.txt
+	public/_python3_len.txt
+	public/_result.txt
+	public/_sum_bits.txt
+	public/_sum_tail.txt
+	public/_winget.txt
+	public/debug-publish.txt
+	publish-log.txt
+	shell-test.txt
+	src/_git_report.txt
+	src/publish-log.txt
+	src/publish-result.txt
+	tsc-errors.txt
+	tsc-out.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+=== GIT DIFF ===
+diff --git a/_build.log b/_build.log
+deleted file mode 100644
+index ef7b15f..0000000
+--- a/_build.log
++++ /dev/null
+@@ -1,11 +0,0 @@
+-npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+-
+-> nexestate@0.1.0 build
+-> tsc -b && vite build
+-
+-src/components/broker/EntityDetailModal.tsx(186,25): error TS2339: Property 'monthly_rent' does not exist on type 'Tenant'.
+-src/components/broker/EntityDetailModal.tsx(187,74): error TS2339: Property 'monthly_rent' does not exist on type 'Tenant'.
+-src/contexts/EntityDetailContext.tsx(3,3): error TS2724: '"../lib/services"' has no exported member named 'fetchLeaseById'. Did you mean 'fetchLeases'?
+-src/contexts/EntityDetailContext.tsx(4,3): error TS2724: '"../lib/services"' has no exported member named 'fetchPaymentById'. Did you mean 'fetchPayments'?
+-src/contexts/EntityDetailContext.tsx(6,3): error TS2724: '"../lib/services"' has no exported member named 'fetchTenantById'. Did you mean 'fetchTenants'?
+-BUILD_FAIL
+diff --git a/_git_out.txt b/_git_out.txt
+index d44a060..03ba9b9 100644
+--- a/_git_out.txt
++++ b/_git_out.txt
+@@ -1,25 +1,126 @@
+-On branch main
+-Your branch is up to date with 'origin/main'.
++On branch cursor/entity-edit-and-property-nav
++Your branch is up to date with 'origin/cursor/entity-edit-and-property-nav'.
++
++Changes not staged for commit:
++  (use "git add/rm <file>..." to update what will be committed)
++  (use "git restore <file>..." to discard changes in working directory)
++	modified:   .gitignore
++	deleted:    _build.log
++	modified:   _git_out.txt
++	modified:   _status.txt
++	modified:   apply-ux-fixes.mjs
++	modified:   build-out.txt
++	modified:   commit-crm-changes.ps1
++	modified:   do-push.ps1
++	modified:   finish-deploy.ps1
++	modified:   fix-and-push.ps1
++	modified:   fix-vercel-tsc.ps1
++	modified:   push-green-build.ps1
++	modified:   src/components/broker/CrmDetailModal.tsx
++	modified:   src/components/broker/PaymentFormModal.tsx
++	modified:   src/components/property/CreateSigningLinkModal.tsx
++	modified:   src/contexts/QuickAddContext.tsx
++	modified:   src/hooks/useSigningLinks.ts
++	modified:   src/lib/services/profilesService.ts
++	modified:   src/pages/broker/AgreementsPage.tsx
++	modified:   src/pages/landing/LandingPage.tsx
++	modified:   src/pages/market/DealsPage.tsx
++	modified:   src/pages/market/PlayersPage.tsx
+ 
+ Untracked files:
+   (use "git add <file>..." to include in what will be committed)
+-	.git-status-tmp.txt
+-	_build.log
+-	_git_out.txt
+-	_status.txt
+-	build-out.txt
+-	commit-crm-changes.ps1
+-	finish-deploy.ps1
+-	fix-and-push.ps1
+-	fix-vercel-tsc.ps1
+-	git-check.txt
+-	git-diff-out.txt
+-	git-status-out.txt
+-	push-green-build.ps1
+-	src/components/broker/EntityLinkButton.tsx
+-	src/components/ui/BackButton.tsx
++	.git-commit-files
++	.git-current-branch
++	.git-followup.txt
++	.git-head
++	.publish-error.txt
++	.publish-verify.txt
++	.tools/
++	BUILD_RESULT.txt
++	COMMITTED_FILES.txt
++	COMMIT_HASH.txt
++	COMMIT_SHA.txt
++	GIT_DIFF_STAT.txt
++	GIT_STATUS.txt
++	SHA256_OF_COMMIT.txt
++	__pycache__/
++	_agent_publish_log.txt
++	_gh-head.json
++	_git_run.bat
++	_git_status.txt
++	_nav-check.txt
++	_nav-disk-check.txt
++	_nav-publish-error.txt
++	_pub/
++	_publish-result.txt
++	_remote-nav.tsx
++	_sha.txt
++	_shell-out.txt
++	build-check.txt
++	build-log.txt
++	build-output.txt
++	git-status-snapshot.txt
++	git-status.txt
++	mobile-hits.txt
++	public/LAST_COMMIT_SHA.txt
++	public/_bits1.txt
++	public/_imp_bits.txt
++	public/_imports.txt
++	public/_local_bits.txt
++	public/_local_included_bits.txt
++	public/_pycands.txt
++	public/_pycands2.txt
++	public/_pycands2_copy.txt
++	public/_pycands_len.txt
++	public/_pyfind.txt
++	public/_pyfound.txt
++	public/_python3.txt
++	public/_python3_len.txt
++	public/_result.txt
++	public/_sum_bits.txt
++	public/_sum_tail.txt
++	public/_winget.txt
++	public/debug-publish.txt
++	shell-test.txt
++	src/components/broker/PropertySubNav.tsx
++	src/components/ui/DetailPanel.tsx
++	src/components/ui/FormSection.tsx
++	src/lib/propertyNav.ts
++	src/pages/legal/
++	tsc-errors.txt
++	tsc-out.txt
+ 
+-nothing added to commit but untracked files present (use "git add" to track)
+-cf7f7c0 Fix DashboardLayout merge so production can build
+-43223f4 Fix active lease rents, entity detail modals, and cross-linking
+-4c6d9d4 Fix partner access to units, leases, tenants and payments pages.
++no changes added to commit (use "git add" and/or "git commit -a")
++--- 
++warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
++warning: in the working copy of '_git_out.txt', LF will be replaced by CRLF the next time Git touches it
++warning: in the working copy of 'apply-ux-fixes.mjs', LF will be replaced by CRLF the next time Git touches it
++warning: in the working copy of 'commit-crm-changes.ps1', LF will be replaced by CRLF the next time Git touches it
++warning: in the working copy of 'do-push.ps1', LF will be replaced by CRLF the next time Git touches it
++warning: in the working copy of 'finish-deploy.ps1', LF will be replaced by CRLF the next time Git touches it
++warning: in the working copy of 'fix-and-push.ps1', LF will be replaced by CRLF the next time Git touches it
++warning: in the working copy of 'fix-vercel-tsc.ps1', LF will be replaced by CRLF the next time Git touches it
++warning: in the working copy of 'push-green-build.ps1', LF will be replaced by CRLF the next time Git touches it
++warning: in the working copy of 'src/components/broker/CrmDetailModal.tsx', LF will be replaced by CRLF the next time Git touches it
++warning: in the working copy of 'src/components/broker/PaymentFormModal.tsx', LF will be replaced by CRLF the next time Git touches it
++warning: in the working copy of 'src/contexts/QuickAddContext.tsx', LF will be replaced by CRLF the next time Git touches it
++warning: in the working copy of 'src/lib/services/profilesService.ts', LF will be replaced by CRLF the next time Git touches it
++ _build.log                                         |  11 --
++ _git_out.txt                                       | 112 +++++++++++++++----
++ _status.txt                                        |  17 +--
++ build-out.txt                                      | Bin 2944 -> 2505 bytes
++ src/components/broker/CrmDetailModal.tsx           |   2 +-
++ src/components/broker/PaymentFormModal.tsx         | 123 +++++++++++++++++----
++ src/components/property/CreateSigningLinkModal.tsx |  63 +++++++++--
++ src/contexts/QuickAddContext.tsx                   |  11 +-
++ src/hooks/useSigningLinks.ts                       |  29 ++++-
++ src/lib/services/profilesService.ts                |  24 +++-
++ src/pages/broker/AgreementsPage.tsx                |  13 ++-
++ src/pages/landing/LandingPage.tsx                  |  11 ++
++ src/pages/market/DealsPage.tsx                     |  36 +++++-
++ src/pages/market/PlayersPage.tsx                   |  21 +++-
++ 14 files changed, 380 insertions(+), 93 deletions(-)
++--- 
++db6df16 fix: restore typecheck-safe CRM forms, entity edit, and property-scoped mobile nav
++9b0cb1f fix: upload edit-capable CRM form modals so Vercel typecheck passes
++f192ebf fix: upload edit-capable CRM form modals so Vercel typecheck passes
+diff --git a/_status.txt b/_status.txt
+index 32cdd8c..a0af7d2 100644
+--- a/_status.txt
++++ b/_status.txt
+@@ -1,16 +1 @@
+-??? M src/components/layout/DashboardLayout.tsx
+-?? _build.log
+-?? _status.txt
+-?? build-out.txt
+-?? commit-crm-changes.ps1
+-?? finish-deploy.ps1
+-?? fix-and-push.ps1
+-?? fix-vercel-tsc.ps1
+-?? git-check.txt
+-?? git-diff-out.txt
+-?? git-status-out.txt
+-?? push-green-build.ps1
+-43223f4 Fix active lease rents, entity detail modals, and cross-linking
+-4c6d9d4 Fix partner access to units, leases, tenants and payments pages.
+-2ca6118 Fix partner shared properties loading and sidebar counts.
+-DONE
++???ee267ddfbde15637c90a1c661150739f2c36e854|fix: allow payment entity events so Vercel typecheck passes
+diff --git a/build-out.txt b/build-out.txt
+index c190c02..6292590 100644
+Binary files a/build-out.txt and b/build-out.txt differ
+diff --git a/src/components/property/CreateSigningLinkModal.tsx b/src/components/property/CreateSigningLinkModal.tsx
+index 6603f61..63ed74b 100644
+--- a/src/components/property/CreateSigningLinkModal.tsx
++++ b/src/components/property/CreateSigningLinkModal.tsx
+@@ -92,7 +92,7 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
+     if (!name.isValid) next.client_name = name.error!;
+     const phone = validatePhone(form.client_phone);
+     if (!phone.isValid) next.client_phone = phone.error!;
+-    const email = validateEmail(form.client_email);
++    const email = validateEmail(form.client_email, true);
+     if (!email.isValid) next.client_email = email.error!;
+     const pct = validatePercent(form.commission_percent);
+     if (!pct.isValid) next.commission_percent = pct.error!;
+@@ -167,6 +167,7 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
+           type="email"
+           value={form.client_email}
+           onChange={(e) => set('client_email', e.target.value)}
++          required
+           error={errors.client_email}
+         />
+         <div className="grid gap-3 sm:grid-cols-2">
+diff --git a/src/hooks/useSigningLinks.ts b/src/hooks/useSigningLinks.ts
+index dafc72b..8c20bdb 100644
+--- a/src/hooks/useSigningLinks.ts
++++ b/src/hooks/useSigningLinks.ts
+@@ -12,8 +12,17 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+ export type SigningLinkInsert = Partial<SigningLink> & {
+   client_name: string;
+   client_phone: string;
++  client_email: string;
+ };
+ 
++function resolveClientEmail(row: Record<string, unknown>): string | undefined {
++  const email =
++    (row.recipient_email as string | null) ??
++    (row.client_email as string | null) ??
++    undefined;
++  return email?.trim() || undefined;
++}
++
+ export type CreateLinkResult = {
+   link: SigningLink | null;
+   error: string | null;
+@@ -35,7 +44,7 @@ function mapRow(row: Record<string, unknown>): SigningLink {
+     broker_id: row.broker_id as string | undefined,
+     client_name: row.client_name as string,
+     client_phone: (row.client_phone as string | null) ?? undefined,
+-    client_email: (row.client_email as string | null) ?? undefined,
++    client_email: resolveClientEmail(row),
+     deal_type: (row.deal_type as string | null) ?? undefined,
+     agreement_type: (row.agreement_type as string) ?? 'exclusive',
+     commission_type: (row.commission_type as string | null) ?? undefined,
+@@ -123,6 +132,13 @@ export function useSigningLinks() {
+       return { link: null, error: '?ù?? ?£?ô?¬?÷?ñ?¿ ?¢?ó?ù ?£?ù???õ?¿ ???ù???õ?¿ ?÷?¬?ù???ô' };
+     }
+ 
++    const clientEmail = data.client_email?.trim();
++    if (!clientEmail) {
++      const msg = '?ð?ù???ù?ù?£ ?ô?£???õ?÷ ?ô?õ?ð ???ó?ô ?÷?õ?ñ?ô';
++      setError(msg);
++      return { link: null, error: msg };
++    }
++
+     try {
+       await ensureProfile(user.id, user.email, user.full_name, user.role);
+     } catch (e) {
+@@ -137,7 +153,8 @@ export function useSigningLinks() {
+       broker_id: user.id,
+       client_name: data.client_name,
+       client_phone: data.client_phone,
+-      client_email: data.client_email || null,
++      client_email: clientEmail,
++      recipient_email: clientEmail,
+       agreement_type: data.agreement_type || 'exclusive',
+       commission_percent: data.commission_percent ?? 2,
+       valid_days: validDays,
+diff --git a/src/lib/services/signingService.ts b/src/lib/services/signingService.ts
+index 7ff90b2..7124044 100644
+--- a/src/lib/services/signingService.ts
++++ b/src/lib/services/signingService.ts
+@@ -10,7 +10,9 @@ function mapSigningRow(row: Record<string, unknown>): SigningLink {
+     token: row.token as string,
+     client_name: row.client_name as string,
+     client_phone: (row.client_phone as string | null) ?? undefined,
+-    client_email: (row.client_email as string | null) ?? undefined,
++    client_email:
++      ((row.recipient_email as string | null) ?? (row.client_email as string | null))?.trim() ||
++      undefined,
+     agreement_type: row.agreement_type as string,
+     commission_percent: (row.commission_percent as number | null) ?? undefined,
+     property_title: prop?.title,

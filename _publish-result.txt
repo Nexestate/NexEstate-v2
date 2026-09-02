@@ -1,0 +1,15 @@
+ok local src/components/broker/QuickAddModals.tsx bytes=20809
+ok local src/components/broker/EntityDetailModal.tsx bytes=20653
+ok local src/contexts/EntityDetailContext.tsx bytes=4536
+ok local src/components/mobile/MobileBottomNav.tsx bytes=8906
+head 9b0cb1f99442cb183662dac73af8810c905d2ce6
+base_tree 05529a525c7c0fd7b2d0f647a3bda67a0ef45628
+blob src/components/broker/QuickAddModals.tsx 5839a5c22649535f67c56ce6365ed752c2144b45
+blob src/components/broker/EntityDetailModal.tsx 46dd28447759035f2e57937104da663f810a6f9a
+blob src/contexts/EntityDetailContext.tsx 7feeb1ecb4db11836494eff9a1f214626879b922
+blob src/components/mobile/MobileBottomNav.tsx 539137b51aad36c2cc1990917a5a67392da79c52
+tree 7aca6e778ecccb6e5f88b760d8ce56eb5fa78dac
+commit db6df1677ca09b4e9db1a85a7ecf42e818ebacf7
+patched main
+verified QuickAddModals has taskTitle
+SUCCESS db6df1677ca09b4e9db1a85a7ecf42e818ebacf7

@@ -20,6 +20,13 @@ export interface Profile {
   role: UserRole;
   company?: string | null;
   license_number?: string | null;
+  business_name?: string | null;
+  tax_id?: string | null;
+  bank_name?: string | null;
+  bank_branch?: string | null;
+  bank_account?: string | null;
+  bank_account_holder?: string | null;
+  invoice_footer?: string | null;
   avatar_url?: string;
   created_at?: string;
 }

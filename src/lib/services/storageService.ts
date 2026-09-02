@@ -9,6 +9,7 @@ import { isDemoMode, requireSupabase, throwIfError, ServiceError } from './servi
 export const STORAGE_BUCKETS = {
   propertyImages: 'property-images',
   signedContracts: 'signed-contracts',
+  paymentProofs: 'payment-proofs',
 } as const;
 
 export type StorageBucket = (typeof STORAGE_BUCKETS)[keyof typeof STORAGE_BUCKETS];
@@ -123,6 +124,25 @@ export async function uploadSignedContract(
   throwIfError(dbError);
 
   return signedUrl;
+}
+
+/** Upload transfer proof for public payment checkout (anonymous upload by slug). */
+export async function uploadPaymentProof(slug: string, file: File): Promise<string> {
+  if (isDemoMode()) {
+    return URL.createObjectURL(file);
+  }
+
+  const client = requireSupabase();
+  const fileName = `${Date.now()}-${sanitizeFileName(file.name)}`;
+  const path = `${slug}/${fileName}`;
+
+  const { error: uploadError } = await client.storage
+    .from(STORAGE_BUCKETS.paymentProofs)
+    .upload(path, file, { upsert: false, contentType: file.type });
+  throwIfError(uploadError);
+
+  const { data } = client.storage.from(STORAGE_BUCKETS.paymentProofs).getPublicUrl(path);
+  return data.publicUrl;
 }
 
 async function appendPropertyImage(propertyId: string, imageUrl: string): Promise<void> {

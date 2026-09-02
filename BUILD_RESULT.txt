@@ -1,0 +1,29 @@
+﻿BUILD_EXIT=2
+ERRORS:
+src/components/mobile/MobileBottomNav.tsx(17,41): error TS1005: ';' expected.
+src/components/mobile/MobileBottomNav.tsx(17,62): error TS1005: ';' expected.
+src/components/mobile/MobileBottomNav.tsx(237,1): error TS1128: Declaration or statement expected.
+src/components/mobile/MobileBottomNav.tsx(237,11): error TS1109: Expression expected.
+src/components/mobile/MobileBottomNav.tsx(237,26): error TS1005: ';' expected.
+src/components/mobile/MobileBottomNav.tsx(458,31): error TS1005: ')' expected.
+src/components/mobile/MobileBottomNav.tsx(458,39): error TS1005: ';' expected.
+GIT_STATUS:
+ M build-out.txt
+ M src/components/broker/ManagedUnitsTable.tsx
+ M src/components/layout/DashboardLayout.tsx
+ M src/components/mobile/MobileBottomNav.tsx
+?? BUILD_RESULT.txt
+?? build-check.txt
+?? build-output.txt
+?? git-status.txt
+?? shell-test.txt
+GIT_DIFF:
+ build-out.txt                               | Bin 2944 -> 735 bytes
+ src/components/broker/ManagedUnitsTable.tsx |   1 -
+ src/components/layout/DashboardLayout.tsx   |   1 -
+ src/components/mobile/MobileBottomNav.tsx   | 446 ++++++++++++++++++++++++++++
+ 4 files changed, 446 insertions(+), 2 deletions(-)
+build-out.txt
+src/components/broker/ManagedUnitsTable.tsx
+src/components/layout/DashboardLayout.tsx
+src/components/mobile/MobileBottomNav.tsx

@@ -24,3 +24,15 @@ verify_jwt = false
 
 [functions.get-signing-link]
 verify_jwt = false
+
+[functions.init-payment-session]
+verify_jwt = false
+
+[functions.complete-payment-checkout]
+verify_jwt = false
+
+[functions.payment-webhook]
+verify_jwt = false
+
+[functions.issue-invoice]
+verify_jwt = true

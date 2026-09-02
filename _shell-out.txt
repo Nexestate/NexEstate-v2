@@ -1,0 +1,8 @@
+﻿EntityDetailContext.tsx
+EntityDetailModal.tsx
+MobileBottomNav.tsx
+publish.mjs
+QuickAddModals.tsx
+node=v24.19.0
+cwd=C:\Users\office\Projects\NexEstate-v2
+exists_mjs=True

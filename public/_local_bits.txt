@@ -1,0 +1,17 @@
+0 src\components\broker\QuickAddModals.tsx export function LeadFormModal
+1 src\components\broker\QuickAddModals.tsx function LeadFormModal
+1 src\components\broker\CrmDetailModal.tsx updateLead
+0 src\components\broker\EntityDetailModal.tsx NavLinkButton
+1 src\components\broker\NavLinkButton.tsx 
+1 src\components\broker\PaymentFormModal.tsx 
+0 src\components\mobile\MobileBottomNav.tsx usePropertyNavContext
+1 src\hooks\usePropertyNavContext.ts 
+0 src\contexts\EntityDetailContext.tsx refreshView
+1 src\contexts\QuickAddContext.tsx 
+1 src\pages\broker\LeadsPage.tsx CrmDetailModal
+1 src\pages\broker\TasksPage.tsx CrmDetailModal
+1 src\lib\services\leadsService.ts updateLead
+1 src\lib\services\tasksService.ts updateTask
+0 src\lib\services\leasesService.ts updateTenant
+0 src\lib\services\auctionsService.ts updatePayment
+bits=16054

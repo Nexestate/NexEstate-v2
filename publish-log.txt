@@ -1,0 +1,187 @@
+=== GIT STATUS ===
+ M .gitignore
+ D _build.log
+ M _git_out.txt
+ M _status.txt
+ M apply-ux-fixes.mjs
+ M build-out.txt
+ M commit-crm-changes.ps1
+ M do-push.ps1
+ M finish-deploy.ps1
+ M fix-and-push.ps1
+ M fix-vercel-tsc.ps1
+ M push-green-build.ps1
+?? .git-commit-files
+?? .git-current-branch
+?? .git-followup.txt
+?? .git-head
+?? .publish-error.txt
+?? .publish-verify.txt
+?? .tools/
+?? BUILD_RESULT.txt
+?? COMMITTED_FILES.txt
+?? COMMIT_HASH.txt
+?? COMMIT_SHA.txt
+?? GIT_DIFF_STAT.txt
+?? GIT_STATUS.txt
+?? SHA256_OF_COMMIT.txt
+?? __pycache__/
+?? _agent_publish_log.txt
+?? _gh-head.json
+?? _git_status.txt
+?? _nav-check.txt
+?? _nav-disk-check.txt
+?? _nav-publish-error.txt
+?? _pub/
+?? _publish-result.txt
+?? _remote-nav.tsx
+?? _sha.txt
+?? _shell-out.txt
+?? build-check.txt
+?? build-log.txt
+?? build-output.txt
+?? git-out.txt
+?? git-status-snapshot.txt
+?? git-status.txt
+?? git-version.txt
+?? mobile-hits.txt
+?? public/LAST_COMMIT_SHA.txt
+?? public/_bits1.txt
+?? public/_imp_bits.txt
+?? public/_imports.txt
+?? public/_local_bits.txt
+?? public/_local_included_bits.txt
+?? public/_pycands.txt
+?? public/_pycands2.txt
+?? public/_pycands2_copy.txt
+?? public/_pycands_len.txt
+?? public/_pyfind.txt
+?? public/_pyfound.txt
+?? public/_python3.txt
+?? public/_python3_len.txt
+?? public/_result.txt
+?? public/_sum_bits.txt
+?? public/_sum_tail.txt
+?? public/_winget.txt
+?? public/debug-publish.txt
+?? shell-test.txt
+?? src/_git_report.txt
+?? src/_publish.js
+?? tsc-errors.txt
+?? tsc-out.txt
+
+=== HEAD ===
+e2ba8791ada13fa4c73838da5556fe4856b7383e
+
+=== ORIGIN MAIN ===
+ee267ddfbde15637c90a1c661150739f2c36e854
+
+=== ADD ===
+
+=== COMMIT ===
+On branch cursor/entity-edit-and-property-nav
+Your branch is ahead of 'origin/cursor/entity-edit-and-property-nav' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .gitignore
+	deleted:    _build.log
+	modified:   _git_out.txt
+	modified:   _status.txt
+	modified:   apply-ux-fixes.mjs
+	modified:   build-out.txt
+	modified:   commit-crm-changes.ps1
+	modified:   do-push.ps1
+	modified:   finish-deploy.ps1
+	modified:   fix-and-push.ps1
+	modified:   fix-vercel-tsc.ps1
+	modified:   push-green-build.ps1
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.git-commit-files
+	.git-current-branch
+	.git-followup.txt
+	.git-head
+	.publish-error.txt
+	.publish-verify.txt
+	.tools/
+	BUILD_RESULT.txt
+	COMMITTED_FILES.txt
+	COMMIT_HASH.txt
+	COMMIT_SHA.txt
+	GIT_DIFF_STAT.txt
+	GIT_STATUS.txt
+	SHA256_OF_COMMIT.txt
+	__pycache__/
+	_agent_publish_log.txt
+	_gh-head.json
+	_git_status.txt
+	_nav-check.txt
+	_nav-disk-check.txt
+	_nav-publish-error.txt
+	_pub/
+	_publish-result.txt
+	_remote-nav.tsx
+	_sha.txt
+	_shell-out.txt
+	build-check.txt
+	build-log.txt
+	build-output.txt
+	git-out.txt
+	git-status-snapshot.txt
+	git-status.txt
+	git-version.txt
+	mobile-hits.txt
+	public/LAST_COMMIT_SHA.txt
+	public/_bits1.txt
+	public/_imp_bits.txt
+	public/_imports.txt
+	public/_local_bits.txt
+	public/_local_included_bits.txt
+	public/_pycands.txt
+	public/_pycands2.txt
+	public/_pycands2_copy.txt
+	public/_pycands_len.txt
+	public/_pyfind.txt
+	public/_pyfound.txt
+	public/_python3.txt
+	public/_python3_len.txt
+	public/_result.txt
+	public/_sum_bits.txt
+	public/_sum_tail.txt
+	public/_winget.txt
+	public/debug-publish.txt
+	shell-test.txt
+	src/_git_report.txt
+	src/_publish.js
+	tsc-errors.txt
+	tsc-out.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+EXIT:1
+
+=== PULL REBASE ===
+error: cannot pull with rebase: You have unstaged changes.
+error: Please commit or stash them.
+
+EXIT:128
+
+=== PUSH ===
+To https://github.com/Nexestate/NexEstate-v2.git
+ ! [rejected]        main -> main (non-fast-forward)
+error: failed to push some refs to 'https://github.com/Nexestate/NexEstate-v2.git'
+hint: Updates were rejected because a pushed branch tip is behind its remote
+hint: counterpart. If you want to integrate the remote changes, use 'git pull'
+hint: before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+
+EXIT:1
+
+=== FINAL HEAD ===
+e2ba8791ada13fa4c73838da5556fe4856b7383e
+
+e2ba879 fix: improve dashboard UX for signing, tenants nav, payments, and public auth

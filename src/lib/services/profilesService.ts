@@ -32,6 +32,13 @@ export type ProfileUpdatePayload = {
   phone?: string | null;
   company?: string | null;
   license_number?: string | null;
+  business_name?: string | null;
+  tax_id?: string | null;
+  bank_name?: string | null;
+  bank_branch?: string | null;
+  bank_account?: string | null;
+  bank_account_holder?: string | null;
+  invoice_footer?: string | null;
 };
 
 export async function updateProfile(
@@ -59,6 +66,13 @@ export async function updateProfile(
       phone: payload.phone,
       company: payload.company,
       license_number: payload.license_number,
+      business_name: payload.business_name,
+      tax_id: payload.tax_id,
+      bank_name: payload.bank_name,
+      bank_branch: payload.bank_branch,
+      bank_account: payload.bank_account,
+      bank_account_holder: payload.bank_account_holder,
+      invoice_footer: payload.invoice_footer,
       updated_at: new Date().toISOString(),
     })
     .eq('id', userId)

@@ -50,6 +50,23 @@ export const DEMO_PROPERTIES: PropertyWithUnits[] = [
     occupiedUnits: 28,
     monthlyIncome: 105_633,
   },
+  {
+    id: 'prop-2',
+    title: 'דירת 4 חדרים — רמת גן',
+    address: 'רחוב ביאליק 12',
+    city: 'רמת גן',
+    kind: 'apartment',
+    status: 'for_sale',
+    price: 2_150_000,
+    rooms: 4,
+    area_sqm: 120,
+    broker_id: 'demo-user-1',
+    created_at: '2025-06-01T10:00:00Z',
+    units: [],
+    totalUnits: 0,
+    occupiedUnits: 0,
+    monthlyIncome: 0,
+  },
 ];
 
 export function getDemoProperty(id: string): PropertyWithUnits | undefined {
@@ -112,6 +129,18 @@ export const DEMO_LEADS: Lead[] = [
     property_title: 'בניין שקטר 30',
     created_at: '2026-08-19T07:45:00Z',
   },
+  {
+    id: 'lead-landing-1',
+    full_name: 'אבי רוזן',
+    phone: '050-8887777',
+    email: 'avi@email.com',
+    property_id: 'prop-2',
+    property_title: 'דירת 4 חדרים — רמת גן',
+    source: 'דף נחיתה — דירת 4 חדרים — רמת גן',
+    interest: 'מעוניין בביקור ביום ראשון',
+    status: 'new',
+    created_at: '2026-08-20T10:00:00Z',
+  },
 ];
 
 // ─── Clients ──────────────────────────────────────────────────────
@@ -126,6 +155,9 @@ export const DEMO_CLIENTS: Client[] = [
     budget_min: 2_000_000,
     budget_max: 3_500_000,
     preferred_cities: ['תל אביב', 'רמת גן'],
+    preferred_kinds: ['apartment'],
+    min_rooms: 3,
+    min_area: 90,
     created_at: '2026-07-01T10:00:00Z',
   },
   {
