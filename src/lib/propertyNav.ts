@@ -2,6 +2,9 @@ export function unitDetailUrl(propertyId: string, unitId: string): string {
   return `/broker/units?property=${propertyId}&open=${unitId}`;
 }
 
+/** Alias used by entity detail links */
+export const unitDetailHref = unitDetailUrl;
+
 export function tenantsPageUrl(options?: { property?: string; tab?: 'tenants' | 'leases' }): string {
   const params = new URLSearchParams();
   if (options?.property) params.set('property', options.property);
@@ -33,3 +36,10 @@ export function propertySubNavUrl(section: PropertySubNavSection, propertyId: st
   if (section === 'overview') return `/broker/properties/${propertyId}`;
   return `/broker/${section}?property=${propertyId}`;
 }
+
+/** Alias used by mobile nav and sidebar */
+export function propertyNavHref(propertyId: string, section: PropertySubNavSection): string {
+  return propertySubNavUrl(section, propertyId);
+}
+
+export const isPropertyNavActive = isPropertySubNavActive;

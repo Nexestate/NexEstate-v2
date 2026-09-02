@@ -4,7 +4,7 @@ import { Badge } from './Badge';
 
 interface DetailPanelProps {
   icon?: LucideIcon;
-  title: string;
+  title?: string;
   subtitle?: string;
   badge?: { label: string; variant?: 'success' | 'warning' | 'outline' | 'primary' | 'destructive' };
   actions?: React.ReactNode;
@@ -31,10 +31,12 @@ export function DetailPanel({
             </span>
           )}
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-lg font-bold leading-tight">{title}</h3>
-              {badge && <Badge variant={badge.variant ?? 'outline'}>{badge.label}</Badge>}
-            </div>
+            {(title || badge) && (
+              <div className="flex flex-wrap items-center gap-2">
+                {title && <h3 className="text-lg font-bold leading-tight">{title}</h3>}
+                {badge && <Badge variant={badge.variant ?? 'outline'}>{badge.label}</Badge>}
+              </div>
+            )}
             {subtitle && <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>}
           </div>
         </div>

@@ -19,7 +19,7 @@ import {
   fetchLeasesForProperties,
 } from '../../lib/services';
 import { CLIENT_TYPE_LABELS, LEAD_STATUS_LABELS, TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from '../../types/domain';
-import type { ClientType, LeadStatus, Lease, TaskPriority, TaskStatus } from '../../types/domain';
+import type { ClientType, LeadStatus, TaskPriority, TaskStatus } from '../../types/domain';
 import {
   validateEmail,
   validateName,
@@ -54,14 +54,14 @@ export function QuickAddModals() {
   const { createLink, fetchLinks } = useSigningLinks();
 
   const handleAgreementCreate = async (values: SigningLinkFormValues): Promise<{ token: string } | void> => {
-    const created = await createLink({
+    const result = await createLink({
       client_name: values.client_name,
       client_phone: values.client_phone,
       client_email: values.client_email.trim(),
       deal_type: values.deal_type,
       agreement_type: values.agreement_type,
-      property_description: values.property_description.trim() || undefined,
-      exact_address: values.exact_address.trim() || undefined,
+      property_description: values.property_description.trim(),
+      exact_address: values.exact_address.trim(),
       show_address_before_signing: values.show_address_before_signing,
       price: values.price ? Number(values.price) : undefined,
       commission_type: values.commission_type,
@@ -71,11 +71,12 @@ export function QuickAddModals() {
       payment_days: Number(values.payment_days),
       broker_name: user?.full_name,
     });
-    if (error) return { error };
-    if (!link) return { error: 'יצירת הקישור נכשלה' };
+    if (result.error || !result.link?.token) {
+      throw new Error(result.error || 'יצירת הקישור נכשלה');
+    }
     await fetchLinks();
     notifyEntityCreated('agreement');
-    return { link };
+    return { token: result.link.token };
   };
 
   const handlePropertyCreate = async (values: PropertyFormValues) => {
@@ -187,19 +188,26 @@ function PaymentQuickAddModal({
   onClose: () => void;
 }) {
   const { user } = useAuth();
-  const [leases, setLeases] = useState<Lease[]>([]);
-  const [loadingLeases, setLoadingLeases] = useState(false);
+  const [leases, setLeases] = useState<Array<{ id: string; label: string }>>([]);
+  const [leaseId, setLeaseId] = useState('');
 
   useEffect(() => {
     if (!open || !user?.id) return;
-    setLoadingLeases(true);
-    fetchAccessiblePropertyIds(user.id, user.role)
+    void fetchAccessiblePropertyIds(user.id, user.role)
       .then((ids) => {
         const scoped = propertyId ? ids.filter((id) => id === propertyId) : ids;
         return fetchLeasesForProperties(scoped);
       })
-      .then((data) => setLeases(data.filter((l) => l.is_active)))
-      .finally(() => setLoadingLeases(false));
+      .then((rows) => {
+        const active = rows.filter((l) => l.is_active);
+        setLeases(
+          active.map((l) => ({
+            id: l.id,
+            label: `${l.tenant_name} · ${l.property_title ?? ''} · יחידה ${l.unit_number ?? '—'}`,
+          })),
+        );
+        setLeaseId(active[0]?.id ?? '');
+      });
   }, [open, user?.id, user?.role, propertyId]);
 
   return (
@@ -207,19 +215,22 @@ function PaymentQuickAddModal({
       open={open}
       onClose={onClose}
       title="תשלום חדש"
-      mode="create"
+      showLeaseSelect
       leases={leases}
-      loadingLeases={loadingLeases}
+      leaseId={leaseId}
+      onLeaseChange={setLeaseId}
       onSubmit={async (values) => {
-        if (!values.lease_id) throw new Error('lease required');
+        if (!user?.id || !leaseId) throw new Error('יש לבחור חוזה');
         await createPayment({
-          lease_id: values.lease_id,
+          lease_id: leaseId,
           amount: Number(values.amount),
           due_date: values.due_date,
-          status: values.status,
+          payment_date: values.payment_date || values.due_date,
           payment_method: values.payment_method,
+          payment_status: values.status,
           receipt_number: values.receipt_number || undefined,
           notes: values.notes || undefined,
+          created_by: user.id,
         });
         closeAfterSuccess('payment', onClose);
       }}

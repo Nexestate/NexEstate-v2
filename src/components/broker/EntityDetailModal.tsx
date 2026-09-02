@@ -13,7 +13,7 @@ import { notifyEntityCreated } from '../../contexts/QuickAddContext';
 import { unitDetailHref } from '../../lib/propertyNav';
 import { fetchPayments, updateLease, updatePayment, updateTenant, updateUnit } from '../../lib/services';
 import { formatCurrency } from '../../lib/utils';
-import type { Payment } from '../../types/domain';
+import type { Payment, PaymentMethod } from '../../types/domain';
 import {
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
@@ -435,7 +435,11 @@ export function EntityDetailModal() {
             />
             <DetailRow
               label="אמצעי תשלום"
-              value={view.data.payment_method ? PAYMENT_METHOD_LABELS[view.data.payment_method] : '—'}
+              value={
+                view.data.payment_method
+                  ? PAYMENT_METHOD_LABELS[view.data.payment_method as PaymentMethod]
+                  : '—'
+              }
             />
             <DetailRow label="מספר קבלה" value={view.data.receipt_number} />
             <DetailRow label="הערות" value={view.data.notes} />
@@ -529,7 +533,7 @@ export function EntityDetailModal() {
             amount: view.data.amount.toString(),
             due_date: view.data.due_date,
             status: view.data.status,
-            payment_method: view.data.payment_method,
+            payment_method: (view.data.payment_method as PaymentMethod | undefined) ?? 'transfer',
             receipt_number: view.data.receipt_number,
             notes: view.data.notes,
           }}

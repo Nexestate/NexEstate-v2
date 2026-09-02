@@ -13,11 +13,7 @@ import {
   validatePositiveNumber,
   validateRequired,
 } from '../../lib/validation';
-import { cn } from '../../lib/utils';
-import type { SigningLink } from '../../types/domain';
-import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
-import { Modal } from '../ui/Modal';
+import { AGREEMENT_TYPE_LABELS, DEAL_TYPE_LABELS } from '../../lib/constants';
 
 export interface SigningLinkFormValues {
   client_name: string;
@@ -54,8 +50,6 @@ const DEFAULTS: SigningLinkFormValues = {
   valid_days: '30',
   payment_days: '3',
 };
-
-export type SigningLinkSubmitResult = { link?: SigningLink; error?: string };
 
 interface CreateSigningLinkModalProps {
   open: boolean;
@@ -200,148 +194,84 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
               ))}
             </select>
           </div>
-          <div>
-            <p className="font-semibold">הקישור נוצר בהצלחה</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              שלחו ל{createdLink.client_name} את הקישור לחתימה דיגיטלית
-            </p>
-          </div>
-          <div className="rounded-xl border border-border bg-muted/30 p-3 text-start">
-            <p className="mb-1 text-xs font-medium text-muted-foreground">קישור לחתימה</p>
-            <p className="break-all text-sm font-mono">{signingUrl}</p>
-          </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <Button type="button" onClick={() => void copyUrl()} className="gap-2">
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              {copied ? 'הועתק!' : 'העתק קישור'}
-            </Button>
-            <Button type="button" variant="outline" onClick={handleClose}>
-              סגור
-            </Button>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">סוג הסכם</label>
+            <select
+              className="flex h-11 w-full rounded-xl border border-border bg-muted/50 px-4 text-sm"
+              value={form.agreement_type}
+              onChange={(e) => set('agreement_type', e.target.value)}
+            >
+              {Object.entries(AGREEMENT_TYPE_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="max-h-[70vh] space-y-3 overflow-y-auto pe-1">
-          <Input
-            label="שם לקוח"
-            value={form.client_name}
-            onChange={(e) => set('client_name', e.target.value)}
-            required
-            error={errors.client_name}
-          />
-          <Input
-            label="טלפון"
-            value={form.client_phone}
-            onChange={(e) => set('client_phone', sanitizePhone(e.target.value))}
-            required
-            error={errors.client_phone}
-          />
-          <Input
-            label="אימייל"
-            type="email"
-            value={form.client_email}
-            onChange={(e) => set('client_email', e.target.value)}
-            required
-            error={errors.client_email}
-          />
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">סוג עסקה</label>
-              <select
-                className="flex h-11 w-full rounded-xl border border-border bg-muted/50 px-4 text-sm"
-                value={form.deal_type}
-                onChange={(e) => set('deal_type', e.target.value)}
-              >
-                {Object.entries(DEAL_TYPE_LABELS).map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">סוג הסכם</label>
-              <select
-                className="flex h-11 w-full rounded-xl border border-border bg-muted/50 px-4 text-sm"
-                value={form.agreement_type}
-                onChange={(e) => set('agreement_type', e.target.value)}
-              >
-                {Object.entries(AGREEMENT_TYPE_LABELS).map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">
-              תיאור נכס
-              <span className="text-destructive mr-1">*</span>
-            </label>
-            <textarea
-              className={cn(
-                'min-h-20 w-full rounded-xl border border-border bg-muted/50 px-4 py-3 text-sm',
-                errors.property_description && 'border-destructive',
-              )}
-              value={form.property_description}
-              onChange={(e) => set('property_description', e.target.value)}
-              required
-            />
-            {errors.property_description && (
-              <p className="text-sm text-destructive">{errors.property_description}</p>
-            )}
-          </div>
-          <Input
-            label="כתובת מדויקת"
-            value={form.exact_address}
-            onChange={(e) => set('exact_address', e.target.value)}
-            required
-            error={errors.exact_address}
-          />
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.show_address_before_signing}
-              onChange={(e) => set('show_address_before_signing', e.target.checked)}
-            />
-            הצג כתובת לפני חתימה
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">
+            תיאור נכס <span className="text-destructive">*</span>
           </label>
-          <Input
-            label="מחיר"
-            value={form.price}
-            onChange={(e) => set('price', sanitizePrice(e.target.value))}
-            error={errors.price}
+          <textarea
+            className="min-h-20 w-full rounded-xl border border-border bg-muted/50 px-4 py-3 text-sm"
+            value={form.property_description}
+            onChange={(e) => set('property_description', e.target.value)}
+            required
           />
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Input
-              label="% עמלה"
-              value={form.commission_percent}
-              onChange={(e) => set('commission_percent', e.target.value)}
-              required
-              error={errors.commission_percent}
-            />
-            <Input
-              label="ימי תוקף"
-              value={form.valid_days}
-              onChange={(e) => set('valid_days', e.target.value)}
-              required
-              error={errors.valid_days}
-            />
-            <Input
-              label="ימי תשלום"
-              value={form.payment_days}
-              onChange={(e) => set('payment_days', e.target.value)}
-              required
-              error={errors.payment_days}
-            />
-          </div>
-          {errors.form && <p className="text-sm text-destructive">{errors.form}</p>}
-          <Button type="submit" className="w-full" disabled={saving}>
-            {saving ? 'יוצר...' : 'צור קישור'}
-          </Button>
-        </form>
-      )}
+          {errors.property_description && (
+            <p className="text-sm text-destructive">{errors.property_description}</p>
+          )}
+        </div>
+        <Input
+          label="כתובת מדויקת"
+          value={form.exact_address}
+          onChange={(e) => set('exact_address', e.target.value)}
+          required
+          error={errors.exact_address}
+        />
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={form.show_address_before_signing}
+            onChange={(e) => set('show_address_before_signing', e.target.checked)}
+          />
+          הצג כתובת לפני חתימה
+        </label>
+        <Input
+          label="מחיר"
+          value={form.price}
+          onChange={(e) => set('price', sanitizePrice(e.target.value))}
+          error={errors.price}
+        />
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Input
+            label="% עמלה"
+            value={form.commission_percent}
+            onChange={(e) => set('commission_percent', e.target.value)}
+            required
+            error={errors.commission_percent}
+          />
+          <Input
+            label="ימי תוקף"
+            value={form.valid_days}
+            onChange={(e) => set('valid_days', e.target.value)}
+            required
+            error={errors.valid_days}
+          />
+          <Input
+            label="ימי תשלום"
+            value={form.payment_days}
+            onChange={(e) => set('payment_days', e.target.value)}
+            required
+            error={errors.payment_days}
+          />
+        </div>
+        {errors.form && <p className="text-sm text-destructive">{errors.form}</p>}
+        <Button type="submit" className="w-full" disabled={saving}>
+          {saving ? 'יוצר...' : 'צור קישור'}
+        </Button>
+      </form>
     </Modal>
   );
 }

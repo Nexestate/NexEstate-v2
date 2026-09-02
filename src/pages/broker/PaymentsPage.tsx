@@ -17,7 +17,7 @@ import { useAsyncData } from '../../hooks/useAsyncData';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { fetchAccessiblePropertyIds, fetchPayments } from '../../lib/services';
 import { formatCurrency } from '../../lib/utils';
-import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_LABELS } from '../../types/domain';
+import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_LABELS, type PaymentMethod } from '../../types/domain';
 import { Button } from '../../components/ui/Button';
 
 const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'destructive' | 'outline'> = {
@@ -185,7 +185,7 @@ export function PaymentsPage() {
                 </TableCell>
                 <TableCell className="font-medium">{formatCurrency(p.amount)}</TableCell>
                 <TableCell className="text-muted-foreground">
-                  {p.payment_method ? PAYMENT_METHOD_LABELS[p.payment_method] : '—'}
+                  {p.payment_method ? PAYMENT_METHOD_LABELS[p.payment_method as PaymentMethod] : '—'}
                 </TableCell>
                 <TableCell>{new Date(p.due_date).toLocaleDateString('he-IL')}</TableCell>
                 <TableCell>

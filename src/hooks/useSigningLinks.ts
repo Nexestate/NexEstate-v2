@@ -16,7 +16,15 @@ export type SigningLinkInsert = Partial<SigningLink> & {
   client_email: string;
 };
 
-export type CreateLinkResult = { link: SigningLink | null; error?: string };
+export type CreateLinkResult = { link: SigningLink | null; error?: string | null };
+
+function resolveClientEmail(row: Record<string, unknown>): string | undefined {
+  const email =
+    (row.recipient_email as string | null) ??
+    (row.client_email as string | null) ??
+    undefined;
+  return email?.trim() || undefined;
+}
 
 function generateToken(length = 12): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
@@ -74,8 +82,6 @@ function mapRow(row: Record<string, unknown>): SigningLink {
     broker_name: (row.broker_name as string | null) ?? undefined,
   };
 }
-
-export type CreateLinkResult = { link: SigningLink | null; error: string | null };
 
 export function useSigningLinks() {
   const { user, loading: authLoading } = useAuth();
@@ -139,6 +145,28 @@ export function useSigningLinks() {
     }
 
     if (!supabase || !user) return { link: null, error: 'לא מחובר' };
+
+    if (!hasSigningTarget(data)) {
+      const msg = 'נדרש תיאור נכס וכתובת מדויקת';
+      setError(msg);
+      return { link: null, error: msg };
+    }
+
+    const clientEmail = data.client_email.trim();
+    if (!clientEmail) {
+      const msg = 'נדרשת כתובת אימייל ללקוח';
+      setError(msg);
+      return { link: null, error: msg };
+    }
+
+    try {
+      await ensureProfile(user.id, user.email, user.full_name, user.role);
+    } catch {
+      // best-effort profile bootstrap
+    }
+
+    const propertyDescription = data.property_description?.trim() || null;
+    const exactAddress = (data.exact_address ?? data.property_address)?.trim() || null;
 
     const token = generateToken();
     const validDays = data.valid_days ?? 30;

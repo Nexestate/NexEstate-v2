@@ -21,3 +21,11 @@ export function LegalPage({ title }: LegalPageProps) {
     </PublicLayout>
   );
 }
+
+export function TermsPage() {
+  return <LegalPage title="תנאי שימוש" />;
+}
+
+export function PrivacyPage() {
+  return <LegalPage title="מדיניות פרטיות" />;
+}
