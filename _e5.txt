@@ -1,0 +1,1 @@
+src/components/broker/EntityDetailModal.tsx(271,12): error TS2741: Property 'title' is missing in type '{ children: (false | Element)[]; actions: Element; }' but required in type 'DetailPanelProps'.

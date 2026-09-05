@@ -1,0 +1,90 @@
+{
+  "errorCount": 13,
+  "byCode": {
+    "TS2305": 4,
+    "TS2724": 2,
+    "TS2741": 4,
+    "TS7053": 2,
+    "TS2322": 1
+  },
+  "samples": [
+    {
+      "file": "src/App.tsx",
+      "line": 46,
+      "code": "TS2305",
+      "msg": "Module '\"./pages/legal/LegalPage\"' has no exported member 'PrivacyPage'."
+    },
+    {
+      "file": "src/App.tsx",
+      "line": 46,
+      "code": "TS2305",
+      "msg": "Module '\"./pages/legal/LegalPage\"' has no exported member 'TermsPage'."
+    },
+    {
+      "file": "src/components/broker/EntityDetailModal.tsx",
+      "line": 13,
+      "code": "TS2724",
+      "msg": "'\"../../lib/propertyNav\"' has no exported member named 'unitDetailHref'. Did you mean 'unitDetailUrl'?"
+    },
+    {
+      "file": "src/components/broker/EntityDetailModal.tsx",
+      "line": 121,
+      "code": "TS2741",
+      "msg": "Property 'title' is missing in type '{ children: Element[]; actions: Element; }' but required in type 'DetailPanelProps'."
+    },
+    {
+      "file": "src/components/broker/EntityDetailModal.tsx",
+      "line": 184,
+      "code": "TS2741",
+      "msg": "Property 'title' is missing in type '{ children: Element[]; actions: Element; }' but required in type 'DetailPanelProps'."
+    },
+    {
+      "file": "src/components/broker/EntityDetailModal.tsx",
+      "line": 271,
+      "code": "TS2741",
+      "msg": "Property 'title' is missing in type '{ children: (false | Element)[]; actions: Element; }' but required in type 'DetailPanelProps'."
+    },
+    {
+      "file": "src/components/broker/EntityDetailModal.tsx",
+      "line": 361,
+      "code": "TS2741",
+      "msg": "Property 'title' is missing in type '{ children: (\"\" | Element | undefined)[]; actions: Element; }' but required in type 'DetailPanelProps'."
+    },
+    {
+      "file": "src/components/broker/EntityDetailModal.tsx",
+      "line": 438,
+      "code": "TS7053",
+      "msg": "Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Record<PaymentMethod, string>'."
+    },
+    {
+      "file": "src/components/broker/EntityDetailModal.tsx",
+      "line": 532,
+      "code": "TS2322",
+      "msg": "Type 'string | undefined' is not assignable to type 'PaymentMethod | undefined'."
+    },
+    {
+      "file": "src/components/layout/Sidebar.tsx",
+      "line": 9,
+      "code": "TS2724",
+      "msg": "'\"../../lib/propertyNav\"' has no exported member named 'isPropertyNavActive'. Did you mean 'isPropertySubNavActive'?"
+    },
+    {
+      "file": "src/components/layout/Sidebar.tsx",
+      "line": 9,
+      "code": "TS2305",
+      "msg": "Module '\"../../lib/propertyNav\"' has no exported member 'propertyNavHref'."
+    },
+    {
+      "file": "src/components/mobile/MobileBottomNav.tsx",
+      "line": 21,
+      "code": "TS2305",
+      "msg": "Module '\"../../lib/propertyNav\"' has no exported member 'propertyNavHref'."
+    },
+    {
+      "file": "src/pages/broker/PaymentsPage.tsx",
+      "line": 188,
+      "code": "TS7053",
+      "msg": "Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Record<PaymentMethod, string>'."
+    }
+  ]
+}

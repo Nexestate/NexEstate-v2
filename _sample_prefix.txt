@@ -1,0 +1,1 @@
+src/App.tsx(46,10): error TS2305: Module

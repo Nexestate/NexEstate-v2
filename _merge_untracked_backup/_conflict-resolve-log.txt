@@ -1,0 +1,21 @@
+﻿2026-09-03T00:35:12.1510293+03:00 HEAD
+2026-09-03T00:35:13.8761892+03:00 HEAD=dd148fad4d21ecf206645b5518657756cddeb66d
+2026-09-03T00:35:13.8994461+03:00 merge
+2026-09-03T00:35:16.6523670+03:00 error: Your local changes to the following files would be overwritten by merge:
+2026-09-03T00:35:16.6637696+03:00   fix_schema.sql package-lock.json schema.migration.signing_links_target.sql src/App.tsx src/components/broker/EntityDetailModal.tsx src/components/broker/QuickAddModals.tsx src/components/landing/LandingHeader.tsx src/components/landing/LandingSections.tsx src/components/layout/Sidebar.tsx src/components/mobile/MobileBottomNav.tsx src/components/property/CreateSigningLinkModal.tsx src/lib/services/auctionsService.ts src/pages/broker/LeasesPage.tsx src/pages/broker/PaymentsPage.tsx src/pages/broker/PropertyDetailPage.tsx src/pages/broker/TenantsPage.tsx src/pages/broker/UnitsPage.tsx src/theme.css src/types/index.ts
+2026-09-03T00:35:22.4829019+03:00 Merge with strategy ort failed.
+2026-09-03T00:35:22.5070545+03:00 mergeExit=2
+2026-09-03T00:35:23.7809444+03:00 CONFLICT_COUNT=0
+2026-09-03T00:36:08.6762012+03:00 === CLEAN_FOR_MERGE ===
+2026-09-03T00:36:09.4246286+03:00 fatal: There is no merge to abort (MERGE_HEAD missing).
+2026-09-03T00:36:10.9911893+03:00 Saved working directory and index state On feat/matching-and-payment-hub: conflict-resolve-tracked
+2026-09-03T00:36:11.9258501+03:00 status
+2026-09-03T00:36:12.8072753+03:00 P:?? _cmd_out.txt
+2026-09-03T00:36:12.8145470+03:00 P:?? _conflict-resolve-log.txt
+2026-09-03T00:36:12.8188095+03:00 P:?? _errline.txt
+2026-09-03T00:36:12.8230858+03:00 P:?? _me.txt
+2026-09-03T00:36:12.8266340+03:00 P:?? _merge_scan.txt
+2026-09-03T00:36:12.8312268+03:00 P:?? _short.txt
+2026-09-03T00:36:34.2342716+03:00 === MOVE_UNTRACKED_ASIDE ===
+2026-09-03T00:36:35.3996262+03:00 move aside: _cmd_out.txt
+2026-09-03T00:36:35.6851438+03:00 move aside: _conflict-resolve-log.txt

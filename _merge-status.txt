@@ -1,0 +1,26 @@
+## feat/matching-and-payment-hub...origin/feat/matching-and-payment-hub [ahead 1, behind 1]
+ M build-output.txt
+M  src/components/broker/PaymentFormModal.tsx
+MM src/components/broker/QuickAddModals.tsx
+M  src/components/property/CreateSigningLinkModal.tsx
+ M src/components/ui/DetailPanel.tsx
+M  src/components/ui/Modal.tsx
+M  src/hooks/useSigningLinks.ts
+ M src/lib/propertyNav.ts
+M  src/pages/broker/AgreementsPage.tsx
+ M src/pages/legal/LegalPage.tsx
+M  src/pages/market/DealsPage.tsx
+M  src/pages/market/PlayersPage.tsx
+M  src/types/domain.ts
+M  src/types/index.ts
+ M tsc-errors.txt
+?? .tsc-run.mjs
+?? _agent_error_summary.json
+?? _agent_errors_excerpt.txt
+?? _agent_report.json
+?? _gs.txt
+?? _run-build.cmd
+?? build-exit.txt
+?? merge-errors.txt
+?? tsc-latest.txt
+?? vite-latest.txt

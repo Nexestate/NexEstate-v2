@@ -1,0 +1,17 @@
+﻿MEMBERS:PrivacyPage,TermsPage,propertyNavHref,propertyNavHref
+PROPS:
+ASSIGN:string | undefined
+FULL:
+App.tsx|2305|Module '"./pages/legal/LegalPage"' has no exported member 'PrivacyPage'.
+App.tsx|2305|Module '"./pages/legal/LegalPage"' has no exported member 'TermsPage'.
+EntityDetailModal.tsx|2724|'"../../lib/propertyNav"' has no exported member named 'unitDetailHref'. Did you
+EntityDetailModal.tsx|2741|Property 'title' is missing in type '{ children: Element[]; actions: Element; }'
+EntityDetailModal.tsx|2741|Property 'title' is missing in type '{ children: Element[]; actions: Element; }'
+EntityDetailModal.tsx|2741|Property 'title' is missing in type '{ children: (false | Element)[]; actions: E
+EntityDetailModal.tsx|2741|Property 'title' is missing in type '{ children: ("" | Element | undefined)[]; a
+EntityDetailModal.tsx|7053|Element implicitly has an 'any' type because expression of type 'string' can't b
+EntityDetailModal.tsx|2322|Type 'string | undefined' is not assignable to type 'PaymentMethod | undefined'.
+Sidebar.tsx|2724|'"../../lib/propertyNav"' has no exported member named 'isPropertyNavActive'. Di
+Sidebar.tsx|2305|Module '"../../lib/propertyNav"' has no exported member 'propertyNavHref'.
+MobileBottomNav.tsx|2305|Module '"../../lib/propertyNav"' has no exported member 'propertyNavHref'.
+PaymentsPage.tsx|7053|Element implicitly has an 'any' type because expression of type 'string' can't b

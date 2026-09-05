@@ -1,0 +1,13 @@
+﻿src/App.tsx||PrivacyPage|
+src/App.tsx||TermsPage|
+src/components/broker/EntityDetailModal.tsx|TS2724||'"../../lib/propertyNav"' has no exported member named 'unitDetailHref'. Did you mean 'uni
+src/components/broker/EntityDetailModal.tsx|TS2741||Property 'title' is missing in type '{ children: Element[]; actions: Element; }' but requi
+src/components/broker/EntityDetailModal.tsx|TS2741||Property 'title' is missing in type '{ children: Element[]; actions: Element; }' but requi
+src/components/broker/EntityDetailModal.tsx|TS2741||Property 'title' is missing in type '{ children: (false | Element)[]; actions: Element; }'
+src/components/broker/EntityDetailModal.tsx|TS2741||Property 'title' is missing in type '{ children: ("" | Element | undefined)[]; actions: El
+src/components/broker/EntityDetailModal.tsx|TS7053||Element implicitly has an 'any' type because expression of type 'string' can't be used to 
+src/components/broker/EntityDetailModal.tsx|TS2322||Type 'string | undefined' is not assignable to type 'PaymentMethod | undefined'.
+src/components/layout/Sidebar.tsx|TS2724||'"../../lib/propertyNav"' has no exported member named 'isPropertyNavActive'. Did you mean
+src/components/layout/Sidebar.tsx||propertyNavHref|
+src/components/mobile/MobileBottomNav.tsx||propertyNavHref|
+src/pages/broker/PaymentsPage.tsx|TS7053||Element implicitly has an 'any' type because expression of type 'string' can't be used to 

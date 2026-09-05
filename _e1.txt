@@ -1,0 +1,1 @@
+src/App.tsx(46,23): error TS2305: Module '"./pages/legal/LegalPage"' has no exported member 'TermsPage'.

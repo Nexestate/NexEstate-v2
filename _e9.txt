@@ -1,0 +1,1 @@
+src/components/layout/Sidebar.tsx(9,10): error TS2724: '"../../lib/propertyNav"' has no exported member named 'isPropertyNavActive'. Did you mean 'isPropertySubNavActive'?

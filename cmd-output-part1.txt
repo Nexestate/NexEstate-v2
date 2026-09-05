@@ -1,0 +1,50 @@
+
+========== 1. node --version ==========
+v24.19.0
+
+========== 2. npm --version ==========
+11.17.0
+
+========== 3. npx tsc -b ==========
+src/App.tsx(46,10): error TS2305: Module '"./pages/legal/LegalPage"' has no exported member 'PrivacyPage'.
+src/App.tsx(46,23): error TS2305: Module '"./pages/legal/LegalPage"' has no exported member 'TermsPage'.
+src/components/broker/EntityDetailModal.tsx(13,10): error TS2724: '"../../lib/propertyNav"' has no exported member named 'unitDetailHref'. Did you mean 'unitDetailUrl'?
+src/components/broker/EntityDetailModal.tsx(121,12): error TS2741: Property 'title' is missing in type '{ children: Element[]; actions: Element; }' but required in type 'DetailPanelProps'.
+src/components/broker/EntityDetailModal.tsx(184,12): error TS2741: Property 'title' is missing in type '{ children: Element[]; actions: Element; }' but required in type 'DetailPanelProps'.
+src/components/broker/EntityDetailModal.tsx(271,12): error TS2741: Property 'title' is missing in type '{ children: (false | Element)[]; actions: Element; }' but required in type 'DetailPanelProps'.
+src/components/broker/EntityDetailModal.tsx(361,12): error TS2741: Property 'title' is missing in type '{ children: ("" | Element | undefined)[]; actions: Element; }' but required in type 'DetailPanelProps'.
+src/components/broker/EntityDetailModal.tsx(438,49): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Record<PaymentMethod, string>'.
+  No index signature with a parameter of type 'string' was found on type 'Record<PaymentMethod, string>'.
+src/components/broker/EntityDetailModal.tsx(532,13): error TS2322: Type 'string | undefined' is not assignable to type 'PaymentMethod | undefined'.
+  Type 'string' is not assignable to type 'PaymentMethod | undefined'.
+src/components/layout/Sidebar.tsx(9,10): error TS2724: '"../../lib/propertyNav"' has no exported member named 'isPropertyNavActive'. Did you mean 'isPropertySubNavActive'?
+src/components/layout/Sidebar.tsx(9,31): error TS2305: Module '"../../lib/propertyNav"' has no exported member 'propertyNavHref'.
+src/components/mobile/MobileBottomNav.tsx(21,10): error TS2305: Module '"../../lib/propertyNav"' has no exported member 'propertyNavHref'.
+src/pages/broker/PaymentsPage.tsx(188,39): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Record<PaymentMethod, string>'.
+  No index signature with a parameter of type 'string' was found on type 'Record<PaymentMethod, string>'.
+
+Exit code: 2
+
+========== 4. npm run build ==========
+
+> nexestate@0.1.0 build
+> tsc -b && vite build
+
+src/App.tsx(46,10): error TS2305: Module '"./pages/legal/LegalPage"' has no exported member 'PrivacyPage'.
+src/App.tsx(46,23): error TS2305: Module '"./pages/legal/LegalPage"' has no exported member 'TermsPage'.
+src/components/broker/EntityDetailModal.tsx(13,10): error TS2724: '"../../lib/propertyNav"' has no exported member named 'unitDetailHref'. Did you mean 'unitDetailUrl'?
+src/components/broker/EntityDetailModal.tsx(121,12): error TS2741: Property 'title' is missing in type '{ children: Element[]; actions: Element; }' but required in type 'DetailPanelProps'.
+src/components/broker/EntityDetailModal.tsx(184,12): error TS2741: Property 'title' is missing in type '{ children: Element[]; actions: Element; }' but required in type 'DetailPanelProps'.
+src/components/broker/EntityDetailModal.tsx(271,12): error TS2741: Property 'title' is missing in type '{ children: (false | Element)[]; actions: Element; }' but required in type 'DetailPanelProps'.
+src/components/broker/EntityDetailModal.tsx(361,12): error TS2741: Property 'title' is missing in type '{ children: ("" | Element | undefined)[]; actions: Element; }' but required in type 'DetailPanelProps'.
+src/components/broker/EntityDetailModal.tsx(438,49): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Record<PaymentMethod, string>'.
+  No index signature with a parameter of type 'string' was found on type 'Record<PaymentMethod, string>'.
+src/components/broker/EntityDetailModal.tsx(532,13): error TS2322: Type 'string | undefined' is not assignable to type 'PaymentMethod | undefined'.
+  Type 'string' is not assignable to type 'PaymentMethod | undefined'.
+src/components/layout/Sidebar.tsx(9,10): error TS2724: '"../../lib/propertyNav"' has no exported member named 'isPropertyNavActive'. Did you mean 'isPropertySubNavActive'?
+src/components/layout/Sidebar.tsx(9,31): error TS2305: Module '"../../lib/propertyNav"' has no exported member 'propertyNavHref'.
+src/components/mobile/MobileBottomNav.tsx(21,10): error TS2305: Module '"../../lib/propertyNav"' has no exported member 'propertyNavHref'.
+src/pages/broker/PaymentsPage.tsx(188,39): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Record<PaymentMethod, string>'.
+  No index signature with a parameter of type 'string' was found on type 'Record<PaymentMethod, string>'.
+
+Exit code: 2

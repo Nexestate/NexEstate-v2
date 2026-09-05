@@ -1,0 +1,3 @@
+C:\Users\office\Projects\NexEstate-v2\src\components\broker\QuickAddModals.tsx
+C:\Users\office\Projects\NexEstate-v2\_pub\QuickAddModals.tsx
+C:\Users\office\Projects\NexEstate-v2\src\components\property\CreateSigningLinkModal.tsx

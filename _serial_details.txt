@@ -1,0 +1,25 @@
+﻿src/App.tsx||MEM:PrivacyPage
+src/App.tsx||MEM:TermsPage
+src/components/broker/EntityDetailModal.tsx|TS2724|TS2724:'"../../lib/propertyNav"' has no exported member named 'unit
+src/components/broker/EntityDetailModal.tsx|TS2741|TS2741:Property 'title' is missing in type '{ children: Element[]; 
+src/components/broker/EntityDetailModal.tsx|TS2741|TS2741:Property 'title' is missing in type '{ children: (false | El
+src/components/broker/EntityDetailModal.tsx|TS2741|TS2741:Property 'title' is missing in type '{ children: ("" | Eleme
+src/components/broker/EntityDetailModal.tsx|TS7053|TS7053:Element implicitly has an 'any' type because expression of t
+src/components/broker/EntityDetailModal.tsx|TS2322|TS2322:Type 'string | undefined' is not assignable to type 'Payment
+src/components/broker/QuickAddModals.tsx|TS6133|TS6133:'created' is declared but its value is never read.
+src/components/broker/QuickAddModals.tsx||MISS:error
+src/components/broker/QuickAddModals.tsx|TS2353|TS2353:Object literal may only specify known properties, and 'error
+src/components/broker/QuickAddModals.tsx||MISS:link
+src/components/broker/QuickAddModals.tsx|TS2353|TS2353:Object literal may only specify known properties, and 'link'
+src/components/broker/QuickAddModals.tsx|TS18004|TS18004:No value exists in scope for the shorthand property 'link'. 
+src/components/broker/QuickAddModals.tsx|TS2322|TS2322:Type '(values: SigningLinkFormValues) => Promise<{ token: st
+src/components/broker/QuickAddModals.tsx|TS2322|TS2322:Type 'Lease[]' is not assignable to type '{ id: string; labe
+src/components/broker/QuickAddModals.tsx||PROP:lease_id
+src/components/broker/QuickAddModals.tsx|TS2353|TS2353:Object literal may only specify known properties, and 'statu
+src/components/layout/Sidebar.tsx|TS2724|TS2724:'"../../lib/propertyNav"' has no exported member named 'isPr
+src/components/layout/Sidebar.tsx||MEM:propertyNavHref
+src/components/mobile/MobileBottomNav.tsx||MEM:propertyNavHref
+src/components/ui/Modal.tsx|TS6133|TS6133:'MODAL_SIZE_CLASS' is declared but its value is never read.
+src/pages/broker/PaymentsPage.tsx|TS7053|TS7053:Element implicitly has an 'any' type because expression of t
+src/types/domain.ts|TS2451|TS2451:Cannot redeclare block-scoped variable 'PAYMENT_METHOD_LABEL
+src/types/domain.ts|TS2353|TS2353:Object literal may only specify known properties, and 'credi

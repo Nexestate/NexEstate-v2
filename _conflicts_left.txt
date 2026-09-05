@@ -1,0 +1,13 @@
+﻿src/components/broker/PropertySubNav.tsx
+src/components/ui/DetailPanel.tsx
+src/components/ui/FormSection.tsx
+src/data/demoData.sprint3.ts
+src/hooks/useSigningLinks.ts
+src/lib/propertyNav.ts
+src/lib/services/profilesService.ts
+src/lib/services/signingService.ts
+src/pages/broker/AgreementsPage.tsx
+src/pages/landing/LandingPage.tsx
+src/pages/legal/LegalPage.tsx
+src/pages/market/DealsPage.tsx
+src/pages/market/PlayersPage.tsx

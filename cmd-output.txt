@@ -1,0 +1,619 @@
+
+========== 1. node --version ==========
+v24.19.0
+
+========== 2. npm --version ==========
+11.17.0
+
+========== 3. npx tsc -b ==========
+src/components/broker/PaymentFormModal.tsx(5,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(12,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(17,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(28,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(32,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(36,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(55,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(60,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(64,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(73,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(78,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(82,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(98,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(100,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(105,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(124,59): error TS1005: '</' expected.
+src/components/broker/PaymentFormModal.tsx(125,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(148,9): error TS2657: JSX expressions must have one parent element.
+src/components/broker/PaymentFormModal.tsx(187,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(187,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(187,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(187,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(187,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(187,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(187,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(195,13): error TS1005: ';' expected.
+src/components/broker/PaymentFormModal.tsx(195,13): error TS1005: '</' expected.
+src/components/broker/PaymentFormModal.tsx(196,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(203,9): error TS1128: Declaration or statement expected.
+src/components/broker/PaymentFormModal.tsx(220,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(220,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(220,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(220,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(220,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(220,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(220,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(234,17): error TS1005: '</' expected.
+src/components/broker/PaymentFormModal.tsx(235,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(236,9): error TS1128: Declaration or statement expected.
+src/components/broker/PaymentFormModal.tsx(237,9): error TS2657: JSX expressions must have one parent element.
+src/components/broker/PaymentFormModal.tsx(250,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(280,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(284,20): error TS1005: ';' expected.
+src/components/broker/PaymentFormModal.tsx(284,20): error TS1005: '</' expected.
+src/components/broker/PaymentFormModal.tsx(285,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(291,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(291,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(291,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(291,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(291,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(291,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(291,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(293,11): error TS17002: Expected corresponding JSX closing tag for 'Button'.
+src/components/broker/PaymentFormModal.tsx(294,7): error TS1128: Declaration or statement expected.
+src/components/broker/PaymentFormModal.tsx(295,5): error TS1109: Expression expected.
+src/components/broker/PaymentFormModal.tsx(296,3): error TS1109: Expression expected.
+src/components/broker/PropertySubNav.tsx(1,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(14,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(24,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(35,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(59,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(79,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(85,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(86,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(112,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/QuickAddModals.tsx(56,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/QuickAddModals.tsx(59,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/QuickAddModals.tsx(62,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(3,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(7,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(10,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(68,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(70,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(72,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(79,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(81,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(83,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(90,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(92,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(94,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(103,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(109,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(115,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(120,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(121,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(130,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(161,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(169,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(177,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(210,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(211,6): error TS17008: JSX element 'Modal' has no corresponding closing tag.
+src/components/property/CreateSigningLinkModal.tsx(212,8): error TS17008: JSX element 'form' has no corresponding closing tag.
+src/components/property/CreateSigningLinkModal.tsx(235,10): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/components/property/CreateSigningLinkModal.tsx(236,12): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/components/property/CreateSigningLinkModal.tsx(255,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(255,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(255,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(255,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(255,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(255,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(255,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(401,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/components/property/CreateSigningLinkModal.tsx(402,1): error TS1005: '</' expected.
+src/components/ui/DetailPanel.tsx(1,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/DetailPanel.tsx(71,52): error TS1005: '}' expected.
+src/components/ui/DetailPanel.tsx(71,79): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/components/ui/DetailPanel.tsx(72,3): error TS1109: Expression expected.
+src/components/ui/DetailPanel.tsx(74,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(74,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(74,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(74,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(74,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(74,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(74,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(77,11): error TS1005: '</' expected.
+src/components/ui/DetailPanel.tsx(79,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/components/ui/DetailPanel.tsx(80,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/DetailPanel.tsx(81,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/DetailPanel.tsx(99,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/DetailPanel.tsx(100,1): error TS1005: '}' expected.
+src/components/ui/FormSection.tsx(1,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/FormSection.tsx(8,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/FormSection.tsx(16,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/FormSection.tsx(22,53): error TS1005: '</' expected.
+src/components/ui/FormSection.tsx(23,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/FormSection.tsx(24,7): error TS2657: JSX expressions must have one parent element.
+src/components/ui/FormSection.tsx(29,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/FormSection.tsx(37,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/FormSection.tsx(38,5): error TS1128: Declaration or statement expected.
+src/components/ui/FormSection.tsx(39,3): error TS1109: Expression expected.
+src/components/ui/Modal.tsx(20,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/Modal.tsx(32,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/Modal.tsx(36,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/Modal.tsx(47,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/Modal.tsx(49,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/Modal.tsx(51,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(133,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(137,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(139,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(149,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(153,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(155,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(165,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(169,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(171,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(181,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(186,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(189,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(19,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(21,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(27,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(146,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(151,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(186,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(248,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(250,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(252,1): error TS1185: Merge conflict marker encountered.
+src/lib/propertyNav.ts(1,1): error TS1185: Merge conflict marker encountered.
+src/lib/propertyNav.ts(36,1): error TS1185: Merge conflict marker encountered.
+src/lib/propertyNav.ts(88,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/index.ts(51,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/index.ts(75,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/index.ts(78,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/index.ts(84,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/index.ts(86,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/index.ts(88,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/profilesService.ts(4,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/profilesService.ts(16,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/profilesService.ts(35,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/profilesService.ts(40,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/profilesService.ts(45,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/profilesService.ts(52,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/signingService.ts(14,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/signingService.ts(17,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/signingService.ts(19,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(1,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(3,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(5,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(70,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(72,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(74,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(95,87): error TS1005: '</' expected.
+src/pages/broker/AgreementsPage.tsx(96,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(100,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(101,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(102,17): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(103,17): error TS2657: JSX expressions must have one parent element.
+src/pages/broker/AgreementsPage.tsx(115,27): error TS1005: ';' expected.
+src/pages/broker/AgreementsPage.tsx(115,27): error TS1005: '</' expected.
+src/pages/broker/AgreementsPage.tsx(116,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(122,17): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(123,17): error TS2657: JSX expressions must have one parent element.
+src/pages/broker/AgreementsPage.tsx(124,20): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/pages/broker/AgreementsPage.tsx(129,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(129,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(129,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(129,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(129,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(129,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(129,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(142,25): error TS1005: ';' expected.
+src/pages/broker/AgreementsPage.tsx(142,25): error TS1005: '</' expected.
+src/pages/broker/AgreementsPage.tsx(143,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(201,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(202,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(203,19): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(204,27): error TS1005: ',' expected.
+src/pages/broker/AgreementsPage.tsx(205,17): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(206,15): error TS1109: Expression expected.
+src/pages/broker/AgreementsPage.tsx(207,13): error TS1109: Expression expected.
+src/pages/broker/AgreementsPage.tsx(207,14): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(207,15): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(208,11): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(209,9): error TS1109: Expression expected.
+src/pages/broker/AgreementsPage.tsx(210,7): error TS1109: Expression expected.
+src/pages/broker/AgreementsPage.tsx(210,8): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(211,5): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(212,3): error TS1109: Expression expected.
+src/pages/broker/AgreementsPage.tsx(213,1): error TS1128: Declaration or statement expected.
+src/pages/landing/LandingPage.tsx(20,1): error TS1185: Merge conflict marker encountered.
+src/pages/landing/LandingPage.tsx(23,1): error TS1185: Merge conflict marker encountered.
+src/pages/landing/LandingPage.tsx(28,1): error TS1185: Merge conflict marker encountered.
+src/pages/legal/LegalPage.tsx(1,1): error TS1185: Merge conflict marker encountered.
+src/pages/legal/LegalPage.tsx(28,12): error TS1003: Identifier expected.
+src/pages/legal/LegalPage.tsx(29,10): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(29,57): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(29,80): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(29,84): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(30,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(31,8): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(32,10): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(36,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(38,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(40,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(42,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(44,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(46,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(48,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(50,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(52,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(54,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(56,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(58,10): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(62,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(64,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(66,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(68,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(70,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(72,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(74,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(76,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(78,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(80,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(82,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(83,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(86,7): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(87,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(90,3): error TS1109: Expression expected.
+src/pages/legal/LegalPage.tsx(111,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(111,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(111,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(111,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(111,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(111,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(111,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(114,20): error TS1005: '</' expected.
+src/pages/legal/LegalPage.tsx(116,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(117,1): error TS1185: Merge conflict marker encountered.
+src/pages/legal/LegalPage.tsx(118,1): error TS1185: Merge conflict marker encountered.
+src/pages/legal/LegalPage.tsx(127,1): error TS1185: Merge conflict marker encountered.
+src/pages/legal/LegalPage.tsx(128,1): error TS1005: '}' expected.
+src/pages/market/DealsPage.tsx(15,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(18,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(21,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(57,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(65,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(72,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(118,14): error TS1005: '</' expected.
+src/pages/market/DealsPage.tsx(119,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(120,11): error TS2657: JSX expressions must have one parent element.
+src/pages/market/DealsPage.tsx(128,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(132,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(156,9): error TS1128: Declaration or statement expected.
+src/pages/market/DealsPage.tsx(157,7): error TS1109: Expression expected.
+src/pages/market/DealsPage.tsx(158,5): error TS1109: Expression expected.
+src/pages/market/DealsPage.tsx(159,3): error TS1109: Expression expected.
+src/pages/market/PlayersPage.tsx(12,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/PlayersPage.tsx(18,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/PlayersPage.tsx(24,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/PlayersPage.tsx(34,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/PlayersPage.tsx(40,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/PlayersPage.tsx(47,1): error TS1185: Merge conflict marker encountered.
+src/types/domain.ts(14,1): error TS1185: Merge conflict marker encountered.
+src/types/domain.ts(21,1): error TS1185: Merge conflict marker encountered.
+src/types/domain.ts(24,1): error TS1185: Merge conflict marker encountered.
+src/types/domain.ts(326,1): error TS1185: Merge conflict marker encountered.
+src/types/domain.ts(391,1): error TS1185: Merge conflict marker encountered.
+src/types/domain.ts(396,1): error TS1185: Merge conflict marker encountered.
+
+Exit code: 2
+
+========== 4. npm run build ==========
+
+> nexestate@0.1.0 build
+> tsc -b && vite build
+
+src/components/broker/PaymentFormModal.tsx(5,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(12,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(17,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(28,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(32,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(36,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(55,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(60,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(64,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(73,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(78,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(82,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(98,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(100,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(105,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(124,59): error TS1005: '</' expected.
+src/components/broker/PaymentFormModal.tsx(125,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(148,9): error TS2657: JSX expressions must have one parent element.
+src/components/broker/PaymentFormModal.tsx(187,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(187,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(187,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(187,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(187,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(187,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(187,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(195,13): error TS1005: ';' expected.
+src/components/broker/PaymentFormModal.tsx(195,13): error TS1005: '</' expected.
+src/components/broker/PaymentFormModal.tsx(196,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(203,9): error TS1128: Declaration or statement expected.
+src/components/broker/PaymentFormModal.tsx(220,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(220,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(220,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(220,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(220,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(220,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(220,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(234,17): error TS1005: '</' expected.
+src/components/broker/PaymentFormModal.tsx(235,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(236,9): error TS1128: Declaration or statement expected.
+src/components/broker/PaymentFormModal.tsx(237,9): error TS2657: JSX expressions must have one parent element.
+src/components/broker/PaymentFormModal.tsx(250,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(280,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(284,20): error TS1005: ';' expected.
+src/components/broker/PaymentFormModal.tsx(284,20): error TS1005: '</' expected.
+src/components/broker/PaymentFormModal.tsx(285,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PaymentFormModal.tsx(291,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(291,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(291,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(291,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(291,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(291,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(291,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/broker/PaymentFormModal.tsx(293,11): error TS17002: Expected corresponding JSX closing tag for 'Button'.
+src/components/broker/PaymentFormModal.tsx(294,7): error TS1128: Declaration or statement expected.
+src/components/broker/PaymentFormModal.tsx(295,5): error TS1109: Expression expected.
+src/components/broker/PaymentFormModal.tsx(296,3): error TS1109: Expression expected.
+src/components/broker/PropertySubNav.tsx(1,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(14,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(24,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(35,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(59,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(79,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(85,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(86,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/PropertySubNav.tsx(112,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/QuickAddModals.tsx(56,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/QuickAddModals.tsx(59,1): error TS1185: Merge conflict marker encountered.
+src/components/broker/QuickAddModals.tsx(62,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(3,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(7,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(10,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(68,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(70,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(72,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(79,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(81,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(83,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(90,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(92,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(94,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(103,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(109,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(115,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(120,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(121,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(130,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(161,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(169,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(177,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(210,1): error TS1185: Merge conflict marker encountered.
+src/components/property/CreateSigningLinkModal.tsx(211,6): error TS17008: JSX element 'Modal' has no corresponding closing tag.
+src/components/property/CreateSigningLinkModal.tsx(212,8): error TS17008: JSX element 'form' has no corresponding closing tag.
+src/components/property/CreateSigningLinkModal.tsx(235,10): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/components/property/CreateSigningLinkModal.tsx(236,12): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/components/property/CreateSigningLinkModal.tsx(255,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(255,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(255,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(255,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(255,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(255,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(255,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/property/CreateSigningLinkModal.tsx(401,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/components/property/CreateSigningLinkModal.tsx(402,1): error TS1005: '</' expected.
+src/components/ui/DetailPanel.tsx(1,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/DetailPanel.tsx(71,52): error TS1005: '}' expected.
+src/components/ui/DetailPanel.tsx(71,79): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/components/ui/DetailPanel.tsx(72,3): error TS1109: Expression expected.
+src/components/ui/DetailPanel.tsx(74,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(74,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(74,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(74,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(74,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(74,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(74,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/ui/DetailPanel.tsx(77,11): error TS1005: '</' expected.
+src/components/ui/DetailPanel.tsx(79,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/components/ui/DetailPanel.tsx(80,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/DetailPanel.tsx(81,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/DetailPanel.tsx(99,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/DetailPanel.tsx(100,1): error TS1005: '}' expected.
+src/components/ui/FormSection.tsx(1,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/FormSection.tsx(8,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/FormSection.tsx(16,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/FormSection.tsx(22,53): error TS1005: '</' expected.
+src/components/ui/FormSection.tsx(23,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/FormSection.tsx(24,7): error TS2657: JSX expressions must have one parent element.
+src/components/ui/FormSection.tsx(29,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/FormSection.tsx(37,1): error TS1185: Merge conflict marker encountered.
+src/components/ui/FormSection.tsx(38,5): error TS1128: Declaration or statement expected.
+src/components/ui/FormSection.tsx(39,3): error TS1109: Expression expected.
+src/data/demoData.sprint3.ts(133,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(137,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(139,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(149,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(153,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(155,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(165,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(169,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(171,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(181,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(186,1): error TS1185: Merge conflict marker encountered.
+src/data/demoData.sprint3.ts(189,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(19,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(21,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(27,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(146,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(151,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(186,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(248,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(250,1): error TS1185: Merge conflict marker encountered.
+src/hooks/useSigningLinks.ts(252,1): error TS1185: Merge conflict marker encountered.
+src/lib/propertyNav.ts(1,1): error TS1185: Merge conflict marker encountered.
+src/lib/propertyNav.ts(36,1): error TS1185: Merge conflict marker encountered.
+src/lib/propertyNav.ts(88,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/index.ts(51,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/index.ts(75,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/index.ts(78,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/index.ts(84,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/index.ts(86,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/index.ts(88,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/profilesService.ts(4,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/profilesService.ts(16,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/profilesService.ts(35,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/profilesService.ts(40,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/profilesService.ts(45,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/profilesService.ts(52,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/signingService.ts(14,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/signingService.ts(17,1): error TS1185: Merge conflict marker encountered.
+src/lib/services/signingService.ts(19,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(1,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(3,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(5,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(70,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(72,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(74,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(95,87): error TS1005: '</' expected.
+src/pages/broker/AgreementsPage.tsx(96,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(100,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(101,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(102,17): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(103,17): error TS2657: JSX expressions must have one parent element.
+src/pages/broker/AgreementsPage.tsx(115,27): error TS1005: ';' expected.
+src/pages/broker/AgreementsPage.tsx(115,27): error TS1005: '</' expected.
+src/pages/broker/AgreementsPage.tsx(116,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(122,17): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(123,17): error TS2657: JSX expressions must have one parent element.
+src/pages/broker/AgreementsPage.tsx(124,20): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/pages/broker/AgreementsPage.tsx(129,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(129,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(129,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(129,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(129,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(129,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(129,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/broker/AgreementsPage.tsx(142,25): error TS1005: ';' expected.
+src/pages/broker/AgreementsPage.tsx(142,25): error TS1005: '</' expected.
+src/pages/broker/AgreementsPage.tsx(143,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(201,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(202,1): error TS1185: Merge conflict marker encountered.
+src/pages/broker/AgreementsPage.tsx(203,19): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(204,27): error TS1005: ',' expected.
+src/pages/broker/AgreementsPage.tsx(205,17): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(206,15): error TS1109: Expression expected.
+src/pages/broker/AgreementsPage.tsx(207,13): error TS1109: Expression expected.
+src/pages/broker/AgreementsPage.tsx(207,14): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(207,15): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(208,11): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(209,9): error TS1109: Expression expected.
+src/pages/broker/AgreementsPage.tsx(210,7): error TS1109: Expression expected.
+src/pages/broker/AgreementsPage.tsx(210,8): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(211,5): error TS1128: Declaration or statement expected.
+src/pages/broker/AgreementsPage.tsx(212,3): error TS1109: Expression expected.
+src/pages/broker/AgreementsPage.tsx(213,1): error TS1128: Declaration or statement expected.
+src/pages/landing/LandingPage.tsx(20,1): error TS1185: Merge conflict marker encountered.
+src/pages/landing/LandingPage.tsx(23,1): error TS1185: Merge conflict marker encountered.
+src/pages/landing/LandingPage.tsx(28,1): error TS1185: Merge conflict marker encountered.
+src/pages/legal/LegalPage.tsx(1,1): error TS1185: Merge conflict marker encountered.
+src/pages/legal/LegalPage.tsx(28,12): error TS1003: Identifier expected.
+src/pages/legal/LegalPage.tsx(29,10): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(29,57): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(29,80): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(29,84): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(30,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(31,8): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(32,10): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(36,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(38,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(40,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(42,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(44,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(46,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(48,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(50,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(52,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(54,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(56,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(58,10): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(62,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(64,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(66,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(68,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(70,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(72,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(74,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(76,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(78,16): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(80,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(82,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(83,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(86,7): error TS1005: '}' expected.
+src/pages/legal/LegalPage.tsx(87,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(90,3): error TS1109: Expression expected.
+src/pages/legal/LegalPage.tsx(111,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(111,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(111,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(111,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(111,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(111,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(111,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/legal/LegalPage.tsx(114,20): error TS1005: '</' expected.
+src/pages/legal/LegalPage.tsx(116,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/legal/LegalPage.tsx(117,1): error TS1185: Merge conflict marker encountered.
+src/pages/legal/LegalPage.tsx(118,1): error TS1185: Merge conflict marker encountered.
+src/pages/legal/LegalPage.tsx(127,1): error TS1185: Merge conflict marker encountered.
+src/pages/legal/LegalPage.tsx(128,1): error TS1005: '}' expected.
+src/pages/market/DealsPage.tsx(15,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(18,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(21,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(57,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(65,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(72,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(118,14): error TS1005: '</' expected.
+src/pages/market/DealsPage.tsx(119,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(120,11): error TS2657: JSX expressions must have one parent element.
+src/pages/market/DealsPage.tsx(128,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(132,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/DealsPage.tsx(156,9): error TS1128: Declaration or statement expected.
+src/pages/market/DealsPage.tsx(157,7): error TS1109: Expression expected.
+src/pages/market/DealsPage.tsx(158,5): error TS1109: Expression expected.
+src/pages/market/DealsPage.tsx(159,3): error TS1109: Expression expected.
+src/pages/market/PlayersPage.tsx(12,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/PlayersPage.tsx(18,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/PlayersPage.tsx(24,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/PlayersPage.tsx(34,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/PlayersPage.tsx(40,1): error TS1185: Merge conflict marker encountered.
+src/pages/market/PlayersPage.tsx(47,1): error TS1185: Merge conflict marker encountered.
+src/types/domain.ts(14,1): error TS1185: Merge conflict marker encountered.
+src/types/domain.ts(21,1): error TS1185: Merge conflict marker encountered.
+src/types/domain.ts(24,1): error TS1185: Merge conflict marker encountered.
+src/types/domain.ts(326,1): error TS1185: Merge conflict marker encountered.
+src/types/domain.ts(391,1): error TS1185: Merge conflict marker encountered.
+src/types/domain.ts(396,1): error TS1185: Merge conflict marker encountered.
+
+Exit code: 2
+
+========== 5. npx vercel inspect dpl_FFBEfQj7Ho5Z5oGmzU8i773ELuV5 --logs ==========
+npm warn exec The following package was not found and will be installed: vercel@59.11.7
+Vercel CLI 59.11.7 (Node.js 24.19.0)
+> No existing credentials found. Starting login flow...
+> 
+  Visit https://vercel.com/oauth/device?user_code=XBSH-QVWD
+
+Waiting for authentication...
+
+Exit code: 1

@@ -1,0 +1,201 @@
+v24.19.0
+11.17.0
+===TSC===  
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+src/components/broker/ClientFormModal.tsx(3,15): error TS2305: Module '"../../lib/services"' has no exported member 'ClientPayload'.
+src/components/broker/ClientFormModal.tsx(158,56): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/broker/CrmDetailModal.tsx(5,10): error TS2305: Module '"../../lib/services"' has no exported member 'findMatchesForClient'.
+src/components/broker/CrmDetailModal.tsx(5,32): error TS2305: Module '"../../lib/services"' has no exported member 'findMatchesForLead'.
+src/components/broker/CrmDetailModal.tsx(6,15): error TS2305: Module '"../../lib/services"' has no exported member 'LeadMatchResult'.
+src/components/broker/CrmDetailModal.tsx(78,62): error TS7006: Parameter 'rows' implicitly has an 'any' type.
+src/components/broker/CrmDetailModal.tsx(90,60): error TS7006: Parameter 'result' implicitly has an 'any' type.
+src/components/broker/CrmDetailModal.tsx(134,84): error TS2322: Type '{ children: (false | Element)[]; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/broker/CrmDetailModal.tsx(278,65): error TS2339: Property 'min_rooms' does not exist on type 'Client'.
+src/components/broker/CrmDetailModal.tsx(279,71): error TS2339: Property 'min_area' does not exist on type 'Client'.
+src/components/broker/PaymentFormModal.tsx(7,3): error TS2305: Module '"../../types/domain"' has no exported member 'PAYMENT_METHOD_LABELS'.
+src/components/broker/PaymentFormModal.tsx(9,8): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentMethod'.
+src/components/broker/PaymentFormModal.tsx(91,56): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/broker/PaymentFormModal.tsx(148,19): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/broker/PaymentRequestModal.tsx(5,10): error TS2305: Module '"../../lib/services"' has no exported member 'createPaymentRequest'.
+src/components/broker/PaymentRequestModal.tsx(5,45): error TS2305: Module '"../../lib/services"' has no exported member 'getPaymentCheckoutUrl'.
+src/components/broker/PaymentRequestModal.tsx(8,3): error TS2305: Module '"../../types/domain"' has no exported member 'PAYMENT_REQUEST_TYPE_LABELS'.
+src/components/broker/PaymentRequestModal.tsx(9,8): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentRequestType'.
+src/components/broker/PaymentRequestModal.tsx(108,66): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/broker/PaymentRequestModal.tsx(169,21): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/broker/QuickAddModals.tsx(56,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/components/broker/QuickAddModals.tsx(86,9): error TS2322: Type '(values: SigningLinkFormValues) => Promise<void>' is not assignable to type '(values: SigningLinkFormValues) => Promise<{ token: string; }>'.
+  Type 'Promise<void>' is not assignable to type 'Promise<{ token: string; }>'.
+    Type 'void' is not assignable to type '{ token: string; }'.
+src/components/property/CreateSigningLinkModal.tsx(124,70): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/property/CreateSigningLinkModal.tsx(149,66): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/data/demoData.extended.ts(159,5): error TS2353: Object literal may only specify known properties, and 'min_rooms' does not exist in type 'Client'.
+src/data/demoData.sprint3.ts(133,5): error TS2353: Object literal may only specify known properties, and 'payment_type' does not exist in type 'Payment'.
+src/data/demoData.sprint3.ts(145,5): error TS2353: Object literal may only specify known properties, and 'payment_type' does not exist in type 'Payment'.
+src/data/demoData.sprint3.ts(157,5): error TS2353: Object literal may only specify known properties, and 'payment_type' does not exist in type 'Payment'.
+src/data/demoData.sprint3.ts(169,5): error TS2353: Object literal may only specify known properties, and 'payment_type' does not exist in type 'Payment'.
+src/lib/matching.ts(78,74): error TS2345: Argument of type 'string' is not assignable to parameter of type 'PropertyKind'.
+src/lib/services/leadsService.ts(62,5): error TS2353: Object literal may only specify known properties, and 'min_rooms' does not exist in type 'Client'.
+src/lib/services/leadsService.ts(172,7): error TS2353: Object literal may only specify known properties, and 'min_rooms' does not exist in type 'Client'.
+src/lib/services/matchingService.ts(113,23): error TS2339: Property 'min_rooms' does not exist on type 'Client'.
+src/lib/services/matchingService.ts(114,22): error TS2339: Property 'min_area' does not exist on type 'Client'.
+src/lib/services/matchingService.ts(178,20): error TS2339: Property 'min_rooms' does not exist on type 'Client'.
+src/lib/services/matchingService.ts(179,19): error TS2339: Property 'min_area' does not exist on type 'Client'.
+src/lib/services/paymentsService.ts(4,3): error TS2305: Module '"../../types/domain"' has no exported member 'InvoiceResult'.
+src/lib/services/paymentsService.ts(5,3): error TS2305: Module '"../../types/domain"' has no exported member 'OutboundWebhook'.
+src/lib/services/paymentsService.ts(7,3): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentIntegration'.
+src/lib/services/paymentsService.ts(8,3): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentProviderType'.
+src/lib/services/paymentsService.ts(9,3): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentProviderVendor'.
+src/lib/services/paymentsService.ts(10,3): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentRequestType'.
+src/lib/services/paymentsService.ts(11,3): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentSessionResult'.
+src/lib/services/paymentsService.ts(13,3): error TS2305: Module '"../../types/domain"' has no exported member 'PublicPaymentCheckout'.
+src/lib/services/paymentsService.ts(23,18): error TS2339: Property 'checkout_slug' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(25,31): error TS2339: Property 'checkout_slug' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(29,29): error TS2339: Property 'payment_type' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(31,22): error TS2339: Property 'notes' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(78,5): error TS2353: Object literal may only specify known properties, and 'payment_date' does not exist in type 'Payment'.
+src/lib/services/paymentsService.ts(155,7): error TS2353: Object literal may only specify known properties, and 'payment_date' does not exist in type 'Payment'.
+src/lib/services/paymentsService.ts(277,15): error TS2339: Property 'paid_at' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(380,51): error TS2339: Property 'checkout_slug' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(383,17): error TS2339: Property 'invoice_number' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(384,17): error TS2339: Property 'pdf_invoice_url' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(410,29): error TS2339: Property 'invoice_number' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(411,15): error TS2339: Property 'invoice_number' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(412,15): error TS2339: Property 'pdf_invoice_url' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(416,32): error TS2339: Property 'invoice_number' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(417,33): error TS2339: Property 'pdf_invoice_url' does not exist on type 'Payment'.
+src/pages/broker/AgreementsPage.tsx(25,63): error TS2339: Property 'markAsSent' does not exist on type '{ links: SigningLink[]; loading: boolean; error: string | null; fetchLinks: () => Promise<void>; createLink: (data: SigningLinkInsert) => Promise<CreateLinkResult>; ... 6 more ...; generateToken: (length?: number) => string; }'.
+src/pages/broker/SettingsPage.tsx(19,3): error TS2305: Module '"../../lib/services"' has no exported member 'deleteOutboundWebhook'.
+src/pages/broker/SettingsPage.tsx(20,3): error TS2305: Module '"../../lib/services"' has no exported member 'fetchOutboundWebhooks'.
+src/pages/broker/SettingsPage.tsx(21,3): error TS2305: Module '"../../lib/services"' has no exported member 'fetchPaymentIntegrations'.
+src/pages/broker/SettingsPage.tsx(22,3): error TS2305: Module '"../../lib/services"' has no exported member 'upsertOutboundWebhook'.
+src/pages/broker/SettingsPage.tsx(23,3): error TS2305: Module '"../../lib/services"' has no exported member 'upsertPaymentIntegration'.
+src/pages/broker/SettingsPage.tsx(25,15): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentIntegration'.
+src/pages/broker/SettingsPage.tsx(26,10): error TS2305: Module '"../../types/domain"' has no exported member 'PAYMENT_PROVIDER_VENDOR_LABELS'.
+src/pages/public/PaymentCheckoutPage.tsx(6,3): error TS2305: Module '"../../lib/services"' has no exported member 'completePublicPayment'.
+src/pages/public/PaymentCheckoutPage.tsx(7,3): error TS2305: Module '"../../lib/services"' has no exported member 'getPublicPaymentCheckout'.
+src/pages/public/PaymentCheckoutPage.tsx(8,3): error TS2305: Module '"../../lib/services"' has no exported member 'initPaymentSession'.
+src/pages/public/PaymentCheckoutPage.tsx(9,3): error TS2305: Module '"../../lib/services"' has no exported member 'submitPaymentTransferProof'.
+src/pages/public/PaymentCheckoutPage.tsx(14,3): error TS2305: Module '"../../types/domain"' has no exported member 'PAYMENT_REQUEST_TYPE_LABELS'.
+src/pages/public/PaymentCheckoutPage.tsx(16,8): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentRequestType'.
+src/pages/public/PaymentCheckoutPage.tsx(17,8): error TS2305: Module '"../../types/domain"' has no exported member 'PublicPaymentCheckout'.
+src/pages/public/PaymentCheckoutPage.tsx(40,42): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/pages/public/PaymentCheckoutPage.tsx(69,20): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/public/PaymentCheckoutPage.tsx(100,20): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/public/PropertyLandingPage.tsx(6,10): error TS2305: Module '"../../lib/services"' has no exported member 'getPublicLandingPage'.
+src/pages/public/PropertyLandingPage.tsx(6,32): error TS2305: Module '"../../lib/services"' has no exported member 'submitPublicLead'.
+src/pages/public/PropertyLandingPage.tsx(7,15): error TS2305: Module '"../../lib/services"' has no exported member 'PublicLandingPage'.
+src/pages/public/PropertyLandingPage.tsx(32,38): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/pages/public/PropertyLandingPage.tsx(116,40): error TS2741: Property '$$typeof' is missing in type '(props: SVGProps<SVGSVGElement>) => Element' but required in type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>'.
+src/pages/public/PropertyLandingPage.tsx(124,40): error TS7006: Parameter 'img' implicitly has an 'any' type.
+src/pages/public/PropertyLandingPage.tsx(148,36): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+===BUILD===  
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> nexestate@0.1.0 build
+> tsc -b && vite build
+
+src/components/broker/ClientFormModal.tsx(3,15): error TS2305: Module '"../../lib/services"' has no exported member 'ClientPayload'.
+src/components/broker/ClientFormModal.tsx(158,56): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/broker/CrmDetailModal.tsx(5,10): error TS2305: Module '"../../lib/services"' has no exported member 'findMatchesForClient'.
+src/components/broker/CrmDetailModal.tsx(5,32): error TS2305: Module '"../../lib/services"' has no exported member 'findMatchesForLead'.
+src/components/broker/CrmDetailModal.tsx(6,15): error TS2305: Module '"../../lib/services"' has no exported member 'LeadMatchResult'.
+src/components/broker/CrmDetailModal.tsx(78,62): error TS7006: Parameter 'rows' implicitly has an 'any' type.
+src/components/broker/CrmDetailModal.tsx(90,60): error TS7006: Parameter 'result' implicitly has an 'any' type.
+src/components/broker/CrmDetailModal.tsx(134,84): error TS2322: Type '{ children: (false | Element)[]; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/broker/CrmDetailModal.tsx(278,65): error TS2339: Property 'min_rooms' does not exist on type 'Client'.
+src/components/broker/CrmDetailModal.tsx(279,71): error TS2339: Property 'min_area' does not exist on type 'Client'.
+src/components/broker/PaymentFormModal.tsx(7,3): error TS2305: Module '"../../types/domain"' has no exported member 'PAYMENT_METHOD_LABELS'.
+src/components/broker/PaymentFormModal.tsx(9,8): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentMethod'.
+src/components/broker/PaymentFormModal.tsx(91,56): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/broker/PaymentFormModal.tsx(148,19): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/broker/PaymentRequestModal.tsx(5,10): error TS2305: Module '"../../lib/services"' has no exported member 'createPaymentRequest'.
+src/components/broker/PaymentRequestModal.tsx(5,45): error TS2305: Module '"../../lib/services"' has no exported member 'getPaymentCheckoutUrl'.
+src/components/broker/PaymentRequestModal.tsx(8,3): error TS2305: Module '"../../types/domain"' has no exported member 'PAYMENT_REQUEST_TYPE_LABELS'.
+src/components/broker/PaymentRequestModal.tsx(9,8): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentRequestType'.
+src/components/broker/PaymentRequestModal.tsx(108,66): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/broker/PaymentRequestModal.tsx(169,21): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/broker/QuickAddModals.tsx(56,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/components/broker/QuickAddModals.tsx(86,9): error TS2322: Type '(values: SigningLinkFormValues) => Promise<void>' is not assignable to type '(values: SigningLinkFormValues) => Promise<{ token: string; }>'.
+  Type 'Promise<void>' is not assignable to type 'Promise<{ token: string; }>'.
+    Type 'void' is not assignable to type '{ token: string; }'.
+src/components/property/CreateSigningLinkModal.tsx(124,70): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/components/property/CreateSigningLinkModal.tsx(149,66): error TS2322: Type '{ children: Element; open: boolean; onClose: () => void; title: string; size: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
+  Property 'size' does not exist on type 'IntrinsicAttributes & ModalProps'.
+src/data/demoData.extended.ts(159,5): error TS2353: Object literal may only specify known properties, and 'min_rooms' does not exist in type 'Client'.
+src/data/demoData.sprint3.ts(133,5): error TS2353: Object literal may only specify known properties, and 'payment_type' does not exist in type 'Payment'.
+src/data/demoData.sprint3.ts(145,5): error TS2353: Object literal may only specify known properties, and 'payment_type' does not exist in type 'Payment'.
+src/data/demoData.sprint3.ts(157,5): error TS2353: Object literal may only specify known properties, and 'payment_type' does not exist in type 'Payment'.
+src/data/demoData.sprint3.ts(169,5): error TS2353: Object literal may only specify known properties, and 'payment_type' does not exist in type 'Payment'.
+src/lib/matching.ts(78,74): error TS2345: Argument of type 'string' is not assignable to parameter of type 'PropertyKind'.
+src/lib/services/leadsService.ts(62,5): error TS2353: Object literal may only specify known properties, and 'min_rooms' does not exist in type 'Client'.
+src/lib/services/leadsService.ts(172,7): error TS2353: Object literal may only specify known properties, and 'min_rooms' does not exist in type 'Client'.
+src/lib/services/matchingService.ts(113,23): error TS2339: Property 'min_rooms' does not exist on type 'Client'.
+src/lib/services/matchingService.ts(114,22): error TS2339: Property 'min_area' does not exist on type 'Client'.
+src/lib/services/matchingService.ts(178,20): error TS2339: Property 'min_rooms' does not exist on type 'Client'.
+src/lib/services/matchingService.ts(179,19): error TS2339: Property 'min_area' does not exist on type 'Client'.
+src/lib/services/paymentsService.ts(4,3): error TS2305: Module '"../../types/domain"' has no exported member 'InvoiceResult'.
+src/lib/services/paymentsService.ts(5,3): error TS2305: Module '"../../types/domain"' has no exported member 'OutboundWebhook'.
+src/lib/services/paymentsService.ts(7,3): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentIntegration'.
+src/lib/services/paymentsService.ts(8,3): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentProviderType'.
+src/lib/services/paymentsService.ts(9,3): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentProviderVendor'.
+src/lib/services/paymentsService.ts(10,3): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentRequestType'.
+src/lib/services/paymentsService.ts(11,3): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentSessionResult'.
+src/lib/services/paymentsService.ts(13,3): error TS2305: Module '"../../types/domain"' has no exported member 'PublicPaymentCheckout'.
+src/lib/services/paymentsService.ts(23,18): error TS2339: Property 'checkout_slug' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(25,31): error TS2339: Property 'checkout_slug' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(29,29): error TS2339: Property 'payment_type' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(31,22): error TS2339: Property 'notes' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(78,5): error TS2353: Object literal may only specify known properties, and 'payment_date' does not exist in type 'Payment'.
+src/lib/services/paymentsService.ts(155,7): error TS2353: Object literal may only specify known properties, and 'payment_date' does not exist in type 'Payment'.
+src/lib/services/paymentsService.ts(277,15): error TS2339: Property 'paid_at' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(380,51): error TS2339: Property 'checkout_slug' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(383,17): error TS2339: Property 'invoice_number' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(384,17): error TS2339: Property 'pdf_invoice_url' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(410,29): error TS2339: Property 'invoice_number' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(411,15): error TS2339: Property 'invoice_number' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(412,15): error TS2339: Property 'pdf_invoice_url' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(416,32): error TS2339: Property 'invoice_number' does not exist on type 'Payment'.
+src/lib/services/paymentsService.ts(417,33): error TS2339: Property 'pdf_invoice_url' does not exist on type 'Payment'.
+src/pages/broker/AgreementsPage.tsx(25,63): error TS2339: Property 'markAsSent' does not exist on type '{ links: SigningLink[]; loading: boolean; error: string | null; fetchLinks: () => Promise<void>; createLink: (data: SigningLinkInsert) => Promise<CreateLinkResult>; ... 6 more ...; generateToken: (length?: number) => string; }'.
+src/pages/broker/SettingsPage.tsx(19,3): error TS2305: Module '"../../lib/services"' has no exported member 'deleteOutboundWebhook'.
+src/pages/broker/SettingsPage.tsx(20,3): error TS2305: Module '"../../lib/services"' has no exported member 'fetchOutboundWebhooks'.
+src/pages/broker/SettingsPage.tsx(21,3): error TS2305: Module '"../../lib/services"' has no exported member 'fetchPaymentIntegrations'.
+src/pages/broker/SettingsPage.tsx(22,3): error TS2305: Module '"../../lib/services"' has no exported member 'upsertOutboundWebhook'.
+src/pages/broker/SettingsPage.tsx(23,3): error TS2305: Module '"../../lib/services"' has no exported member 'upsertPaymentIntegration'.
+src/pages/broker/SettingsPage.tsx(25,15): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentIntegration'.
+src/pages/broker/SettingsPage.tsx(26,10): error TS2305: Module '"../../types/domain"' has no exported member 'PAYMENT_PROVIDER_VENDOR_LABELS'.
+src/pages/public/PaymentCheckoutPage.tsx(6,3): error TS2305: Module '"../../lib/services"' has no exported member 'completePublicPayment'.
+src/pages/public/PaymentCheckoutPage.tsx(7,3): error TS2305: Module '"../../lib/services"' has no exported member 'getPublicPaymentCheckout'.
+src/pages/public/PaymentCheckoutPage.tsx(8,3): error TS2305: Module '"../../lib/services"' has no exported member 'initPaymentSession'.
+src/pages/public/PaymentCheckoutPage.tsx(9,3): error TS2305: Module '"../../lib/services"' has no exported member 'submitPaymentTransferProof'.
+src/pages/public/PaymentCheckoutPage.tsx(14,3): error TS2305: Module '"../../types/domain"' has no exported member 'PAYMENT_REQUEST_TYPE_LABELS'.
+src/pages/public/PaymentCheckoutPage.tsx(16,8): error TS2305: Module '"../../types/domain"' has no exported member 'PaymentRequestType'.
+src/pages/public/PaymentCheckoutPage.tsx(17,8): error TS2305: Module '"../../types/domain"' has no exported member 'PublicPaymentCheckout'.
+src/pages/public/PaymentCheckoutPage.tsx(40,42): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/pages/public/PaymentCheckoutPage.tsx(69,20): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/public/PaymentCheckoutPage.tsx(100,20): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/pages/public/PropertyLandingPage.tsx(6,10): error TS2305: Module '"../../lib/services"' has no exported member 'getPublicLandingPage'.
+src/pages/public/PropertyLandingPage.tsx(6,32): error TS2305: Module '"../../lib/services"' has no exported member 'submitPublicLead'.
+src/pages/public/PropertyLandingPage.tsx(7,15): error TS2305: Module '"../../lib/services"' has no exported member 'PublicLandingPage'.
+src/pages/public/PropertyLandingPage.tsx(32,38): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/pages/public/PropertyLandingPage.tsx(116,40): error TS2741: Property '$$typeof' is missing in type '(props: SVGProps<SVGSVGElement>) => Element' but required in type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>'.
+src/pages/public/PropertyLandingPage.tsx(124,40): error TS7006: Parameter 'img' implicitly has an 'any' type.
+src/pages/public/PropertyLandingPage.tsx(148,36): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+===VERCEL===  
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+Need to install the following packages:
+vercel@59.11.2
+Ok to proceed? (y) 

@@ -1,0 +1,1 @@
+src/App.tsx|src/components/broker/EntityDetailModal.tsx|src/components/layout/Sidebar.tsx|src/components/mobile/MobileBottomNav.tsx|src/pages/broker/PaymentsPage.tsx

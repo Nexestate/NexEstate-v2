@@ -1,0 +1,25 @@
+src/components/broker/QuickAddModals.tsx(74,9): error TS2552: Cannot find name 'error'. Did you mean 'Error'?
+src/components/broker/QuickAddModals.tsx(74,25): error TS2353: Object literal may only specify known properties, and 'error' does not exist in type '{ token: string; }'.
+src/components/broker/QuickAddModals.tsx(74,25): error TS2552: Cannot find name 'error'. Did you mean 'Error'?
+src/components/broker/QuickAddModals.tsx(75,10): error TS2304: Cannot find name 'link'.
+src/components/broker/QuickAddModals.tsx(75,25): error TS2353: Object literal may only specify known properties, and 'error' does not exist in type '{ token: string; }'.
+src/components/broker/QuickAddModals.tsx(78,14): error TS2353: Object literal may only specify known properties, and 'link' does not exist in type '{ token: string; }'.
+src/components/broker/QuickAddModals.tsx(78,14): error TS18004: No value exists in scope for the shorthand property 'link'. Either declare one or provide an initializer.
+src/components/broker/QuickAddModals.tsx(92,9): error TS2322: Type '(values: SigningLinkFormValues) => Promise<{ token: string; } | void>' is not assignable to type '(values: SigningLinkFormValues) => Promise<SigningLinkSubmitResult>'.
+  Type 'Promise<void | { token: string; }>' is not assignable to type 'Promise<SigningLinkSubmitResult>'.
+    Type 'void | { token: string; }' is not assignable to type 'SigningLinkSubmitResult'.
+      Type 'void' is not assignable to type 'SigningLinkSubmitResult'.
+src/components/broker/QuickAddModals.tsx(211,7): error TS2322: Type 'Lease[]' is not assignable to type '{ id: string; label: string; }[]'.
+  Property 'label' is missing in type 'Lease' but required in type '{ id: string; label: string; }'.
+src/components/broker/QuickAddModals.tsx(214,21): error TS2339: Property 'lease_id' does not exist on type 'PaymentFormValues'.
+src/components/broker/QuickAddModals.tsx(216,28): error TS2339: Property 'lease_id' does not exist on type 'PaymentFormValues'.
+src/components/broker/QuickAddModals.tsx(219,11): error TS2353: Object literal may only specify known properties, and 'status' does not exist in type 'PaymentInsert'.
+src/components/layout/Sidebar.tsx(9,10): error TS2724: '"../../lib/propertyNav"' has no exported member named 'isPropertyNavActive'. Did you mean 'isPropertySubNavActive'?
+src/components/layout/Sidebar.tsx(9,31): error TS2305: Module '"../../lib/propertyNav"' has no exported member 'propertyNavHref'.
+src/components/mobile/MobileBottomNav.tsx(21,10): error TS2305: Module '"../../lib/propertyNav"' has no exported member 'propertyNavHref'.
+src/components/ui/Modal.tsx(8,7): error TS6133: 'MODAL_SIZE_CLASS' is declared but its value is never read.
+src/pages/broker/PaymentsPage.tsx(188,39): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Record<PaymentMethod, string>'.
+  No index signature with a parameter of type 'string' was found on type 'Record<PaymentMethod, string>'.
+src/types/domain.ts(431,14): error TS2451: Cannot redeclare block-scoped variable 'PAYMENT_METHOD_LABELS'.
+src/types/domain.ts(451,14): error TS2451: Cannot redeclare block-scoped variable 'PAYMENT_METHOD_LABELS'.
+src/types/domain.ts(455,3): error TS2353: Object literal may only specify known properties, and 'credit_card' does not exist in type 'Record<PaymentMethod, string>'.
