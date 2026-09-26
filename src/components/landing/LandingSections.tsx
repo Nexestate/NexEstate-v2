@@ -269,7 +269,7 @@ export function HeroSection() {
         </h1>
 
         <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg animate-fade-up" style={{ animationDelay: '0.1s' }}>
-          שוק הנדל&quot;ן המוביל לנכסים, פרויקטים ומכירות פומביות.
+          הפלטפורמה המובילה לנכסים, פרויקטים ומכירות פומביות.
         </p>
 
         <div className="mx-auto mt-10 max-w-3xl animate-fade-up pt-3" style={{ animationDelay: '0.2s' }}>

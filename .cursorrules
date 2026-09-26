@@ -138,3 +138,12 @@ Shared shell: **Header** (greeting, bell, menu) + **Sidebar** (logo, nav section
 - Do not create monolithic page files when sections can be components.
 - Do not use LTR-only layouts or hard-coded English strings in the dashboard UI.
 - Do not skip RTL icon/label placement (icons on the correct side for Hebrew).
+
+## Git & Auto-Sync Rules
+
+- **After completing ANY code change or task:**
+  1. Do NOT run git commands inside an occupied dev server terminal. Always execute in a background/new terminal context.
+  2. Automatically run `git add .`
+  3. Automatically run `git commit -m "<concise change description>"`
+  4. Automatically run `git push origin main`
+  5. Confirm to the user that changes have been pushed to GitHub/Vercel.
