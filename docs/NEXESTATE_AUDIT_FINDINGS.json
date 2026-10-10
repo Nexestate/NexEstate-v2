@@ -2,11 +2,11 @@
   "auditDate": "2026-10-10",
   "production": "https://nexestate.co",
   "supabaseRefConfigured": "ynpdtbgmbunntckqmcaf",
-  "phase1Status": "code_complete_pending_deploy",
+  "phase1Status": "function_deployed_awaiting_authenticated_qa",
   "findings": [
     {
       "id": "ACC-001",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "area": "accounts",
       "severity": "high",
       "priority": "P1",
@@ -437,6 +437,7 @@
     },
     {
       "id": "EDGE-001",
+      "status": "IN_PROGRESS",
       "area": "backend",
       "severity": "medium",
       "priority": "P1",

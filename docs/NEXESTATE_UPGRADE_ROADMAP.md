@@ -8,7 +8,7 @@
 
 ## PHASE 1 — CRITICAL FIXES (P0 + account alignment)
 
-**Status (2026-10-10):** Application code complete; **pending** Supabase migration, Edge `admin-import-deals` deploy, Vercel CLI link to `Nexus/nexestate_v2`, production QA. See `docs/NEXESTATE_PHASE_1_COMPLETION.md`.
+**Status (2026-10-10):** Frontend deployed. Migration verified. `admin-import-deals` deployed to `ynpdtbgmbunntckqmcaf`. Broker/partner RLS smoke passed. **Pending your login:** authenticated QA, admin account (none in DB), mobile. See `docs/NEXESTATE_PHASE_1_COMPLETION.md`.
 
 **Goal:** Production truth matches UI; ops can manage env/DB safely.
 

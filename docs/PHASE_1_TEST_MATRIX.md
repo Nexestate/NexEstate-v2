@@ -2,32 +2,36 @@
 
 | TEST | EXPECTED | ACTUAL | PASS/FAIL | NOTES |
 |------|----------|--------|-----------|-------|
-| GitHub → Vercel auto-deploy | `vercel[bot]` Production on `main` | SHA `7110481` Production success | PASS | https://vercel.com/nexus-d804/nexestate_v2/6VjSmxJqJX1gYtiWb11JgASV8gU7 |
-| Production `/login` | Page loads | Loads after deploy | PASS | Unauthenticated only |
-| Session restore | Refresh keeps session | | BLOCKED | After deploy |
-| Logout | Returns to login | | BLOCKED | After deploy |
-| My Properties | Lists `properties` for broker | Code uses `fetchProperties` only | BLOCKED | Production QA after deploy |
-| My Properties empty | CTA "הוסף נכס" | Implemented | BLOCKED | After deploy |
-| Admin Users | `profiles` rows | Code uses `fetchAdminProfiles` | BLOCKED | After deploy |
-| Admin Shares | `property_shares` | Code uses live query | BLOCKED | After deploy |
-| Schema `support_tickets` | Table + columns exist | OpenAPI lists full column set | PASS | Manual SQL verified |
-| Schema `import_batches` | Table + columns exist | Includes `status` | PASS | Manual SQL verified |
-| Admin Import | CSV preview → confirm → DB | Function 404 | BLOCKED | Deploy `admin-import-deals` |
-| Admin Support | Tickets from DB | Table exists, empty | BLOCKED | Needs auth QA |
-| User support form | Settings → submit ticket | Form wired | BLOCKED | Needs `support_tickets` |
-| Payments sidebar count | `lease_payments` count | Code queries table | BLOCKED | After deploy |
-| Buyer notifications | `notifications` | Code uses service | BLOCKED | After deploy |
-| Mobile 390 | Phase 1 pages usable | | BLOCKED | After deploy |
-| Mobile 375 | Phase 1 pages usable | | BLOCKED | After deploy |
-| Mobile 360 | Phase 1 pages usable | | BLOCKED | After deploy |
-| `npm run build` | Pass | Pass | PASS | Local |
-| `npm test` | Pass | 2 tests pass | PASS | Local |
+| CLI sees `ynpdtbgmbunntckqmcaf` | Linked, Healthy | Linked `Nexestate's Project` | PASS | |
+| Schema `support_tickets` | Table, RLS, policies, indexes | Verified via `db query` | PASS | Manual SQL; not in schema_migrations |
+| Schema `import_batches` | Table + `status` | Verified | PASS | |
+| Deploy `admin-import-deals` | ACTIVE on this ref | ACTIVE v1, `verify_jwt=true` | PASS | |
+| Unauthorized function call | Rejected | HTTP 401 Invalid session | PASS | Non-user Bearer |
+| Admin function import | Small controlled import | No admin profile exists | BLOCKED | 0 admin/superadmin rows |
+| GitHub → Vercel | Production on `main` | Success | PASS | |
+| Production `/login` | Loads | Loads | PASS | |
+| Google Login | Dashboard | | BLOCKED | Needs your session |
+| Session restore | Keeps session | | BLOCKED | Needs your session |
+| Logout | Login | | BLOCKED | Needs your session |
+| My Properties | Real `properties`, no DEMO | Code clean; `/broker/my-properties` redirects unauth to login | BLOCKED | 1 property in DB |
+| Admin Users | Real profiles | Code clean; 0 admin users so UI unreachable | BLOCKED | 2 profiles: broker + partner |
+| Admin Shares | Live `property_shares` | 1 share in DB; admin UI unreachable | BLOCKED | |
+| Admin Import | Function + batch | Function live; no admin JWT | BLOCKED | |
+| Admin Support | Persist tickets | Table empty; form exists | BLOCKED | Needs login |
+| Payments count | `lease_payments` | 0 rows | BLOCKED | Count will be 0 if QA'd |
+| Buyer notifications | `notifications` | 0 rows; no buyer profile | NOT_APPLICABLE | |
+| Mobile 390/375/360 | Usable | | BLOCKED | Needs your session |
+| `npm run build` / `npm test` | Pass | Pass | PASS | Local |
 
-## Security spot checks
+## RLS smoke (executed 2026-10-10)
 
 | TEST | EXPECTED | ACTUAL | PASS/FAIL |
 |------|----------|--------|-----------|
-| Non-admin `/admin/users` | `ProtectedRoute` admin/superadmin | Code-enforced; RLS not live-tested | BLOCKED |
-| User A reads User B notifications | Denied by RLS | Policy exists in `schema.sql` | BLOCKED |
-| User A reads User B support tickets | Denied by new policies | Migration not applied | BLOCKED |
-| Non-admin import Edge | 403 | Function not deployed | BLOCKED |
+| Broker inserts own ticket | Allowed | inserted | PASS |
+| Broker impersonates partner `user_id` | Rejected | rejected | PASS |
+| Broker sees only own test tickets | 1 | 1 | PASS |
+| Partner cannot read broker ticket | 0 | 0 | PASS |
+| Broker/partner cannot read `import_batches` | 0 | 0 | PASS |
+| Partner inserts own ticket | Allowed | inserted | PASS |
+| Test rows leftover | 0 | 0 | PASS |
+| Admin RLS path | Admin can read all | No admin profile | BLOCKED |
