@@ -71,8 +71,8 @@ See `docs/PHASE_1_PRODUCTION_DEPLOYMENT.md`.
 | Vercel project | `nexus-d804/nexestate_v2` |
 | Deployment | https://vercel.com/nexus-d804/nexestate_v2/6VjSmxJqJX1gYtiWb11JgASV8gU7 |
 | Production URL | https://nexestate.co |
-| Database migration | **Not applied** |
-| Edge `admin-import-deals` | **Not deployed** |
+| Database migration | **Applied and verified** — `support_tickets` + `import_batches` in OpenAPI with expected columns |
+| Edge `admin-import-deals` | **Not deployed** (404). CLI/MCP still on Adwrks365, not Nexestate org |
 
 ---
 

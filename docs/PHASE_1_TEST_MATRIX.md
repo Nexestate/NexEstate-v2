@@ -10,8 +10,10 @@
 | My Properties empty | CTA "הוסף נכס" | Implemented | BLOCKED | After deploy |
 | Admin Users | `profiles` rows | Code uses `fetchAdminProfiles` | BLOCKED | After deploy |
 | Admin Shares | `property_shares` | Code uses live query | BLOCKED | After deploy |
-| Admin Import | CSV preview → confirm → DB | Function not deployed | BLOCKED | Needs Edge + migration |
-| Admin Support | Tickets from DB | Migration not applied | BLOCKED | Needs SQL Editor |
+| Schema `support_tickets` | Table + columns exist | OpenAPI lists full column set | PASS | Manual SQL verified |
+| Schema `import_batches` | Table + columns exist | Includes `status` | PASS | Manual SQL verified |
+| Admin Import | CSV preview → confirm → DB | Function 404 | BLOCKED | Deploy `admin-import-deals` |
+| Admin Support | Tickets from DB | Table exists, empty | BLOCKED | Needs auth QA |
 | User support form | Settings → submit ticket | Form wired | BLOCKED | Needs `support_tickets` |
 | Payments sidebar count | `lease_payments` count | Code queries table | BLOCKED | After deploy |
 | Buyer notifications | `notifications` | Code uses service | BLOCKED | After deploy |
