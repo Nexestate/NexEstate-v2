@@ -88,6 +88,17 @@ export {
   fetchRecentUsers,
   fetchPendingReviews,
 } from './adminStatsService';
+export { fetchAdminProfiles } from './adminUsersService';
+export { fetchAdminPropertyShares } from './adminSharesService';
+export { fetchImportBatches, runAdminPropertyImport } from './adminImportService';
+export type { AdminImportResult, ImportBatchRow } from './adminImportService';
+export {
+  createSupportTicket,
+  fetchMySupportTickets,
+  fetchAdminSupportTickets,
+  updateSupportTicketStatus,
+} from './supportTicketsService';
+export type { SupportTicket, SupportTicketStatus } from './supportTicketsService';
 export type { AdminDashboardStats, RoleDistributionItem } from './adminStatsService';
 
 export {

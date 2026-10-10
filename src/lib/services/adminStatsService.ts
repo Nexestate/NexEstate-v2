@@ -59,10 +59,11 @@ export async function fetchAdminDashboardStats(): Promise<AdminDashboardStats> {
   const client = requireSupabase();
   const today = startOfTodayIso();
 
-  const [profilesRes, propertiesRes, sharesRes] = await Promise.all([
+  const [profilesRes, propertiesRes, sharesRes, supportRes] = await Promise.all([
     client.from('profiles').select('id, role, created_at'),
     client.from('properties').select('id, status, created_at'),
     client.from('property_shares').select('id', { count: 'exact', head: true }),
+    client.from('support_tickets').select('id', { count: 'exact', head: true }).eq('status', 'open'),
   ]);
 
   throwIfError(profilesRes.error);
@@ -87,7 +88,7 @@ export async function fetchAdminDashboardStats(): Promise<AdminDashboardStats> {
     pendingProperties,
     suspendedUsers: 0,
     activeShares: sharesRes.count ?? 0,
-    openSupportTickets: 0,
+    openSupportTickets: supportRes.error ? 0 : (supportRes.count ?? 0),
     approvedToday: properties.filter((p) => p.status === 'approved' && p.created_at && p.created_at >= today).length,
     rejectedToday: properties.filter((p) => p.status === 'rejected' && p.created_at && p.created_at >= today).length,
   };

@@ -31,6 +31,7 @@ import { Card, CardContent, CardTitle } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { PageLoader } from '../../components/ui/PageLoader';
+import { SupportRequestForm } from '../../components/support/SupportRequestForm';
 import { cn } from '../../lib/utils';
 
 const TABS = [
@@ -563,12 +564,11 @@ export function SettingsPage({ variant = 'broker' }: SettingsPageProps) {
 
             {active === 'privacy' && (
               <div className="space-y-4">
-                <CardTitle className="text-base">פרטיות</CardTitle>
+                <CardTitle className="text-base">פרטיות ותמיכה</CardTitle>
                 <p className="text-sm text-muted-foreground">
                   הנתונים שלך מוגנים ומוצפנים. אנחנו לא משתפים מידע עם צד שלישי ללא הסכמתך.
                 </p>
-                <Button variant="outline">ייצוא נתונים</Button>
-                <Button variant="destructive">מחיקת חשבון</Button>
+                <SupportRequestForm />
               </div>
             )}
           </CardContent>

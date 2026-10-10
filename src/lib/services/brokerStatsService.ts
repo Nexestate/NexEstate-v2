@@ -106,18 +106,22 @@ export async function fetchManagedPropertySidebar(
   const propertyIds = properties.map((p) => p.id);
   const tenantByProperty = new Map<string, number>();
   const leaseByProperty = new Map<string, number>();
+  const paymentByProperty = new Map<string, number>();
 
   if (propertyIds.length > 0) {
     try {
       const client = requireSupabase();
       const { data: leases, error } = await client
         .from('leases')
-        .select('property_id, tenant_id, is_active')
+        .select('id, property_id, tenant_id, is_active')
         .in('property_id', propertyIds);
 
       if (error) throw error;
 
       const tenantIdsByProperty = new Map<string, Set<string>>();
+      const leaseIds: string[] = [];
+      const leaseIdToProperty = new Map<string, string>();
+
       for (const row of leases ?? []) {
         if (row.is_active === false) continue;
         const pid = row.property_id as string;
@@ -127,9 +131,26 @@ export async function fetchManagedPropertySidebar(
           if (!tenantIdsByProperty.has(pid)) tenantIdsByProperty.set(pid, new Set());
           tenantIdsByProperty.get(pid)!.add(row.tenant_id as string);
         }
+        if (row.id) {
+          leaseIds.push(row.id as string);
+          leaseIdToProperty.set(row.id as string, pid);
+        }
       }
       for (const [pid, ids] of tenantIdsByProperty) {
         tenantByProperty.set(pid, ids.size);
+      }
+
+      if (leaseIds.length > 0) {
+        const { data: payments, error: payError } = await client
+          .from('lease_payments')
+          .select('id, lease_id')
+          .in('lease_id', leaseIds);
+        if (!payError && payments) {
+          for (const pay of payments) {
+            const pid = leaseIdToProperty.get(pay.lease_id as string);
+            if (pid) paymentByProperty.set(pid, (paymentByProperty.get(pid) ?? 0) + 1);
+          }
+        }
       }
     } catch (err) {
       console.error('[fetchManagedPropertySidebar] lease counts failed', err);
@@ -142,7 +163,7 @@ export async function fetchManagedPropertySidebar(
     totalUnits: p.totalUnits,
     tenantCount: tenantByProperty.get(p.id) ?? 0,
     leaseCount: leaseByProperty.get(p.id) ?? 0,
-    paymentCount: leaseByProperty.get(p.id) ?? 0,
+    paymentCount: paymentByProperty.get(p.id) ?? 0,
   }));
 
   return { properties, sidebar };
@@ -179,6 +200,15 @@ export async function fetchPropertySidebarItem(
   const tenantIds = new Set(
     (leases ?? []).map((l) => l.tenant_id as string).filter(Boolean),
   );
+  const leaseIds = (leases ?? []).map((l) => l.id as string).filter(Boolean);
+  let paymentCount = 0;
+  if (leaseIds.length > 0) {
+    const { count } = await client
+      .from('lease_payments')
+      .select('id', { count: 'exact', head: true })
+      .in('lease_id', leaseIds);
+    paymentCount = count ?? 0;
+  }
 
   return {
     id: propertyId,
@@ -186,6 +216,6 @@ export async function fetchPropertySidebarItem(
     totalUnits: units?.length ?? 0,
     tenantCount: tenantIds.size,
     leaseCount: leases?.length ?? 0,
-    paymentCount: leases?.length ?? 0,
+    paymentCount,
   };
 }

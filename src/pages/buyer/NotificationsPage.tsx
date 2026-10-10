@@ -2,10 +2,19 @@ import { Bell, Check, Heart, Share2, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
-import { DEMO_BUYER_NOTIFICATIONS } from '../../data/demoData';
+import { PageLoader } from '../../components/ui/PageLoader';
+import { useAuth } from '../../contexts/AuthContext';
+import { useAsyncData } from '../../hooks/useAsyncData';
+import {
+  fetchNotifications,
+  getUnreadCount,
+  markAllNotificationsRead,
+  markNotificationRead,
+} from '../../lib/services';
+import type { AppNotification } from '../../types/domain';
 import { cn } from '../../lib/utils';
-import { useState } from 'react';
 
 const TYPE_ICONS: Record<string, typeof Bell> = {
   share: Share2,
@@ -35,16 +44,26 @@ const LINKS: Record<string, string> = {
 };
 
 export function BuyerNotificationsPage() {
-  const [notifications, setNotifications] = useState(DEMO_BUYER_NOTIFICATIONS);
-  const unread = notifications.filter((n) => !n.is_read).length;
+  const { user } = useAuth();
+  const { data: notifications, loading, error, reload } = useAsyncData(
+    () => fetchNotifications(user?.id),
+    [user?.id],
+  );
 
-  const markRead = (id: string) => {
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
+  const list = notifications ?? [];
+  const unread = getUnreadCount(list);
+
+  const markRead = async (id: string) => {
+    await markNotificationRead(id);
+    reload();
   };
 
-  const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+  const markAllRead = async () => {
+    if (user?.id) await markAllNotificationsRead(user.id);
+    reload();
   };
+
+  if (loading) return <PageLoader />;
 
   return (
     <div className="space-y-6">
@@ -55,7 +74,7 @@ export function BuyerNotificationsPage() {
           unread > 0 ? (
             <div className="flex gap-2">
               <Badge variant="destructive">{unread} חדשות</Badge>
-              <Button variant="outline" size="sm" onClick={markAllRead}>
+              <Button variant="outline" size="sm" onClick={() => void markAllRead()}>
                 <Check className="h-4 w-4" />
                 סמן הכל כנקרא
               </Button>
@@ -64,16 +83,35 @@ export function BuyerNotificationsPage() {
         }
       />
 
+      {error && (
+        <EmptyState
+          icon={Bell}
+          title="שגיאה בטעינה"
+          description="לא הצלחנו לטעון התראות"
+          actionLabel="נסה שוב"
+          onAction={reload}
+        />
+      )}
+
+      {!error && list.length === 0 && (
+        <EmptyState
+          icon={Bell}
+          title="אין התראות"
+          description="כשיש עדכונים על נכסים ששותפו או מועדפים — הם יופיעו כאן"
+        />
+      )}
+
       <div className="space-y-3">
-        {notifications.map((n) => {
+        {list.map((n: AppNotification) => {
           const Icon = TYPE_ICONS[n.type] ?? Bell;
           const link = LINKS[n.type];
+          const severity = n.severity ?? 'info';
           return (
             <div
               key={n.id}
               className={cn(
                 'flex gap-4 rounded-xl border p-4 transition-colors',
-                SEVERITY_STYLES[n.severity],
+                SEVERITY_STYLES[severity as keyof typeof SEVERITY_STYLES] ?? SEVERITY_STYLES.info,
                 !n.is_read && 'ring-1 ring-primary/20',
               )}
             >
@@ -96,7 +134,7 @@ export function BuyerNotificationsPage() {
                 </div>
               </div>
               {!n.is_read && (
-                <Button variant="ghost" size="icon" onClick={() => markRead(n.id)}>
+                <Button variant="ghost" size="icon" onClick={() => void markRead(n.id)}>
                   <Check className="h-4 w-4" />
                 </Button>
               )}
@@ -105,7 +143,7 @@ export function BuyerNotificationsPage() {
         })}
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <Link to="/buyer/shared"><Button variant="outline">נכסים ששותפו</Button></Link>
         <Link to="/buyer/favorites"><Button variant="outline"><Heart className="h-4 w-4" />מועדפים</Button></Link>
       </div>
