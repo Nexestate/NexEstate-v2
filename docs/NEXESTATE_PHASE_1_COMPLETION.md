@@ -2,7 +2,7 @@
 
 **Updated:** 2026-10-10 (authenticated QA + one controlled admin)
 
-**Gate:** **NOT READY FOR PHASE 2** until Admin Shares and Admin Support lists pass on production after the embed-query deploy.
+**Gate:** **READY FOR PHASE 2**
 
 ---
 
@@ -83,20 +83,19 @@ Existing other functions left untouched: `notify-share`, `icount-webhook`, `admi
 | Mobile 390/375/360 | **PASS** |
 | Admin Users | **PASS** (3 users) |
 | Admin Import | **PASS** |
-| Admin Shares | **FAIL** — PostgREST embed `property_shares`–`profiles` (no FK). Fix is local two-query join. |
-| Admin Support list | **FAIL** — multiple `support_tickets`–`profiles` relationships. Fix is local two-query join. Form insert already PASS. |
+| Admin Shares | **PASS** — 1 live share (בניין שקטל → partner) after embed-query deploy |
+| Admin Support list | **PASS** — persisted QA ticket visible with submitter profile |
 
 ---
 
-## Remaining before Phase 2
+## Remaining (not Phase 1 blockers)
 
-1. Deploy the Admin Shares + Admin Support query fixes to `main` / Vercel
-2. Re-test `/admin/shares` and `/admin/support` as the QA admin
-3. Optional: reconnect Supabase MCP to Nexestate for advisors/logs
-4. Optional: Google broker session to view the owned כרמיאל property on `/broker/my-properties`
+1. Optional: reconnect Supabase MCP to Nexestate for advisors/logs
+2. Optional: Google broker session to view the owned כרמיאל property on `/broker/my-properties`
+3. Support email replies are explicitly out of scope (admin status/notes only)
 
 ---
 
 ## Phase 2 gate
 
-**NOT READY FOR PHASE 2.** P0 data wiring and most authenticated QA passed, but two admin list pages still fail in production until the embed-query deploy is live and retested.
+**READY FOR PHASE 2.** P0 demo surfaces are gone, production deploy + RLS + one controlled admin QA all passed, including Admin Shares and Admin Support after the embed-query fix.

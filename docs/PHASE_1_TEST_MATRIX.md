@@ -21,9 +21,9 @@
 | Dashboard after login | Live stats, no DEMO | Admin home + broker home load; QA admin owns 0 properties | PASS | Admin `/admin/properties` shows the live כרמיאל building |
 | My Properties | Real `properties`, no DEMO | Empty owned list for QA admin; no DEMO | PASS | The one production property is owned by the existing broker |
 | Admin Users | Real profiles | `3 משתמשים במערכת` (broker, partner, QA admin) | PASS | |
-| Admin Shares | Live `property_shares` | Production still errors on `property_shares`–`profiles` embed | FAIL | Fix written locally (two-query join); needs Vercel deploy |
+| Admin Shares | Live `property_shares` | `1 שיתופים` — בניין שקטל / כרמיאל / Michael Viner | PASS | Two-query join after deploy `0e881b9` |
 | Admin Import | Function + batch history | Upload UI + 5 live batch rows | PASS | |
-| Admin Support | Persist tickets | Admin list errors: multiple `support_tickets`–`profiles` relationships | FAIL | Form persist PASS; list fix written locally |
+| Admin Support | Persist tickets | `1 פניות` — Phase 1 QA persistence check + submitter profile | PASS | Form + admin list after deploy `0e881b9` |
 | Support form persistence | Insert + success copy | Success + row `Phase 1 QA — persistence check` | PASS | Settings → פרטיות |
 | Payments empty state | Empty, not DEMO | `אין תשלומים להצגה` / ₪0 | PASS | `lease_payments` = 0 |
 | Notifications empty state | Empty, not spinner | After `GRANT` on `notifications`, page loads with 0 tabs | PASS | Was `42501` before GRANT; empty-state copy ships with this deploy |

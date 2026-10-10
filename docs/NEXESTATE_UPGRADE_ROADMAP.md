@@ -8,7 +8,7 @@
 
 ## PHASE 1 — CRITICAL FIXES (P0 + account alignment)
 
-**Status (2026-10-10):** Authenticated QA done with one controlled `admin`. Google login PASS. Dashboard / My Properties / support form / session / logout / empty states / mobile PASS. Admin Users + Import + `admin-import-deals` + admin RLS PASS. **NOT READY FOR PHASE 2** until Admin Shares + Admin Support lists pass after the embed-query deploy. See `docs/NEXESTATE_PHASE_1_COMPLETION.md`.
+**Status (2026-10-10):** **READY FOR PHASE 2.** Authenticated QA done with one controlled `admin`. Google login PASS. Dashboard / My Properties / support form / session / logout / empty states / mobile PASS. Admin Users / Shares / Import / Support + `admin-import-deals` + admin RLS PASS. See `docs/NEXESTATE_PHASE_1_COMPLETION.md`.
 
 **Goal:** Production truth matches UI; ops can manage env/DB safely.
 
