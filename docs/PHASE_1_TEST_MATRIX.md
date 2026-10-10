@@ -2,8 +2,8 @@
 
 | TEST | EXPECTED | ACTUAL | PASS/FAIL | NOTES |
 |------|----------|--------|-----------|-------|
-| GitHub → Vercel auto-deploy | `vercel[bot]` Production on `main` | Confirmed on SHA `8630635` | PASS | No CLI required |
-| Google Login | Redirect to dashboard | Previous owner confirmation | BLOCKED | Needs post-deploy session |
+| GitHub → Vercel auto-deploy | `vercel[bot]` Production on `main` | SHA `7110481` Production success | PASS | https://vercel.com/nexus-d804/nexestate_v2/6VjSmxJqJX1gYtiWb11JgASV8gU7 |
+| Production `/login` | Page loads | Loads after deploy | PASS | Unauthenticated only |
 | Session restore | Refresh keeps session | | BLOCKED | After deploy |
 | Logout | Returns to login | | BLOCKED | After deploy |
 | My Properties | Lists `properties` for broker | Code uses `fetchProperties` only | BLOCKED | Production QA after deploy |

@@ -64,8 +64,15 @@
 
 See `docs/PHASE_1_PRODUCTION_DEPLOYMENT.md`.
 
-- Frontend: push `main` triggers Vercel Production
-- Database + Edge: **manual in Nexestate Dashboard**
+| Item | Value |
+|------|--------|
+| Commit SHA | `71104814b83cab477e870db46cd8c217d1e9fbd3` |
+| Vercel Production | Success (`vercel[bot]`) |
+| Vercel project | `nexus-d804/nexestate_v2` |
+| Deployment | https://vercel.com/nexus-d804/nexestate_v2/6VjSmxJqJX1gYtiWb11JgASV8gU7 |
+| Production URL | https://nexestate.co |
+| Database migration | **Not applied** |
+| Edge `admin-import-deals` | **Not deployed** |
 
 ---
 
