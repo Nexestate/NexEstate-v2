@@ -59,16 +59,16 @@
 
   .hero-gradient {
     background:
-      radial-gradient(ellipse 90% 70% at 50% -10%, rgb(59 130 246 / 0.22) 0%, transparent 55%),
-      radial-gradient(ellipse 60% 50% at 85% 15%, rgb(139 92 246 / 0.16) 0%, transparent 50%),
-      radial-gradient(ellipse 50% 40% at 15% 50%, rgb(16 185 129 / 0.08) 0%, transparent 45%),
-      radial-gradient(ellipse 40% 30% at 50% 100%, rgb(59 130 246 / 0.06) 0%, transparent 50%);
+      radial-gradient(ellipse 90% 70% at 50% -10%, rgb(59 130 246 / 0.26) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 50% at 85% 15%, rgb(59 130 246 / 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 15% 50%, rgb(20 184 166 / 0.08) 0%, transparent 45%),
+      radial-gradient(ellipse 40% 30% at 50% 100%, rgb(59 130 246 / 0.08) 0%, transparent 50%);
   }
 
   .glass-panel {
-    background-color: rgb(10 15 26 / 0.75);
+    background-color: rgb(18 37 61 / 0.78);
     backdrop-filter: blur(20px);
-    border: 1px solid rgb(255 255 255 / 0.06);
+    border: 1px solid rgb(255 255 255 / 0.08);
   }
 
   .search-bar-glow {

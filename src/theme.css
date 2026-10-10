@@ -13,49 +13,55 @@
   --color-input: var(--theme-input);
   --color-primary: #3b82f6;
   --color-primary-foreground: #ffffff;
-  --color-success: #10b981;
+  --color-success: #14b8a6;
   --color-warning: #f59e0b;
   --color-destructive: #ef4444;
-  --color-accent: #8b5cf6;
+  --color-accent: #3b82f6;
+  --color-gold: #c9a227;
   --color-ring: #3b82f6;
   --color-secondary: var(--theme-secondary);
   --color-secondary-foreground: var(--theme-secondary-foreground);
   --color-detail-panel: var(--theme-detail-panel);
   --color-sidebar: var(--theme-sidebar);
   --color-sidebar-border: var(--theme-sidebar-border);
+  --color-sidebar-foreground: #dce7f5;
+  --color-workspace: var(--theme-workspace);
 }
 
-/* Light theme (default when .dark is absent) */
+/* Light: soft slate workspace */
 :root {
-  --theme-background: #f1f5f9;
+  --theme-background: #e8eef6;
+  --theme-workspace: #f4f7fb;
   --theme-foreground: #0f172a;
   --theme-card: #ffffff;
   --theme-card-foreground: #0f172a;
-  --theme-muted: #e2e8f0;
-  --theme-muted-foreground: #64748b;
-  --theme-border: #cbd5e1;
-  --theme-input: #e2e8f0;
-  --theme-sidebar: #ffffff;
-  --theme-sidebar-border: #e2e8f0;
-  --theme-secondary: #e2e8f0;
+  --theme-muted: #dce6f2;
+  --theme-muted-foreground: #475569;
+  --theme-border: #c5d4e6;
+  --theme-input: #e2eaf4;
+  --theme-sidebar: #0b1a30;
+  --theme-sidebar-border: #1a3050;
+  --theme-secondary: #dce6f2;
   --theme-secondary-foreground: #0f172a;
   --theme-detail-panel: #f8fafc;
 }
 
+/* Dark: navy shell + lifted slate cards — no pure black */
 html.dark {
-  --theme-background: #030712;
-  --theme-foreground: #f8fafc;
-  --theme-card: #0c1222;
-  --theme-card-foreground: #f8fafc;
-  --theme-muted: #151d2e;
-  --theme-muted-foreground: #8b9cb3;
-  --theme-border: #1a2332;
-  --theme-input: #151d2e;
-  --theme-sidebar: #0f1419;
-  --theme-sidebar-border: #1e293b;
-  --theme-secondary: #151d2e;
-  --theme-secondary-foreground: #f8fafc;
-  --theme-detail-panel: #0c1222;
+  --theme-background: #122033;
+  --theme-workspace: #15253a;
+  --theme-foreground: #e8eef6;
+  --theme-card: #1a2b42;
+  --theme-card-foreground: #e8eef6;
+  --theme-muted: #1e334d;
+  --theme-muted-foreground: #9aadc2;
+  --theme-border: #2a3f5a;
+  --theme-input: #1e334d;
+  --theme-sidebar: #0b1a30;
+  --theme-sidebar-border: #1a3050;
+  --theme-secondary: #1e334d;
+  --theme-secondary-foreground: #e8eef6;
+  --theme-detail-panel: #16304a;
 }
 
 @layer base {
@@ -70,7 +76,7 @@ html.dark {
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased text-base;
     margin: 0;
     min-height: 100vh;
     min-height: 100dvh;
@@ -88,10 +94,13 @@ html.dark {
     min-height: 100dvh;
     min-width: 0;
   }
+
+  :focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--color-primary) 70%, white);
+    outline-offset: 2px;
+  }
 }
 
-/* Dashboard: lock html/body so overflow-x:hidden does not force document scroll
-   (CSS spec: overflow-x != visible + overflow-y visible → overflow-y computes to auto). */
 html.dashboard-shell,
 html.dashboard-shell body,
 html.dashboard-shell #root {
@@ -102,14 +111,14 @@ html.dashboard-shell #root {
 
 @layer utilities {
   .glass-card {
-    background-color: rgb(17 24 39 / 0.8);
-    backdrop-filter: blur(4px);
+    background-color: color-mix(in oklab, var(--color-card) 88%, transparent);
+    backdrop-filter: blur(8px);
     border: 1px solid var(--color-border);
     border-radius: 1rem;
   }
 
   .glow-primary {
-    box-shadow: 0 0 40px -10px rgb(59 130 246 / 0.3);
+    box-shadow: 0 0 40px -12px rgb(59 130 246 / 0.28);
   }
 
   .touch-manipulation {
@@ -118,5 +127,35 @@ html.dashboard-shell #root {
 
   .detail-panel-surface {
     background-color: var(--color-detail-panel);
+  }
+
+  .text-page-title {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .text-section-title {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+  }
+
+  .text-value {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .text-meta {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-muted-foreground);
+  }
+
+  .elevation-card {
+    box-shadow: 0 8px 24px -16px rgb(11 26 48 / 0.45);
   }
 }

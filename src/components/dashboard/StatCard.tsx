@@ -22,8 +22,8 @@ export function StatCard({ label, value, icon: Icon, color, to }: StatCardProps)
           <Icon className="h-5 w-5" />
         </span>
         <div>
-          <div className="text-2xl font-bold">{value}</div>
-          <div className="text-xs text-muted-foreground">{label}</div>
+          <div className="text-value">{value}</div>
+          <div className="text-meta">{label}</div>
         </div>
       </CardContent>
     </Card>

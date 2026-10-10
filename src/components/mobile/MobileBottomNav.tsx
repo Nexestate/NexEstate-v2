@@ -214,7 +214,7 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
                 to={item.to}
                 end={item.end}
                 className={cn(
-                  'flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 text-[10px] touch-manipulation',
+                  'flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 text-xs touch-manipulation',
                   active ? 'text-primary' : 'text-muted-foreground',
                 )}
               >
@@ -227,7 +227,7 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="flex h-auto flex-col items-center gap-0.5 py-1.5 text-[10px] text-muted-foreground"
+              className="flex h-auto min-h-11 flex-col items-center gap-0.5 py-1.5 text-xs text-muted-foreground"
               onClick={() => setMoreOpen(true)}
             >
               <MoreHorizontal className="h-5 w-5" />

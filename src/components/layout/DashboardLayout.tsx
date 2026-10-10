@@ -57,7 +57,7 @@ export function DashboardLayout({
   return (
     <QuickAddProvider>
       <EntityDetailProvider userId={user?.id}>
-        <div className="flex h-[100dvh] min-h-0 min-w-0 overflow-hidden bg-background">
+        <div className="flex h-[100dvh] min-h-0 min-w-0 overflow-hidden bg-workspace">
           <div className="hidden h-full shrink-0 lg:block">
             <Sidebar
               sections={sections}
@@ -77,7 +77,7 @@ export function DashboardLayout({
           </MobileSidebarDrawer>
 
           <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-            <div className="z-30 shrink-0 border-b border-border bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 lg:hidden">
+            <div className="z-30 shrink-0 border-b border-border bg-workspace/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-workspace/80 lg:hidden">
               {header}
             </div>
 

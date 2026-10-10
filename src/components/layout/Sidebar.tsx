@@ -92,16 +92,16 @@ export function Sidebar({
   };
 
   return (
-    <aside className="flex h-[100dvh] w-64 flex-col border-s border-sidebar-border bg-sidebar">
+    <aside className="flex h-[100dvh] w-64 flex-col border-s border-sidebar-border bg-sidebar text-sidebar-foreground">
       <div className="border-b border-sidebar-border p-4">
-        <Logo size="sm" />
+        <Logo size="sm" className="[&_.text-foreground]:text-sidebar-foreground" />
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">
         {sections.map((section) => (
           <div key={section.title || 'main'} className="mb-4">
             {section.title && (
-              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="mb-2 px-3 text-sm font-semibold text-sidebar-foreground/55">
                 {section.title}
               </p>
             )}
@@ -121,7 +121,7 @@ export function Sidebar({
                           aria-label={managedOpen ? 'סגור רשימת נכסים' : 'פתח רשימת נכסים'}
                           aria-expanded={managedOpen}
                           onClick={() => setManagedOpen((open) => !open)}
-                          className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                          className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-sidebar-foreground/65 hover:bg-white/10 hover:text-sidebar-foreground"
                         >
                           <ChevronLeft
                             className={cn(
@@ -140,14 +140,14 @@ export function Sidebar({
                             'flex flex-1 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                             isActive
                               ? 'bg-primary/10 text-primary'
-                              : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                              : 'text-sidebar-foreground/65 hover:bg-white/10 hover:text-sidebar-foreground',
                           )
                         }
                       >
                         <Icon className="h-5 w-5 shrink-0" />
                         <span className="flex-1">{item.label}</span>
                         {isManagedPropertiesItem && !managedOpen && managedProperties.length > 0 && (
-                          <span className="text-[10px] text-muted-foreground">({managedProperties.length})</span>
+                          <span className="text-[10px] text-sidebar-foreground/65">({managedProperties.length})</span>
                         )}
                       </NavLink>
                       {item.addNew && (
@@ -165,9 +165,9 @@ export function Sidebar({
                     {isManagedPropertiesItem && managedOpen && (
                       <ul className="me-2 mt-1 space-y-0.5 border-s border-border ps-3">
                         {managedPropertiesLoading ? (
-                          <li className="px-2 py-2 text-xs text-muted-foreground">טוען נכסים...</li>
+                          <li className="px-2 py-2 text-xs text-sidebar-foreground/65">טוען נכסים...</li>
                         ) : managedProperties.length === 0 ? (
-                          <li className="px-2 py-2 text-xs text-muted-foreground">
+                          <li className="px-2 py-2 text-xs text-sidebar-foreground/65">
                             {isSharedOnlyRole ? 'אין נכסים משותפים' : 'אין נכסים מנוהלים'}
                           </li>
                         ) : (
@@ -179,7 +179,7 @@ export function Sidebar({
                                 aria-label={isPropertyExpanded(prop.id) ? 'סגור תפריט נכס' : 'פתח תפריט נכס'}
                                 aria-expanded={isPropertyExpanded(prop.id)}
                                 onClick={() => toggleProperty(prop.id)}
-                                className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                                className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-sidebar-foreground/65 hover:bg-white/10 hover:text-sidebar-foreground"
                               >
                                 <ChevronLeft
                                   className={cn(
@@ -196,12 +196,12 @@ export function Sidebar({
                                     'flex min-w-0 flex-1 items-center gap-1 rounded-lg border px-2 py-1.5 text-xs transition-colors',
                                     isActive || activePropertyId === prop.id
                                       ? 'border-primary/50 bg-primary/10 font-medium text-primary shadow-sm'
-                                      : 'border-transparent text-muted-foreground hover:bg-muted hover:text-foreground',
+                                      : 'border-transparent text-sidebar-foreground/65 hover:bg-white/10 hover:text-sidebar-foreground',
                                   )
                                 }
                               >
                                 <span className="truncate">{prop.title}</span>
-                                <span className="shrink-0 text-muted-foreground">({prop.totalUnits})</span>
+                                <span className="shrink-0 text-sidebar-foreground/65">({prop.totalUnits})</span>
                               </NavLink>
                             </div>
                             {isPropertyExpanded(prop.id) && (
@@ -234,7 +234,7 @@ export function Sidebar({
                                   const SubIcon = sub.icon;
                                   return (
                                     <li key={sub.label}>
-                                      <div className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-muted/50">
+                                      <div className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-white/10">
                                         <NavLink
                                           to={sub.to}
                                           onClick={(e) => {
@@ -247,14 +247,14 @@ export function Sidebar({
                                               isPropertyNavActive(sub.tab, location.pathname, location.search) &&
                                                 activePropertyId === prop.id
                                                 ? 'bg-primary/10 font-medium text-primary'
-                                                : 'text-muted-foreground hover:text-foreground',
+                                                : 'text-sidebar-foreground/65 hover:text-sidebar-foreground',
                                             )
                                           }
                                         >
                                           <SubIcon className="h-3.5 w-3.5 shrink-0 opacity-80" />
                                           <span className="flex-1">{sub.label}</span>
                                           {sub.count != null && (
-                                            <span className="shrink-0 tabular-nums text-muted-foreground">
+                                            <span className="shrink-0 tabular-nums text-sidebar-foreground/65">
                                               ({sub.count})
                                             </span>
                                           )}
@@ -293,7 +293,7 @@ export function Sidebar({
               type="button"
               onClick={() => setSharedOpen(!sharedOpen)}
               aria-expanded={sharedOpen}
-              className="flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+              className="flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/65"
             >
               <ChevronLeft
                 className={cn('h-3.5 w-3.5 transition-transform duration-200', sharedOpen && '-rotate-90')}
@@ -311,7 +311,7 @@ export function Sidebar({
                     <li key={prop.id}>
                       <NavLink
                         to={`/broker/properties/${prop.id}`}
-                        className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+                        className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-sidebar-foreground/65 hover:bg-white/10 hover:text-sidebar-foreground"
                       >
                         <span className="flex-1 truncate">{prop.title}</span>
                         <span title={PERMISSION_LABELS[prop.permissionLevel]}>
@@ -335,7 +335,7 @@ export function Sidebar({
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{user.full_name}</p>
-              <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+              <p className="truncate text-xs text-sidebar-foreground/65">{user.email}</p>
             </div>
           </div>
           <Badge variant="primary" className="mb-3">
@@ -390,7 +390,7 @@ export function MobileSidebarDrawer({
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 end-[-2.75rem] grid h-10 w-10 place-items-center rounded-lg bg-card text-muted-foreground shadow-md"
+          className="absolute top-4 end-[-2.75rem] grid h-10 w-10 place-items-center rounded-lg bg-card text-sidebar-foreground/65 shadow-md"
           aria-label="סגור תפריט"
         >
           <ChevronLeft className="h-4 w-4" />

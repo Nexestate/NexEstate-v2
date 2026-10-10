@@ -29,9 +29,9 @@
 
 ---
 
-## PHASE 2 — UX / VISUAL FOUNDATION
+## PHASE 2 — PROFESSIONAL WORKSPACE
 
-**Goal:** Consistent, readable, trustworthy dashboard without full rebrand.
+See `docs/PHASE_2_IMPLEMENTATION_PLAN.md`. **2A in progress:** navy/slate foundation, shared interaction primitives, attention-first dashboard.
 
 | # | Item | Effort |
 |---|------|--------|

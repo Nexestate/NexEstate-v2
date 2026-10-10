@@ -24,9 +24,9 @@ export function EmptyState({
       <div className="mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-muted">
         <Icon className="h-7 w-7 text-muted-foreground" />
       </div>
-      <p className="font-medium text-foreground">{title}</p>
+      <p className="text-section-title text-foreground">{title}</p>
       {description && (
-        <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
+        <p className="text-meta mt-1 max-w-sm">{description}</p>
       )}
       {actionLabel && onAction && (
         <Button className="mt-4" onClick={onAction}>
