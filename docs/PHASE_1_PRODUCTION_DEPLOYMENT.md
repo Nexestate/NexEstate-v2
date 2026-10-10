@@ -1,6 +1,9 @@
 # Phase 1 — Production deployment
 
 **Date:** 2026-10-10  
+**QA admin:** one controlled `admin` profile created; broker/partner unchanged.  
+**Follow-up GRANTs (RLS unchanged):** `import_batches` + `notifications` → `authenticated` SELECT/INSERT/UPDATE.  
+
 **Repository:** `Nexestate/NexEstate-v2`  
 **Production branch:** `main`  
 **Auto-deploy:** YES — `vercel[bot]` creates Production deployments on `main`  

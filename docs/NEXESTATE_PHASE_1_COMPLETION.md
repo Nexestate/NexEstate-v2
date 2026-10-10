@@ -1,6 +1,8 @@
 # NexEstate — Phase 1 completion report
 
-**Updated:** 2026-10-10 (CLI linked + function deployed)
+**Updated:** 2026-10-10 (authenticated QA + one controlled admin)
+
+**Gate:** **NOT READY FOR PHASE 2** until Admin Shares and Admin Support lists pass on production after the embed-query deploy.
 
 ---
 
@@ -16,15 +18,29 @@
 
 ---
 
+## Controlled admin
+
+Created **exactly one** test user using the existing role model. Broker and partner profiles were not changed.
+
+| Field | Value |
+|-------|--------|
+| Email | `phase1.qa.admin@nexestate.co` |
+| Role | `admin` |
+| Profile id | `bf54e99b-e84f-403a-90c2-d0ab4f4126cb` |
+| Other profiles | broker `nexuservice@gmail.com`, partner `viner.michael@gmail.com` (unchanged) |
+
+Credentials live only in gitignored `.phase1-qa-admin.local`.
+
+---
+
 ## Database
 
-Manual SQL already applied. **Not re-run.** Verified with `supabase db query`:
+Manual SQL already applied. **Not re-run.** Additional production GRANTs (RLS unchanged):
 
-- `support_tickets` — RLS on; columns as designed; indexes user+status; policies insert/select/update own + admin ALL
-- `import_batches` — RLS on; includes `status`; admin-only policy
-- `schema_migrations` may not list this file (manual Editor apply) — documented mismatch, no duplicate SQL run
+- `import_batches`: `SELECT, INSERT, UPDATE` to `authenticated` (admin-only RLS still applies)
+- `notifications`: `SELECT, INSERT, UPDATE` to `authenticated` (own-row / admin RLS still applies)
 
-Production counts (no PII): profiles 2 (broker, partner), properties 1, property_shares 1, notifications 0, lease_payments 0, support_tickets 0, import_batches 0, **admin_profiles 0**
+Production counts (no PII): profiles **3**, properties **1**, property_shares **1**, notifications **0**, lease_payments **0**, support_tickets **1** (Phase 1 QA persistence check), import_batches **5**.
 
 ---
 
@@ -32,12 +48,11 @@ Production counts (no PII): profiles 2 (broker, partner), properties 1, property
 
 `admin-import-deals` deployed to **`ynpdtbgmbunntckqmcaf` only**.
 
-- Status: ACTIVE v1
+- Status: ACTIVE
 - JWT verify: true
-- Secrets: platform `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-- Unauthorized test: **401**
-- Admin payload test: **BLOCKED** (no admin user)
-- Function logs via MCP: permission denied
+- Unauthorized: **401**
+- Admin import QA: **200** (1 row), then deleted
+- Data path: user JWT + `is_admin()`; inserts set `created_by`
 
 Existing other functions left untouched: `notify-share`, `icount-webhook`, `admin-api`
 
@@ -45,31 +60,43 @@ Existing other functions left untouched: `notify-share`, `icount-webhook`, `admi
 
 ## RLS
 
-Broker/partner smoke tests: **8/8 PASS**. Test tickets deleted.
-
-Admin policy exists but cannot be session-tested (no admin/superadmin profile).
-
----
-
-## Frontend P0
-
-Code has **zero** `DEMO_` on the five surfaces. Production unauthenticated routes redirect to login.
+| Suite | Result |
+|-------|--------|
+| Broker/partner | 8/8 PASS |
+| Admin (QA admin session) | 4/4 PASS after GRANTs |
+| Notifications authenticated SELECT | PASS after GRANT |
 
 ---
 
-## Deployment SHAs
+## Frontend P0 QA (production)
 
-| Item | Value |
-|------|--------|
-| Functionality | `71104814b83cab477e870db46cd8c217d1e9fbd3` |
-| Latest docs on `main` | see git log |
-| Vercel | https://vercel.com/nexus-d804/nexestate_v2/6VjSmxJqJX1gYtiWb11JgASV8gU7 |
+| Surface | Result |
+|---------|--------|
+| Google OAuth | **PASS** (confirmed; not re-diagnosed) |
+| Dashboard after login | **PASS** |
+| My Properties | **PASS** (empty for QA admin; live property visible on Admin Properties) |
+| Support form persistence | **PASS** |
+| Session restore | **PASS** |
+| Logout | **PASS** |
+| Payments empty state | **PASS** |
+| Notifications empty state | **PASS** after notifications GRANT |
+| Mobile 390/375/360 | **PASS** |
+| Admin Users | **PASS** (3 users) |
+| Admin Import | **PASS** |
+| Admin Shares | **FAIL** — PostgREST embed `property_shares`–`profiles` (no FK). Fix is local two-query join. |
+| Admin Support list | **FAIL** — multiple `support_tickets`–`profiles` relationships. Fix is local two-query join. Form insert already PASS. |
 
 ---
 
-## Remaining manual actions
+## Remaining before Phase 2
 
-1. Log in at https://nexestate.co with Google (broker) and walk My Properties / payments / support form / logout
-2. Create or promote an **admin** or **superadmin** profile (none exist) then QA Admin Users/Shares/Import/Support
+1. Deploy the Admin Shares + Admin Support query fixes to `main` / Vercel
+2. Re-test `/admin/shares` and `/admin/support` as the QA admin
 3. Optional: reconnect Supabase MCP to Nexestate for advisors/logs
-4. Mobile 390/375/360 on those screens
+4. Optional: Google broker session to view the owned כרמיאל property on `/broker/my-properties`
+
+---
+
+## Phase 2 gate
+
+**NOT READY FOR PHASE 2.** P0 data wiring and most authenticated QA passed, but two admin list pages still fail in production until the embed-query deploy is live and retested.

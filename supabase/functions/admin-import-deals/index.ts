@@ -1,5 +1,5 @@
 import { jsonResponse, optionsResponse } from '../_shared/cors.ts';
-import { createAdminClient } from '../_shared/supabase-admin.ts';
+import { createAdminClient, createUserClient } from '../_shared/supabase-admin.ts';
 
 interface ImportRow {
   rowNumber: number;
@@ -21,9 +21,12 @@ interface ImportBody {
 const ALLOWED_KINDS = new Set(['apartment', 'house', 'office', 'commercial', 'industrial', 'land']);
 const ALLOWED_STATUS = new Set(['for_sale', 'for_rent', 'sold', 'rented']);
 
-async function assertAdmin(userId: string): Promise<boolean> {
-  const supabase = createAdminClient();
-  const { data } = await supabase.from('profiles').select('role').eq('id', userId).maybeSingle();
+async function assertAdmin(authHeader: string, userId: string): Promise<boolean> {
+  const userClient = createUserClient(authHeader);
+  const { data: rpcAdmin } = await userClient.rpc('is_admin');
+  if (rpcAdmin === true) return true;
+
+  const { data } = await userClient.from('profiles').select('role').eq('id', userId).maybeSingle();
   const role = data?.role as string | undefined;
   return role === 'admin' || role === 'superadmin';
 }
@@ -45,22 +48,26 @@ Deno.serve(async (req: Request) => {
     }
 
     const userId = userData.user.id;
-    if (!(await assertAdmin(userId))) {
+    if (!(await assertAdmin(authHeader, userId))) {
       return jsonResponse({ error: 'Forbidden' }, 403);
     }
 
+    const userClient = createUserClient(authHeader);
     const body = (await req.json()) as ImportBody;
     const brokerId = typeof body.brokerId === 'string' ? body.brokerId.trim() : '';
     const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!brokerId || !uuidRe.test(brokerId) || !Array.isArray(body.rows) || body.rows.length === 0) {
-      return jsonResponse({ error: 'Missing brokerId or rows' }, 400);
+    if (!brokerId || !uuidRe.test(brokerId)) {
+      return jsonResponse({ error: 'Missing brokerId or rows', field: 'brokerId' }, 400);
+    }
+    if (!Array.isArray(body.rows) || body.rows.length === 0) {
+      return jsonResponse({ error: 'Missing brokerId or rows', field: 'rows' }, 400);
     }
 
     if (body.rows.length > 500) {
       return jsonResponse({ error: 'Too many rows (max 500)' }, 400);
     }
 
-    const { data: brokerProfile } = await supabase
+    const { data: brokerProfile } = await userClient
       .from('profiles')
       .select('id')
       .eq('id', brokerId)
@@ -77,7 +84,7 @@ Deno.serve(async (req: Request) => {
     let failed = 0;
 
     const existingKeys = new Set<string>();
-    const { data: existingProps } = await supabase
+    const { data: existingProps } = await userClient
       .from('properties')
       .select('title, city')
       .eq('broker_id', brokerId)
@@ -107,7 +114,7 @@ Deno.serve(async (req: Request) => {
         continue;
       }
 
-      const { error: insertError } = await supabase.from('properties').insert({
+      const { error: insertError } = await userClient.from('properties').insert({
         title: row.title.trim(),
         address: row.address?.trim() ?? '',
         city: row.city.trim(),
@@ -115,12 +122,17 @@ Deno.serve(async (req: Request) => {
         kind,
         status,
         broker_id: brokerId,
+        created_by: userId,
         visibility: 'private',
       });
 
       if (insertError) {
         failed++;
-        errors.push({ rowNumber: row.rowNumber, message: 'שגיאה בשמירה' });
+        errors.push({
+          rowNumber: row.rowNumber,
+          message: 'שגיאה בשמירה',
+          code: insertError.code ?? 'INSERT_FAILED',
+        });
         continue;
       }
 
@@ -131,7 +143,7 @@ Deno.serve(async (req: Request) => {
     const batchStatus =
       imported === 0 ? 'failed' : failed + duplicates > 0 ? 'partial' : 'completed';
 
-    const { data: batchRow } = await supabase
+    const { data: batchRow } = await userClient
       .from('import_batches')
       .insert({
         imported_by: userId,

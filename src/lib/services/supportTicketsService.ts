@@ -75,16 +75,31 @@ export async function fetchAdminSupportTickets(search?: string): Promise<Support
   const client = requireSupabase();
   const { data, error } = await client
     .from('support_tickets')
-    .select('*, profiles(full_name, email)')
+    .select('id, user_id, subject, message, status, priority, admin_notes, created_at, updated_at')
     .order('created_at', { ascending: false })
     .limit(500);
 
   throwIfError(error);
 
-  const rows = (data ?? []).map((row: Record<string, unknown>) => {
-    const profile = row.profiles as { full_name?: string; email?: string } | null;
-    const { profiles: _p, ...rest } = row;
-    const ticket = rest as unknown as SupportTicket;
+  const tickets = (data ?? []) as SupportTicket[];
+  const userIds = [...new Set(tickets.map((t) => t.user_id).filter(Boolean))];
+  const profiles = new Map<string, { full_name?: string; email?: string }>();
+  if (userIds.length > 0) {
+    const { data: profileRows, error: profileError } = await client
+      .from('profiles')
+      .select('id, full_name, email')
+      .in('id', userIds);
+    throwIfError(profileError);
+    for (const profile of profileRows ?? []) {
+      profiles.set(profile.id as string, {
+        full_name: profile.full_name as string | undefined,
+        email: profile.email as string | undefined,
+      });
+    }
+  }
+
+  const rows = tickets.map((ticket) => {
+    const profile = profiles.get(ticket.user_id);
     return {
       ...ticket,
       user_name: profile?.full_name,

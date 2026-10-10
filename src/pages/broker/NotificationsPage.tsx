@@ -1,6 +1,7 @@
 import {
   AlertCircle,
   Banknote,
+  Bell,
   Building2,
   Check,
   FileSignature,
@@ -8,6 +9,7 @@ import {
   User,
 } from 'lucide-react';
 import { useState } from 'react';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { PageLoader } from '../../components/ui/PageLoader';
 import { Badge } from '../../components/ui/Badge';
@@ -51,15 +53,26 @@ function timeAgo(iso: string) {
 export function NotificationsPage() {
   const { user } = useAuth();
   const [filter, setFilter] = useState('all');
-  const { data: notifications, loading, setData, reload } = useAsyncData(
+  const { data: notifications, loading, error, setData, reload } = useAsyncData(
     () => fetchNotifications(user?.id),
     [user?.id],
   );
 
-  if (loading || !notifications) return <PageLoader />;
+  if (loading) return <PageLoader />;
+  if (error) {
+    return (
+      <EmptyState
+        icon={AlertCircle}
+        title="שגיאה בטעינת התראות"
+        description={error}
+      />
+    );
+  }
 
-  const unread = getUnreadCount(notifications);
-  const filtered = notifications.filter((n) => {
+  const list = notifications ?? [];
+
+  const unread = getUnreadCount(list);
+  const filtered = list.filter((n) => {
     if (filter === 'unread') return !n.is_read;
     if (filter === 'all') return true;
     return n.type === filter;
@@ -67,7 +80,7 @@ export function NotificationsPage() {
 
   const handleRead = async (n: AppNotification) => {
     await markNotificationRead(n.id);
-    setData(notifications.map((x) => (x.id === n.id ? { ...x, is_read: true } : x)));
+    setData(list.map((x) => (x.id === n.id ? { ...x, is_read: true } : x)));
   };
 
   const handleMarkAll = async () => {
@@ -76,10 +89,10 @@ export function NotificationsPage() {
   };
 
   const stats = {
-    lease: notifications.filter((n) => n.type === 'lease').length,
-    payment: notifications.filter((n) => n.type === 'payment').length,
-    signature: notifications.filter((n) => n.type === 'signature').length,
-    read: notifications.filter((n) => n.is_read).length,
+    lease: list.filter((n) => n.type === 'lease').length,
+    payment: list.filter((n) => n.type === 'payment').length,
+    signature: list.filter((n) => n.type === 'signature').length,
+    read: list.filter((n) => n.is_read).length,
   };
 
   return (
@@ -119,7 +132,7 @@ export function NotificationsPage() {
 
       <Tabs
         tabs={[
-          { id: 'all', label: 'הכל', count: notifications.length },
+          { id: 'all', label: 'הכל', count: list.length },
           { id: 'unread', label: 'לא נקראו', count: unread },
           { id: 'lease', label: 'חוזים' },
           { id: 'payment', label: 'תשלומים' },
@@ -131,6 +144,13 @@ export function NotificationsPage() {
       />
 
       <div className="space-y-3">
+        {filtered.length === 0 && (
+          <EmptyState
+            icon={Bell}
+            title="אין התראות"
+            description="כשיתווספו חוזים, תשלומים או לידים חדשים — הם יופיעו כאן."
+          />
+        )}
         {filtered.map((n) => {
           const Icon = TYPE_ICONS[n.type] ?? AlertCircle;
           return (
