@@ -1,6 +1,6 @@
-import { ChevronLeft, CreditCard, Eye, Layers, LogOut, Pencil, Plus, Shield, Users } from 'lucide-react';
+import { ChevronLeft, CreditCard, Eye, FileSignature, FileText, Layers, LogOut, Pencil, Plus, Shield, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useQuickAdd, type QuickAddType } from '../../contexts/QuickAddContext';
 import type { ManagedPropertySidebarItem } from '../../lib/services/brokerStatsService';
@@ -230,26 +230,43 @@ export function Sidebar({
                                     count: prop.paymentCount,
                                     icon: CreditCard,
                                   },
+                                  {
+                                    label: 'הסכם',
+                                    to: propertyNavHref(prop.id, 'agreements'),
+                                    tab: 'agreements' as const,
+                                    icon: FileSignature,
+                                    addNew: 'agreement' as const,
+                                  },
+                                  {
+                                    label: 'מסמכים',
+                                    to: propertyNavHref(prop.id, 'documents'),
+                                    tab: 'documents' as const,
+                                    icon: FileText,
+                                  },
                                 ].map((sub) => {
                                   const SubIcon = sub.icon;
                                   return (
                                     <li key={sub.label}>
                                       <div className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-white/10">
-                                        <NavLink
+                                        <Link
                                           to={sub.to}
+                                          aria-current={
+                                            isPropertyNavActive(location.pathname, location.search, sub.to) &&
+                                            activePropertyId === prop.id
+                                              ? 'page'
+                                              : undefined
+                                          }
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             onClose?.();
                                           }}
-                                          className={() =>
-                                            cn(
-                                              'flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors',
-                                              isPropertyNavActive(sub.tab, location.pathname, location.search) &&
-                                                activePropertyId === prop.id
-                                                ? 'bg-primary/10 font-medium text-primary'
-                                                : 'text-sidebar-foreground/65 hover:text-sidebar-foreground',
-                                            )
-                                          }
+                                          className={cn(
+                                            'flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors',
+                                            isPropertyNavActive(location.pathname, location.search, sub.to) &&
+                                              activePropertyId === prop.id
+                                              ? 'bg-primary/10 font-medium text-primary'
+                                              : 'text-sidebar-foreground/65 hover:text-sidebar-foreground',
+                                          )}
                                         >
                                           <SubIcon className="h-3.5 w-3.5 shrink-0 opacity-80" />
                                           <span className="flex-1">{sub.label}</span>
@@ -258,7 +275,7 @@ export function Sidebar({
                                               ({sub.count})
                                             </span>
                                           )}
-                                        </NavLink>
+                                        </Link>
                                         {sub.addNew && (
                                           <button
                                             type="button"

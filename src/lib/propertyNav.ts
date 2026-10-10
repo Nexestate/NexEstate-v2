@@ -2,7 +2,6 @@ export function unitDetailUrl(propertyId: string, unitId: string): string {
   return `/broker/units?property=${propertyId}&open=${unitId}`;
 }
 
-/** Alias used by entity detail links */
 export const unitDetailHref = unitDetailUrl;
 
 export function tenantsPageUrl(options?: { property?: string; tab?: 'tenants' | 'leases' }): string {
@@ -13,6 +12,30 @@ export function tenantsPageUrl(options?: { property?: string; tab?: 'tenants' | 
   return qs ? `/broker/tenants?${qs}` : '/broker/tenants';
 }
 
+export type PropertySubNavSection =
+  | 'overview'
+  | 'units'
+  | 'tenants'
+  | 'agreements'
+  | 'documents'
+  | 'payments'
+  | 'activity'
+  | 'maintenance';
+
+const WORKSPACE_TABS = new Set(['agreements', 'documents', 'activity', 'maintenance']);
+
+export function propertySubNavUrl(section: PropertySubNavSection, propertyId: string): string {
+  if (section === 'overview') return `/broker/properties/${propertyId}`;
+  if (section === 'units') return `/broker/units?property=${propertyId}`;
+  if (section === 'tenants') return `/broker/tenants?property=${propertyId}`;
+  if (section === 'payments') return `/broker/payments?property=${propertyId}`;
+  return `/broker/properties/${propertyId}?tab=${section}`;
+}
+
+export function propertyNavHref(propertyId: string, section: PropertySubNavSection): string {
+  return propertySubNavUrl(section, propertyId);
+}
+
 export function isPropertySubNavActive(
   pathname: string,
   search: string,
@@ -20,26 +43,26 @@ export function isPropertySubNavActive(
   end?: boolean,
 ): boolean {
   const [itemPath, itemSearch] = to.split('?');
+  const itemParams = new URLSearchParams(itemSearch ?? '');
+  const currentParams = new URLSearchParams(search);
+  const itemTab = itemParams.get('tab');
+
+  if (WORKSPACE_TABS.has(itemTab ?? '')) {
+    return pathname === itemPath && currentParams.get('tab') === itemTab;
+  }
+
+  if (itemPath.startsWith('/broker/properties/') && !itemTab) {
+    return pathname === itemPath && !currentParams.get('tab');
+  }
+
   if (itemSearch) {
-    const params = new URLSearchParams(itemSearch);
-    const property = params.get('property');
-    const currentProperty = new URLSearchParams(search).get('property');
+    const property = itemParams.get('property');
+    const currentProperty = currentParams.get('property');
     return pathname === itemPath && property === currentProperty;
   }
+
   if (end) return pathname === itemPath;
   return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
-}
-
-export type PropertySubNavSection = 'overview' | 'units' | 'tenants' | 'payments';
-
-export function propertySubNavUrl(section: PropertySubNavSection, propertyId: string): string {
-  if (section === 'overview') return `/broker/properties/${propertyId}`;
-  return `/broker/${section}?property=${propertyId}`;
-}
-
-/** Alias used by mobile nav and sidebar */
-export function propertyNavHref(propertyId: string, section: PropertySubNavSection): string {
-  return propertySubNavUrl(section, propertyId);
 }
 
 export const isPropertyNavActive = isPropertySubNavActive;

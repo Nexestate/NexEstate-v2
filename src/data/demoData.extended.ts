@@ -198,6 +198,7 @@ export const DEMO_TENANTS: Tenant[] = [
   {
     id: 'tenant-1',
     full_name: 'חברת הייטק בע"מ',
+    tenant_type: 'company',
     company_name: 'חברת הייטק בע"מ',
     email: 'office@hitech.co.il',
     phone: '03-1234567',
@@ -208,6 +209,7 @@ export const DEMO_TENANTS: Tenant[] = [
   {
     id: 'tenant-2',
     full_name: 'סטארט-אפ XYZ',
+    tenant_type: 'company',
     company_name: 'סטארט-אפ XYZ',
     email: 'hello@xyz.io',
     phone: '050-9876543',
@@ -218,6 +220,7 @@ export const DEMO_TENANTS: Tenant[] = [
   {
     id: 'tenant-3',
     full_name: 'עו"ד כהן ושות',
+    tenant_type: 'company',
     company_name: 'עו"ד כהן ושות',
     phone: '03-5551234',
     status: 'ending',
@@ -227,6 +230,7 @@ export const DEMO_TENANTS: Tenant[] = [
   {
     id: 'tenant-4',
     full_name: 'רפואה פלוס',
+    tenant_type: 'company',
     company_name: 'רפואה פלוס',
     email: 'info@refua.co.il',
     phone: '03-7778899',
@@ -305,6 +309,7 @@ export const DEMO_SIGNING_LINKS: SigningLink[] = [
     client_phone: '050-1112222',
     agreement_type: 'exclusive',
     commission_percent: 2,
+    property_id: 'prop-1',
     property_title: 'בניין שקטר 30',
     property_address: 'רחוב שקטר 30, תל אביב',
     status: 'sent',

@@ -1,8 +1,10 @@
 import {
+  Activity,
   Bell,
   Building2,
   ClipboardList,
   CreditCard,
+  FileSignature,
   FileText,
   Gavel,
   Heart,
@@ -13,12 +15,13 @@ import {
   Search,
   Settings,
   Users,
+  Wrench,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePropertyNavContext } from '../../hooks/usePropertyNavContext';
-import { propertyNavHref } from '../../lib/propertyNav';
+import { isPropertySubNavActive, propertyNavHref } from '../../lib/propertyNav';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/Button';
 
@@ -55,6 +58,10 @@ function buildPropertyNav(propertyId: string): { main: NavItem[]; more: NavItem[
       { label: 'תשלומים', to: propertyNavHref(propertyId, 'payments'), icon: CreditCard },
     ],
     more: [
+      { label: 'הסכם', to: propertyNavHref(propertyId, 'agreements'), icon: FileSignature },
+      { label: 'מסמכים', to: propertyNavHref(propertyId, 'documents'), icon: FileText },
+      { label: 'תחזוקה', to: propertyNavHref(propertyId, 'maintenance'), icon: Wrench },
+      { label: 'פעילות', to: propertyNavHref(propertyId, 'activity'), icon: Activity },
       { label: 'לוח בקרה', to: '/broker', icon: LayoutDashboard, end: true },
       { label: 'כל הנכסים', to: '/broker/properties', icon: Building2 },
       { label: 'לקוחות', to: '/broker/clients', icon: Users },
@@ -113,15 +120,7 @@ interface MobileBottomNavProps {
 }
 
 function isNavItemActive(item: NavItem, pathname: string, search: string): boolean {
-  const [itemPath, itemSearch] = item.to.split('?');
-  if (itemSearch) {
-    const params = new URLSearchParams(itemSearch);
-    const property = params.get('property');
-    const currentProperty = new URLSearchParams(search).get('property');
-    return pathname === itemPath && property === currentProperty;
-  }
-  if (item.end) return pathname === itemPath;
-  return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
+  return isPropertySubNavActive(pathname, search, item.to, item.end);
 }
 
 export function MobileBottomNav({ variant }: MobileBottomNavProps) {
@@ -167,9 +166,9 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
               const active = isNavItemActive(item, location.pathname, location.search);
               return (
                 <li key={item.to}>
-                  <NavLink
+                  <Link
                     to={item.to}
-                    end={item.end}
+                    aria-current={active ? 'page' : undefined}
                     onClick={() => setMoreOpen(false)}
                     className={cn(
                       'flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-center text-xs hover:bg-muted',
@@ -178,7 +177,7 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
                   >
                     <Icon className={cn('h-5 w-5', active ? 'text-primary' : 'text-primary')} />
                     {item.label}
-                  </NavLink>
+                  </Link>
                 </li>
               );
             })}
@@ -209,10 +208,10 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
             const Icon = item.icon;
             const active = isNavItemActive(item, location.pathname, location.search);
             return (
-              <NavLink
+              <Link
                 key={item.to}
                 to={item.to}
-                end={item.end}
+                aria-current={active ? 'page' : undefined}
                 className={cn(
                   'flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 text-xs touch-manipulation',
                   active ? 'text-primary' : 'text-muted-foreground',
@@ -220,7 +219,7 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
               >
                 <Icon className="h-5 w-5" />
                 {item.label}
-              </NavLink>
+              </Link>
             );
           })}
           {config.more && (

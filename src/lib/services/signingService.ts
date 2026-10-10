@@ -15,6 +15,7 @@ function mapSigningRow(row: Record<string, unknown>): SigningLink {
       undefined,
     agreement_type: row.agreement_type as string,
     commission_percent: (row.commission_percent as number | null) ?? undefined,
+    property_id: (row.property_id as string | null) ?? undefined,
     property_title: prop?.title,
     property_address: (row.property_address as string | null) ?? prop?.address,
     property_description: (row.property_description as string | null) ?? undefined,

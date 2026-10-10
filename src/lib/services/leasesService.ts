@@ -82,6 +82,7 @@ export async function fetchTenantsForProperties(propertyIds: string[]): Promise<
     tenants.push({
       id: tenantId,
       full_name: tenantRow.full_name as string,
+      tenant_type: (tenantRow.tenant_type as Tenant['tenant_type'] | null) ?? undefined,
       company_name: (tenantRow.company_name as string | null) ?? undefined,
       email: (tenantRow.email as string | null) ?? undefined,
       phone: (tenantRow.phone as string | null) ?? undefined,
@@ -251,6 +252,7 @@ export async function fetchTenants(managerId?: string): Promise<Tenant[]> {
     return {
       id: row.id,
       full_name: row.full_name,
+      tenant_type: row.tenant_type ?? undefined,
       company_name: row.company_name ?? undefined,
       email: row.email ?? undefined,
       phone: row.phone ?? undefined,

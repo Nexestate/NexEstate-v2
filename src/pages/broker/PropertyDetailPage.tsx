@@ -1,20 +1,17 @@
-import {
-  ArrowRight,
-  Banknote,
-  Building2,
-  Layers,
-  MapPin,
-  Pencil,
-  Plus,
-  Share2,
-  TrendingUp,
-  Users,
-} from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { ArrowRight, Building2, MapPin, Pencil, Plus, Share2 } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ManagedUnitsTable } from '../../components/broker/ManagedUnitsTable';
 import { PropertySubNav } from '../../components/broker/PropertySubNav';
 import { PropertyUnitCards } from '../../components/broker/PropertyUnitCards';
+import {
+  ActivityPanel,
+  AgreementsPanel,
+  AttentionList,
+  DocumentsPanel,
+  MaintenancePanel,
+  OverviewFacts,
+} from '../../components/property/PropertyWorkspacePanels';
 import {
   PropertyFormModal,
   propertyFormToPayload,
@@ -22,60 +19,36 @@ import {
 } from '../../components/property/PropertyFormModal';
 import { SharePropertyModal } from '../../components/property/SharePropertyModal';
 import { UnitFormModal, type UnitFormValues } from '../../components/property/UnitFormModal';
-import { StatCard, StatCardGrid } from '../../components/dashboard/StatCard';
-import { PageLoader } from '../../components/ui/PageLoader';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { PageSkeleton } from '../../components/ui/Skeleton';
 import { notifyEntityCreated } from '../../contexts/QuickAddContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
-import { createUnit, fetchProperty, updateProperty, updateUnit } from '../../lib/services';
+import { usePropertyWorkspace } from '../../hooks/usePropertyWorkspace';
+import type { WorkspaceTab } from '../../lib/propertyWorkspace';
+import { createUnit, updateProperty, updateUnit } from '../../lib/services';
 import { supabase } from '../../lib/supabase';
-import { formatCurrency, getOccupancyPercent } from '../../lib/utils';
 import type { PropertyKind, PropertyStatus, PropertyVisibility } from '../../types';
-import type { PropertyUnit, PropertyWithUnits } from '../../types/domain';
+import type { PropertyUnit } from '../../types/domain';
+
+const WORKSPACE_TABS: WorkspaceTab[] = ['agreements', 'documents', 'activity', 'maintenance'];
 
 export function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const tab = WORKSPACE_TABS.includes(tabParam as WorkspaceTab) ? (tabParam as WorkspaceTab) : 'overview';
   const { user } = useAuth();
-  const [property, setProperty] = useState<PropertyWithUnits | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { property, tenants, leases, links, snapshot, actions, activity, loading, reload } =
+    usePropertyWorkspace(id);
   const [shareOpen, setShareOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editInitial, setEditInitial] = useState<Partial<PropertyFormValues> | undefined>();
   const [unitModalOpen, setUnitModalOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<PropertyUnit | null>(null);
 
-  const load = useCallback(() => {
-    if (!id) return;
-    setLoading(true);
-    fetchProperty(id).then((p) => {
-      setProperty(p ?? null);
-      setLoading(false);
-    });
-  }, [id]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  useEntityCreated(['unit', 'tenant', 'lease'], load);
-
-  const stats = useMemo(() => {
-    if (!property) return null;
-    const occupancy = getOccupancyPercent(property.occupiedUnits, property.totalUnits);
-    const tenantCount = new Set(
-      property.units.map((u) => u.tenant_id).filter(Boolean),
-    ).size;
-    const annualIncome = property.monthlyIncome * 12;
-    const avgPerUnit =
-      property.occupiedUnits > 0
-        ? Math.round(property.monthlyIncome / property.occupiedUnits)
-        : 0;
-    const totalArea = property.units.reduce((sum, u) => sum + (u.area_sqm ?? 0), 0);
-
-    return { occupancy, tenantCount, annualIncome, avgPerUnit, totalArea };
-  }, [property]);
+  useEntityCreated(['unit', 'tenant', 'lease', 'agreement'], reload);
 
   const openEdit = async () => {
     if (!id || !property) return;
@@ -125,17 +98,7 @@ export function PropertyDetailPage() {
     const rest: Partial<typeof payload> = { ...payload };
     delete rest.broker_id;
     await updateProperty(id, rest);
-    load();
-  };
-
-  const openUnitCreate = () => {
-    setEditingUnit(null);
-    setUnitModalOpen(true);
-  };
-
-  const openUnitEdit = (unit: PropertyUnit) => {
-    setEditingUnit(unit);
-    setUnitModalOpen(true);
+    reload();
   };
 
   const handleUnitSubmit = async (values: UnitFormValues) => {
@@ -157,11 +120,11 @@ export function PropertyDetailPage() {
     }
     setUnitModalOpen(false);
     setEditingUnit(null);
-    load();
+    reload();
   };
 
-  if (loading) return <PageLoader />;
-  if (!property || !stats) {
+  if (loading) return <PageSkeleton cards={4} />;
+  if (!property || !snapshot) {
     return (
       <div className="py-20 text-center">
         <p className="text-muted-foreground">נכס לא נמצא</p>
@@ -188,8 +151,8 @@ export function PropertyDetailPage() {
             <Building2 className="h-7 w-7" />
           </span>
           <div>
-            <h2 className="text-2xl font-bold">{property.title}</h2>
-            <p className="flex items-center gap-1 text-muted-foreground">
+            <h2 className="text-page-title">{property.title}</h2>
+            <p className="text-meta mt-1 flex items-center gap-1">
               <MapPin className="h-4 w-4" />
               {property.address}, {property.city}
             </p>
@@ -207,66 +170,41 @@ export function PropertyDetailPage() {
         </div>
       </div>
 
-      <StatCardGrid>
-        <StatCard
-          label="הכנסה שנתית"
-          value={formatCurrency(stats.annualIncome)}
-          icon={TrendingUp}
-          color="#10b981"
-        />
-        <StatCard
-          label="ממוצע ליחידה"
-          value={formatCurrency(stats.avgPerUnit)}
-          icon={Banknote}
-          color="#8b5cf6"
-        />
-        <StatCard
-          label="הכנסה חודשית"
-          value={formatCurrency(property.monthlyIncome)}
-          icon={Banknote}
-          color="#3b82f6"
-        />
-        <StatCard label="תפוסה" value={`${stats.occupancy}%`} icon={Layers} color="#10b981" />
-        <StatCard label="שוכרים" value={stats.tenantCount} icon={Users} color="#f59e0b" />
-        <StatCard
-          label="יחידות"
-          value={`${property.occupiedUnits}/${property.totalUnits}`}
-          icon={Building2}
-          color="#6366f1"
-        />
-      </StatCardGrid>
-
       <PropertySubNav propertyId={property.id} />
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-2">
-          <CardTitle className="text-base">יחידות בנכס</CardTitle>
-          <Button size="sm" onClick={openUnitCreate}>
-            <Plus className="h-4 w-4" />
-            יחידה חדשה
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <PropertyUnitCards units={property.units} />
-        </CardContent>
-      </Card>
+      {tab === 'overview' && (
+        <div className="space-y-6">
+          <AttentionList actions={actions} propertyId={property.id} />
+          <OverviewFacts property={property} tenants={tenants} leases={leases} snapshot={snapshot} />
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between gap-2">
+              <CardTitle>יחידות בנכס</CardTitle>
+              <Button size="sm" onClick={() => { setEditingUnit(null); setUnitModalOpen(true); }}>
+                <Plus className="h-4 w-4" />
+                יחידה חדשה
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <PropertyUnitCards units={property.units} />
+              <ManagedUnitsTable
+                propertyId={property.id}
+                units={property.units}
+                onEdit={(unit) => {
+                  setEditingUnit(unit);
+                  setUnitModalOpen(true);
+                }}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-2">
-          <CardTitle className="text-base">טבלת יחידות ({property.units.length})</CardTitle>
-          <Button size="sm" onClick={openUnitCreate}>
-            <Plus className="h-4 w-4" />
-            יחידה חדשה
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <ManagedUnitsTable
-            propertyId={property.id}
-            units={property.units}
-            onEdit={openUnitEdit}
-          />
-        </CardContent>
-      </Card>
+      {tab === 'documents' && <DocumentsPanel tenants={tenants} propertyId={property.id} />}
+      {tab === 'agreements' && <AgreementsPanel links={links} propertyId={property.id} />}
+      {tab === 'activity' && <ActivityPanel items={activity} />}
+      {tab === 'maintenance' && (
+        <MaintenancePanel count={snapshot.maintenanceUnits} propertyId={property.id} />
+      )}
 
       <SharePropertyModal
         open={shareOpen}
@@ -297,8 +235,7 @@ export function PropertyDetailPage() {
                 unit_number: editingUnit.unit_number,
                 unit_name: editingUnit.unit_name ?? '',
                 area_sqm: editingUnit.area_sqm != null ? String(editingUnit.area_sqm) : '',
-                monthly_rent:
-                  editingUnit.monthly_rent != null ? String(editingUnit.monthly_rent) : '',
+                monthly_rent: editingUnit.monthly_rent != null ? String(editingUnit.monthly_rent) : '',
                 unit_status: editingUnit.unit_status,
                 floor: editingUnit.floor != null ? String(editingUnit.floor) : '',
               }
