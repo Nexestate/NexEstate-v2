@@ -147,13 +147,13 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
         <button
           type="button"
           aria-label="סגור"
-          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+          className="fixed inset-0 z-40 overlay-blur lg:hidden"
           onClick={() => setMoreOpen(false)}
         />
       )}
 
       {moreOpen && config.more && (
-        <div className="fixed inset-x-4 bottom-20 z-50 rounded-2xl border border-border bg-card p-4 shadow-xl lg:hidden">
+        <div className="fixed inset-x-4 bottom-20 z-50 rounded-3xl border border-border/90 bg-detail-panel p-5 shadow-2xl lg:hidden">
           <div className="mb-3 flex items-center justify-between">
             <span className="font-semibold">עוד</span>
             <button type="button" onClick={() => setMoreOpen(false)} className="text-muted-foreground">
@@ -199,7 +199,7 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
 
       <nav
         className={cn(
-          'fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur lg:hidden',
+          'fixed inset-x-0 bottom-0 z-30 border-t border-border/90 bg-detail-panel/95 shadow-[0_-8px_32px_-12px_rgba(0,0,0,0.45)] backdrop-blur-md lg:hidden',
           'pb-[max(0.5rem,env(safe-area-inset-bottom))]',
         )}
       >
@@ -214,7 +214,7 @@ export function MobileBottomNav({ variant }: MobileBottomNavProps) {
                 aria-current={active ? 'page' : undefined}
                 className={cn(
                   'flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 text-xs touch-manipulation',
-                  active ? 'text-primary' : 'text-muted-foreground',
+                  active ? 'rounded-xl bg-primary/15 text-primary' : 'text-muted-foreground',
                 )}
               >
                 <Icon className="h-5 w-5" />

@@ -15,6 +15,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { PageSection } from '../../components/ui/PageSection';
 import { PageSkeleton } from '../../components/ui/Skeleton';
 import { useAuth } from '../../contexts/AuthContext';
 import { useQuickAdd } from '../../contexts/QuickAddContext';
@@ -160,31 +161,34 @@ export function BrokerHome() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {attention.length > 0 && (
-        <Card className="border-warning/25">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-warning" />
-              דורש תשומת לב
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        <PageSection className="border-warning/40 bg-warning/5">
+          <div className="flex items-center gap-3">
+            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-warning/20 text-warning ring-1 ring-warning/35">
+              <AlertTriangle className="h-6 w-6" />
+            </span>
+            <div>
+              <h2 className="text-page-title">דורש תשומת לב עכשיו</h2>
+              <p className="text-meta">טיפול מהיר בפריטים הקריטיים ביותר</p>
+            </div>
+          </div>
+          <div className="space-y-3">
             {attention.map((item) => (
               <Link
                 key={item.id}
                 to={item.to}
-                className="flex items-start justify-between gap-3 rounded-xl border border-border p-4 transition-colors hover:border-primary/40 hover:bg-muted/30"
+                className="flex items-start justify-between gap-4 rounded-2xl border border-border/90 bg-card/80 p-5 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
               >
                 <div>
-                  <p className="font-medium">{item.title}</p>
-                  <p className="text-meta mt-0.5">{item.detail}</p>
+                  <p className="text-lg font-semibold">{item.title}</p>
+                  <p className="text-meta mt-1">{item.detail}</p>
                 </div>
-                <span className="shrink-0 text-sm text-primary">פתח ←</span>
+                <span className="shrink-0 text-sm font-semibold text-primary">פתח ←</span>
               </Link>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </PageSection>
       )}
 
       <StatCardGrid>
@@ -196,7 +200,7 @@ export function BrokerHome() {
         <StatCard label="משימות" value={stats.tasks} icon={ClipboardList} color="#f59e0b" to="/broker/tasks" />
       </StatCardGrid>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden border-success/30">
         <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <span className="grid h-12 w-12 place-items-center rounded-xl bg-success/10 text-success">
@@ -212,12 +216,12 @@ export function BrokerHome() {
             <p className="text-3xl font-bold text-success">{stats.occupancyPercent}%</p>
           </div>
         </CardContent>
-        <div className="h-1.5 bg-muted">
-          <div className="h-full bg-success transition-all" style={{ width: `${stats.occupancyPercent}%` }} />
+        <div className="h-2 bg-muted">
+          <div className="h-full rounded-full bg-success transition-all" style={{ width: `${stats.occupancyPercent}%` }} />
         </div>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>משימות קרובות</CardTitle>

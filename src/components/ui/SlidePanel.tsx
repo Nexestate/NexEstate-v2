@@ -29,17 +29,18 @@ export function SlidePanel({ open, onClose, title, children, footer, className }
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      <button type="button" aria-label="סגור" className="absolute inset-0 bg-[#0b1a30]/55" onClick={onClose} />
+      <button type="button" aria-label="סגור" className="absolute inset-0 overlay-blur" onClick={onClose} />
       <aside
         role="dialog"
         aria-modal="true"
         aria-labelledby="slide-panel-title"
         className={cn(
-          'relative z-10 flex h-full w-full max-w-lg flex-col border-s border-border bg-card shadow-2xl',
+          'relative z-10 flex h-full w-full max-w-md flex-col border-s border-border/90 bg-detail-panel shadow-2xl',
+          'before:absolute before:inset-y-0 before:start-0 before:w-1 before:bg-gradient-to-b before:from-primary before:to-success',
           className,
         )}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-border/80 px-6 py-5">
           <h2 id="slide-panel-title" className="text-section-title">
             {title}
           </h2>
@@ -47,8 +48,8 @@ export function SlidePanel({ open, onClose, title, children, footer, className }
             <X className="h-5 w-5" />
           </Button>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4">{children}</div>
-        {footer && <div className="shrink-0 border-t border-border px-5 py-4">{footer}</div>}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5">{children}</div>
+        {footer && <div className="shrink-0 border-t border-border/80 px-6 py-5">{footer}</div>}
       </aside>
     </div>
   );

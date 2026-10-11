@@ -26,10 +26,10 @@ const ICONS: Record<ToastVariant, typeof Info> = {
 };
 
 const STYLES: Record<ToastVariant, string> = {
-  success: 'border-success/30 bg-card text-foreground',
-  error: 'border-destructive/30 bg-card text-foreground',
-  info: 'border-primary/30 bg-card text-foreground',
-  warning: 'border-warning/30 bg-card text-foreground',
+  success: 'border-success/50 bg-detail-panel text-foreground shadow-lg shadow-success/10',
+  error: 'border-destructive/50 bg-detail-panel text-foreground shadow-lg shadow-destructive/10',
+  info: 'border-primary/50 bg-detail-panel text-foreground shadow-lg shadow-primary/10',
+  warning: 'border-warning/50 bg-detail-panel text-foreground shadow-lg shadow-warning/10',
 };
 
 const ICON_STYLES: Record<ToastVariant, string> = {
@@ -70,14 +70,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <div
               key={item.id}
               className={cn(
-                'pointer-events-auto flex gap-3 rounded-2xl border px-4 py-3 shadow-lg elevation-card',
+                'pointer-events-auto flex gap-3 rounded-2xl border px-5 py-4 shadow-xl',
                 STYLES[item.variant],
               )}
               role="status"
             >
               <Icon className={cn('mt-0.5 h-5 w-5 shrink-0', ICON_STYLES[item.variant])} />
               <div className="min-w-0 flex-1">
-                <p className="font-medium">{item.title}</p>
+                <p className="text-base font-semibold">{item.title}</p>
                 {item.description && <p className="text-meta mt-0.5">{item.description}</p>}
               </div>
               <button

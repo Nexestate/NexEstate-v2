@@ -28,7 +28,7 @@ export function AttentionList({
   const allClear = actions.length === 1 && actions[0]?.tone === 'success';
 
   return (
-    <Card className={allClear ? 'border-success/20' : 'border-warning/20'}>
+    <Card className={allClear ? 'border-success/35 bg-success/5' : 'border-warning/40 bg-warning/5'}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {allClear ? (
@@ -43,8 +43,8 @@ export function AttentionList({
         {actions.map((action) => {
           if (action.tone === 'success') {
             return (
-              <div key={action.id} className="rounded-xl border border-success/20 bg-success/5 p-4">
-                <p className="font-medium">{action.title}</p>
+              <div key={action.id} className="rounded-2xl border border-success/35 bg-card/60 p-5">
+                <p className="text-lg font-semibold">{action.title}</p>
                 <p className="text-meta mt-0.5">{action.detail}</p>
               </div>
             );
@@ -54,10 +54,10 @@ export function AttentionList({
             <Link
               key={action.id}
               to={to}
-              className="flex items-start justify-between gap-3 rounded-xl border border-border p-4 transition-colors hover:border-primary/40 hover:bg-muted/30"
+              className="flex items-start justify-between gap-4 rounded-2xl border border-border/90 bg-card/80 p-5 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
             >
               <div>
-                <p className="font-medium">{action.title}</p>
+                <p className="text-lg font-semibold">{action.title}</p>
                 <p className="text-meta mt-0.5">{action.detail}</p>
               </div>
               <span className="shrink-0 text-sm text-primary">פתח ←</span>

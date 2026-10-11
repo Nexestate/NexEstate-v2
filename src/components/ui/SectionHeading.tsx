@@ -9,10 +9,10 @@ interface SectionHeadingProps {
 
 export function SectionHeading({ title, description, action, className }: SectionHeadingProps) {
   return (
-    <div className={cn('flex items-start justify-between gap-3', className)}>
+    <div className={cn('flex items-start justify-between gap-4 border-b border-border/60 pb-4', className)}>
       <div>
-        <h3 className="text-section-title">{title}</h3>
-        {description && <p className="text-meta mt-1">{description}</p>}
+        <h3 className="text-page-title">{title}</h3>
+        {description && <p className="text-meta mt-1.5 max-w-2xl">{description}</p>}
       </div>
       {action}
     </div>

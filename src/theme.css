@@ -24,44 +24,47 @@
   --color-detail-panel: var(--theme-detail-panel);
   --color-sidebar: var(--theme-sidebar);
   --color-sidebar-border: var(--theme-sidebar-border);
-  --color-sidebar-foreground: #dce7f5;
+  --color-sidebar-foreground: #e8f0fa;
   --color-workspace: var(--theme-workspace);
+  --color-shell: var(--theme-shell);
 }
 
-/* Light: soft slate workspace */
+/* Light: airy slate workspace */
 :root {
-  --theme-background: #e8eef6;
-  --theme-workspace: #f4f7fb;
+  --theme-shell: #cbd8e8;
+  --theme-background: #d4e0ef;
+  --theme-workspace: #eef3f9;
   --theme-foreground: #0f172a;
   --theme-card: #ffffff;
   --theme-card-foreground: #0f172a;
-  --theme-muted: #dce6f2;
+  --theme-muted: #e2eaf4;
   --theme-muted-foreground: #475569;
-  --theme-border: #c5d4e6;
-  --theme-input: #e2eaf4;
-  --theme-sidebar: #0b1a30;
-  --theme-sidebar-border: #1a3050;
+  --theme-border: #b8c9de;
+  --theme-input: #e8eef6;
+  --theme-sidebar: #0a1628;
+  --theme-sidebar-border: #1e3a5f;
   --theme-secondary: #dce6f2;
   --theme-secondary-foreground: #0f172a;
-  --theme-detail-panel: #f8fafc;
+  --theme-detail-panel: #ffffff;
 }
 
-/* Dark: navy shell + lifted slate cards — no pure black */
+/* Dark: deep navy rail + clearly lifted blue-slate workspace (not near-black) */
 html.dark {
-  --theme-background: #122033;
-  --theme-workspace: #15253a;
-  --theme-foreground: #e8eef6;
-  --theme-card: #1a2b42;
-  --theme-card-foreground: #e8eef6;
-  --theme-muted: #1e334d;
-  --theme-muted-foreground: #9aadc2;
-  --theme-border: #2a3f5a;
-  --theme-input: #1e334d;
-  --theme-sidebar: #0b1a30;
-  --theme-sidebar-border: #1a3050;
-  --theme-secondary: #1e334d;
-  --theme-secondary-foreground: #e8eef6;
-  --theme-detail-panel: #16304a;
+  --theme-shell: #142a45;
+  --theme-background: #1a3554;
+  --theme-workspace: #243d5c;
+  --theme-foreground: #f0f5fc;
+  --theme-card: #2f4a6e;
+  --theme-card-foreground: #f0f5fc;
+  --theme-muted: #385575;
+  --theme-muted-foreground: #b8c9de;
+  --theme-border: #4a6589;
+  --theme-input: #334d70;
+  --theme-sidebar: #071222;
+  --theme-sidebar-border: #1a3352;
+  --theme-secondary: #385575;
+  --theme-secondary-foreground: #f0f5fc;
+  --theme-detail-panel: #3a567a;
 }
 
 @layer base {
@@ -76,7 +79,9 @@ html.dark {
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased text-base;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-size: 1.0625rem;
+    line-height: 1.55;
     margin: 0;
     min-height: 100vh;
     min-height: 100dvh;
@@ -109,16 +114,25 @@ html.dashboard-shell #root {
   overflow: hidden;
 }
 
+@keyframes shimmer-slide {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 @layer utilities {
   .glass-card {
-    background-color: color-mix(in oklab, var(--color-card) 88%, transparent);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--color-border);
-    border-radius: 1rem;
+    background-color: color-mix(in oklab, var(--color-card) 92%, transparent);
+    backdrop-filter: blur(12px);
+    border: 1px solid color-mix(in oklab, var(--color-border) 80%, white 10%);
+    border-radius: 1.25rem;
   }
 
   .glow-primary {
-    box-shadow: 0 0 40px -12px rgb(59 130 246 / 0.28);
+    box-shadow: 0 0 48px -12px rgb(59 130 246 / 0.45);
   }
 
   .touch-manipulation {
@@ -129,33 +143,79 @@ html.dashboard-shell #root {
     background-color: var(--color-detail-panel);
   }
 
+  .text-display {
+    font-size: 2rem;
+    line-height: 2.375rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
   .text-page-title {
-    font-size: 1.5rem;
-    line-height: 2rem;
+    font-size: 1.875rem;
+    line-height: 2.25rem;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
 
   .text-section-title {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
+    font-size: 1.3125rem;
+    line-height: 1.875rem;
     font-weight: 600;
-  }
-
-  .text-value {
-    font-size: 1.5rem;
-    line-height: 2rem;
-    font-weight: 700;
     letter-spacing: -0.02em;
   }
 
+  .text-value {
+    font-size: 1.75rem;
+    line-height: 2.125rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
   .text-meta {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: 0.9375rem;
+    line-height: 1.375rem;
     color: var(--color-muted-foreground);
   }
 
   .elevation-card {
-    box-shadow: 0 8px 24px -16px rgb(11 26 48 / 0.45);
+    box-shadow:
+      0 1px 0 color-mix(in oklab, white 12%, transparent),
+      0 16px 40px -24px rgb(7 18 34 / 0.65);
+  }
+
+  .elevation-shell {
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, white 8%, transparent),
+      0 24px 64px -32px rgb(0 0 0 / 0.55);
+  }
+
+  .workspace-frame {
+    background-color: var(--color-workspace);
+    border: 1px solid color-mix(in oklab, var(--color-border) 90%, white 8%);
+  }
+
+  .dashboard-section {
+    @apply space-y-5 rounded-3xl border p-6 lg:p-8;
+    border-color: color-mix(in oklab, var(--color-border) 85%, white 6%);
+    background-color: color-mix(in oklab, var(--color-card) 88%, var(--color-workspace));
+    box-shadow:
+      0 1px 0 color-mix(in oklab, white 10%, transparent),
+      0 20px 48px -28px rgb(7 18 34 / 0.5);
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(
+      105deg,
+      var(--color-muted) 0%,
+      color-mix(in oklab, var(--color-muted) 70%, white 15%) 45%,
+      var(--color-muted) 90%
+    );
+    background-size: 200% 100%;
+    animation: shimmer-slide 1.4s ease-in-out infinite;
+  }
+
+  .overlay-blur {
+    background-color: color-mix(in oklab, var(--color-sidebar) 72%, transparent);
+    backdrop-filter: blur(10px);
   }
 }

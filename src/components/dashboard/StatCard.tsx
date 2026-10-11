@@ -13,17 +13,17 @@ interface StatCardProps {
 
 export function StatCard({ label, value, icon: Icon, color, to }: StatCardProps) {
   const content = (
-    <Card className="transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5">
-      <CardContent className="flex items-center gap-3 py-4">
+    <Card className="transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
+      <CardContent className="flex items-center gap-4 py-5 lg:py-6">
         <span
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-xl"
-          style={{ backgroundColor: `${color}1f`, color }}
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl ring-1 ring-white/10"
+          style={{ backgroundColor: `${color}28`, color }}
         >
-          <Icon className="h-5 w-5" />
+          <Icon className="h-6 w-6" />
         </span>
         <div>
           <div className="text-value">{value}</div>
-          <div className="text-meta">{label}</div>
+          <div className="text-meta mt-0.5">{label}</div>
         </div>
       </CardContent>
     </Card>
@@ -47,7 +47,7 @@ interface StatCardGridProps {
 
 export function StatCardGrid({ children, className }: StatCardGridProps) {
   return (
-    <div className={cn('grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6', className)}>
+    <div className={cn('grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6', className)}>
       {children}
     </div>
   );

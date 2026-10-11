@@ -92,16 +92,16 @@ export function Sidebar({
   };
 
   return (
-    <aside className="flex h-[100dvh] w-64 flex-col border-s border-sidebar-border bg-sidebar text-sidebar-foreground">
-      <div className="border-b border-sidebar-border p-4">
+    <aside className="flex h-[100dvh] w-[17.5rem] flex-col border-s border-sidebar-border bg-gradient-to-b from-sidebar to-[#050e1a] text-sidebar-foreground">
+      <div className="border-b border-sidebar-border/80 p-5">
         <Logo size="sm" className="[&_.text-foreground]:text-sidebar-foreground" />
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-3">
+      <nav className="flex-1 overflow-y-auto p-4">
         {sections.map((section) => (
           <div key={section.title || 'main'} className="mb-4">
             {section.title && (
-              <p className="mb-2 px-3 text-sm font-semibold text-sidebar-foreground/55">
+              <p className="mb-2 px-3 text-xs font-bold uppercase tracking-wide text-sidebar-foreground/50">
                 {section.title}
               </p>
             )}
@@ -379,7 +379,7 @@ export function SidebarOverlay({ open, onClose }: { open: boolean; onClose: () =
     <button
       type="button"
       aria-label="סגור תפריט"
-      className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+      className="fixed inset-0 z-40 overlay-blur lg:hidden"
       onClick={onClose}
     />
   );

@@ -1,6 +1,6 @@
 # NexEstate — Phase 2 / 3 implementation plan
 
-**Updated:** 2026-10-10  
+**Updated:** 2026-10-11  
 **Source of truth:** Phase 1 production + Phase 2A (`5567b72`) + this file.
 
 Do **not** rewrite. Extend the current architecture.
@@ -38,7 +38,8 @@ Existing payment/accounting **vendor list** (already in Settings, not monday.com
 | Slice | Status | What |
 |-------|--------|------|
 | **2A** | Shipped | Tokens, Toast, Skeleton, SlidePanel, DataView, attention home |
-| **2B** | Shipped (this slice) | Property workspace shell + operational overview |
+| **2B** | Shipped | Property workspace shell + operational overview |
+| **2B+** | Ready to deploy | High-impact visual system: lifted slate workspace, shell frame, larger type, stronger cards/tables/badges, modern modals/drawers, mobile nav, broker home + property workspace polish |
 | **2C** | Next | Private document vault + checklist persistence |
 | **2D** | Later | Agreement lifecycle, email send, gated reveal |
 | **2E** | Later | Persisted activity + notifications |

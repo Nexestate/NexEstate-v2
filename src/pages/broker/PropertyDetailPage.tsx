@@ -136,7 +136,7 @@ export function PropertyDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <Link
         to="/broker/properties"
         className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
@@ -151,7 +151,7 @@ export function PropertyDetailPage() {
             <Building2 className="h-7 w-7" />
           </span>
           <div>
-            <h2 className="text-page-title">{property.title}</h2>
+            <h2 className="text-display">{property.title}</h2>
             <p className="text-meta mt-1 flex items-center gap-1">
               <MapPin className="h-4 w-4" />
               {property.address}, {property.city}
@@ -173,7 +173,7 @@ export function PropertyDetailPage() {
       <PropertySubNav propertyId={property.id} />
 
       {tab === 'overview' && (
-        <div className="space-y-6">
+        <div className="space-y-8">
           <AttentionList actions={actions} propertyId={property.id} />
           <OverviewFacts property={property} tenants={tenants} leases={leases} snapshot={snapshot} />
           <Card>

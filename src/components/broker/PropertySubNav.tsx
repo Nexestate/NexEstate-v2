@@ -25,7 +25,7 @@ export function PropertySubNav({ propertyId, className }: PropertySubNavProps) {
   return (
     <nav
       className={cn(
-        'flex gap-1 overflow-x-auto rounded-xl border border-border bg-card/50 p-1',
+        'flex gap-1.5 overflow-x-auto rounded-2xl border border-border/90 bg-card/70 p-1.5 shadow-sm',
         className,
       )}
       aria-label="ניווט נכס"
@@ -39,10 +39,10 @@ export function PropertySubNav({ propertyId, className }: PropertySubNavProps) {
             to={to}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors',
+              'inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors',
               active
-                ? 'bg-primary/10 text-primary shadow-sm'
-                : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+                ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
+                : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground',
             )}
           >
             <Icon className="h-4 w-4 shrink-0" />

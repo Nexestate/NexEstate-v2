@@ -50,15 +50,15 @@ export function DashboardLayout({
       subtitle={headerSubtitle}
       onMenuClick={() => setSidebarOpen(true)}
       notificationsPath={notificationsPath}
-      className="pb-0 lg:pb-6"
+      className="pb-0 lg:pb-2"
     />
   );
 
   return (
     <QuickAddProvider>
       <EntityDetailProvider userId={user?.id}>
-        <div className="flex h-[100dvh] min-h-0 min-w-0 overflow-hidden bg-workspace">
-          <div className="hidden h-full shrink-0 lg:block">
+        <div className="flex h-[100dvh] min-h-0 min-w-0 overflow-hidden bg-shell">
+          <div className="hidden h-full shrink-0 shadow-2xl shadow-black/40 ring-1 ring-white/5 lg:block">
             <Sidebar
               sections={sections}
               managedProperties={managedProperties}
@@ -76,19 +76,21 @@ export function DashboardLayout({
             />
           </MobileSidebarDrawer>
 
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-            <div className="z-30 shrink-0 border-b border-border bg-workspace/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-workspace/80 lg:hidden">
-              {header}
-            </div>
-
-            <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-              <div className="hidden px-8 pt-8 lg:block">{header}</div>
-              <div className="p-4 pb-28 lg:p-8 lg:pb-8">
-                <Outlet />
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden p-2 sm:p-3 lg:pe-4 lg:ps-2 lg:pt-3 lg:pb-3">
+            <div className="workspace-frame elevation-shell flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl lg:rounded-3xl">
+              <div className="z-30 shrink-0 border-b border-border/80 bg-workspace/90 px-4 py-4 backdrop-blur-md lg:hidden">
+                {header}
               </div>
-            </main>
 
-            <MobileBottomNav variant={bottomNav} />
+              <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+                <div className="hidden px-6 pt-8 lg:block lg:px-10">{header}</div>
+                <div className="p-4 pb-28 sm:p-6 lg:px-10 lg:pb-10 lg:pt-4">
+                  <Outlet />
+                </div>
+              </main>
+
+              <MobileBottomNav variant={bottomNav} />
+            </div>
           </div>
         </div>
         <QuickAddModals />

@@ -18,7 +18,7 @@ const SIZE_CLASS: Record<NonNullable<ModalProps['size']>, string> = {
   lg: 'max-w-2xl',
   xl: 'max-w-4xl',
   drawer:
-    'max-w-lg sm:max-h-full sm:max-w-xl sm:ms-auto sm:me-0 sm:rounded-none sm:rounded-s-2xl sm:rounded-t-2xl',
+    'max-w-lg sm:max-h-full sm:max-w-xl sm:ms-auto sm:me-0 sm:rounded-none sm:rounded-s-3xl sm:rounded-t-3xl',
 };
 
 export function Modal({ open, onClose, title, children, className, size = 'md' }: ModalProps) {
@@ -38,18 +38,19 @@ export function Modal({ open, onClose, title, children, className, size = 'md' }
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <button type="button" aria-label="סגור" className="absolute inset-0 bg-[#0b1a30]/55" onClick={onClose} />
+      <button type="button" aria-label="סגור" className="absolute inset-0 overlay-blur" onClick={onClose} />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         className={cn(
-          'relative z-10 flex max-h-[min(92dvh,100%)] w-full flex-col rounded-t-2xl border border-border bg-card shadow-xl sm:rounded-2xl',
+          'relative z-10 flex max-h-[min(92dvh,100%)] w-full flex-col overflow-hidden rounded-t-3xl border border-border/90 bg-detail-panel shadow-2xl sm:rounded-3xl',
+          'before:absolute before:inset-x-0 before:top-0 before:h-1 before:bg-gradient-to-l before:from-primary before:to-success',
           SIZE_CLASS[size],
           className,
         )}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-border px-6 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-border/80 px-6 py-5 pt-6">
           <h2 id={titleId} className="text-section-title">
             {title}
           </h2>
@@ -57,7 +58,7 @@ export function Modal({ open, onClose, title, children, className, size = 'md' }
             <X className="h-5 w-5" />
           </Button>
         </div>
-        <div data-modal-scroll className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-4">
+        <div data-modal-scroll className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5">
           {children}
         </div>
       </div>
