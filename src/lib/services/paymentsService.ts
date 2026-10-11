@@ -114,11 +114,26 @@ export async function fetchPayments(propertyIds?: string[]): Promise<Payment[]> 
       '*, leases(id, property_id, unit_id, tenant_id, tenants(full_name), properties(title), property_units(unit_number))',
     )
     .order('due_date', { ascending: false });
+
   if (propertyIds?.length) {
-    query = query.in('property_id', propertyIds);
+    const { data: leaseRows, error: leaseError } = await client
+      .from('leases')
+      .select('id')
+      .in('property_id', propertyIds);
+    if (leaseError) {
+      console.warn('[fetchPayments] leases lookup failed', leaseError.message);
+      return [];
+    }
+    const leaseIds = (leaseRows ?? []).map((r) => r.id as string).filter(Boolean);
+    if (leaseIds.length === 0) return [];
+    query = query.in('lease_id', leaseIds);
   }
+
   const { data, error } = await query;
-  throwIfError(error);
+  if (error) {
+    console.warn('[fetchPayments]', error.message);
+    return [];
+  }
 
   return (data ?? []).map((row) => {
     const lease = row.leases as Parameters<typeof mapPaymentRow>[1];

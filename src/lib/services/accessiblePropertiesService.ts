@@ -51,3 +51,20 @@ export async function fetchAccessiblePropertyIds(
   const properties = await fetchAccessibleProperties(userId, role);
   return properties.map((p) => p.id);
 }
+
+/** Load one property the user owns or has shared access to. */
+export async function fetchAccessiblePropertyById(
+  userId: string,
+  propertyId: string,
+  role?: UserRole,
+): Promise<PropertyWithUnits | undefined> {
+  try {
+    const direct = await fetchProperty(propertyId);
+    if (direct) return direct;
+  } catch (err) {
+    console.warn('[fetchAccessiblePropertyById] direct load failed', propertyId, err);
+  }
+
+  const accessible = await fetchAccessibleProperties(userId, role);
+  return accessible.find((p) => p.id === propertyId);
+}

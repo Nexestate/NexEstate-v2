@@ -134,7 +134,10 @@ export async function fetchSigningLinks(brokerId?: string): Promise<SigningLink[
   if (brokerId) query = query.eq('broker_id', brokerId);
 
   const { data, error } = await query;
-  throwIfError(error);
+  if (error) {
+    console.warn('[fetchSigningLinks]', error.message);
+    return [];
+  }
 
   return (data ?? []).map((row) => mapSigningRow(row));
 }

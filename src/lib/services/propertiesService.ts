@@ -158,7 +158,7 @@ export async function fetchProperty(id: string): Promise<PropertyWithUnits | und
   }
 
   const client = requireSupabase();
-  const { data: prop, error } = await client.from('properties').select('*').eq('id', id).single();
+  const { data: prop, error } = await client.from('properties').select('*').eq('id', id).maybeSingle();
   throwIfError(error);
   if (!prop) return undefined;
 

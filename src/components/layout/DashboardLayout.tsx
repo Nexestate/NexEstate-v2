@@ -50,7 +50,7 @@ export function DashboardLayout({
       subtitle={headerSubtitle}
       onMenuClick={() => setSidebarOpen(true)}
       notificationsPath={notificationsPath}
-      className="pb-0 lg:pb-2"
+      className="pb-0"
     />
   );
 
@@ -78,13 +78,15 @@ export function DashboardLayout({
 
           <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden p-2 sm:p-3 lg:pe-4 lg:ps-2 lg:pt-3 lg:pb-3">
             <div className="workspace-frame elevation-shell flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl lg:rounded-3xl">
-              <div className="z-30 shrink-0 border-b border-border/80 bg-workspace/90 px-4 py-4 backdrop-blur-md lg:hidden">
+              <div
+                className="sticky top-0 z-40 shrink-0 border-b border-border/80 bg-workspace/95 px-4 py-3 backdrop-blur-md supports-[backdrop-filter]:bg-workspace/85 sm:px-6 lg:px-10 lg:py-4"
+                style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top, 0px))' }}
+              >
                 {header}
               </div>
 
               <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-                <div className="hidden px-6 pt-8 lg:block lg:px-10">{header}</div>
-                <div className="p-4 pb-28 sm:p-6 lg:px-10 lg:pb-10 lg:pt-4">
+                <div className="p-4 pb-28 sm:p-6 lg:px-10 lg:pb-10 lg:pt-6">
                   <Outlet />
                 </div>
               </main>

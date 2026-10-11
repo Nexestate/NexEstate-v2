@@ -23,7 +23,7 @@ export function Header({
   const unread = useUnreadNotifications(user?.id);
 
   return (
-    <header className={cn('flex items-center justify-between gap-4 pb-4', className)}>
+    <header className={cn('flex min-w-0 items-center justify-between gap-3 sm:gap-4', className)}>
       <div className="flex items-center gap-3">
         {onMenuClick && (
           <Button variant="outline" size="icon" className="lg:hidden" onClick={onMenuClick} aria-label="תפריט">

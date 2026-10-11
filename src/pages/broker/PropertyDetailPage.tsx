@@ -40,7 +40,7 @@ export function PropertyDetailPage() {
   const tabParam = searchParams.get('tab');
   const tab = WORKSPACE_TABS.includes(tabParam as WorkspaceTab) ? (tabParam as WorkspaceTab) : 'overview';
   const { user } = useAuth();
-  const { property, tenants, leases, links, snapshot, actions, activity, loading, reload } =
+  const { property, tenants, leases, links, snapshot, actions, activity, loading, loadError, reload } =
     usePropertyWorkspace(id);
   const [shareOpen, setShareOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -127,8 +127,9 @@ export function PropertyDetailPage() {
   if (!property || !snapshot) {
     return (
       <div className="py-20 text-center">
-        <p className="text-muted-foreground">נכס לא נמצא</p>
-        <Link to="/broker/properties" className="mt-4 text-primary hover:underline">
+        <p className="text-muted-foreground">{loadError ?? 'נכס לא נמצא'}</p>
+        <p className="text-meta mt-2">ייתכן שאין הרשאה לצפות בנכס או שהקישור לא תקין.</p>
+        <Link to="/broker/properties" className="mt-4 inline-block text-primary hover:underline">
           חזרה לנכסים
         </Link>
       </div>
