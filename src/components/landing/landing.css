@@ -271,6 +271,40 @@
   .landing-page h3 {
     letter-spacing: -0.02em;
   }
+
+  /* Public site header — fixed bar + constant spacer (sticky breaks when body uses overflow-x) */
+  .landing-public-header {
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-border) 75%, transparent);
+    background-color: color-mix(in oklab, var(--theme-shell) 90%, transparent);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 8px 32px -12px rgb(0 0 0 / 0.45);
+  }
+
+  html:not(.dark) .landing-public-header {
+    background-color: color-mix(in oklab, var(--color-background) 94%, white);
+    box-shadow: 0 4px 20px -10px rgb(15 23 42 / 0.12);
+  }
+
+  .landing-header-spacer {
+    height: calc(var(--landing-header-h, 3.5rem) + env(safe-area-inset-top, 0px));
+    pointer-events: none;
+  }
+}
+
+html.public-site {
+  --landing-header-h: 3.5rem;
+  scroll-padding-top: calc(var(--landing-header-h) + env(safe-area-inset-top, 0px) + 0.75rem);
+}
+
+@media (min-width: 1024px) {
+  html.public-site {
+    --landing-header-h: 4rem;
+  }
 }
 
 /* ─── Accessibility modes (applied on <html>) ─── */

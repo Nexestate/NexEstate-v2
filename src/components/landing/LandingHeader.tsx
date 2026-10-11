@@ -93,7 +93,8 @@ export function LandingHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-xl" dir="rtl">
+    <header className="landing-public-header" dir="rtl">
+      <div className="pt-[env(safe-area-inset-top,0px)]">
       <div className="mx-auto grid h-14 max-w-[1400px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 lg:h-16 lg:gap-4 lg:px-6">
         <Logo size="sm" className="shrink-0" />
 
@@ -121,11 +122,11 @@ export function LandingHeader() {
                       <>
                         <button
                           type="button"
-                          className="fixed inset-0 z-40"
+                          className="fixed inset-0 z-[105]"
                           onClick={() => setOpenDropdown(null)}
                           aria-label="סגור"
                         />
-                        <div className="nav-dropdown absolute start-0 top-full z-50 mt-2 min-w-[220px] overflow-hidden rounded-xl border border-primary/20 bg-card py-1.5 shadow-2xl">
+                        <div className="nav-dropdown absolute start-0 top-full z-[110] mt-2 min-w-[220px] overflow-hidden rounded-xl border border-primary/20 bg-card py-1.5 shadow-2xl">
                           {item.children.map((child) => {
                             const ChildIcon = child.icon;
                             return (
@@ -216,7 +217,7 @@ export function LandingHeader() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-border/50 bg-background/95 px-4 py-4 backdrop-blur-xl lg:hidden">
+        <div className="max-h-[min(75dvh,calc(100dvh-var(--landing-header-h,3.5rem)-env(safe-area-inset-top,0px)))] overflow-y-auto overscroll-contain border-t border-border/50 bg-[color-mix(in_oklab,var(--theme-shell)_92%,transparent)] px-4 py-4 backdrop-blur-xl lg:hidden">
           <nav className="flex flex-col gap-1">
             {NAV_LINKS.map((item) => {
               const Icon = item.icon;
@@ -276,6 +277,7 @@ export function LandingHeader() {
           </div>
         </div>
       )}
+      </div>
     </header>
   );
 }
