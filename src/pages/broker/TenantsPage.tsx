@@ -1,4 +1,4 @@
-import { Building2, Calendar, User } from 'lucide-react';
+import { Building2, Calendar, Plus, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PropertySubNav } from '../../components/broker/PropertySubNav';
@@ -8,7 +8,9 @@ import { Badge } from '../../components/ui/Badge';
 import { FilterBar } from '../../components/ui/FilterBar';
 import { Tabs } from '../../components/ui/Tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
+import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
+import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useEntityDetail } from '../../contexts/EntityDetailContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { fetchAccessiblePropertyIds, fetchLeasesForProperties, fetchTenantsForProperties } from '../../lib/services';
@@ -28,6 +30,7 @@ function formatDate(date: string) {
 
 export function TenantsPage() {
   const { user } = useAuth();
+  const { openQuickAdd } = useQuickAdd();
   const { openLease, openTenant, openLeaseById, openTenantById, openUnitById } = useEntityDetail();
   const [searchParams, setSearchParams] = useSearchParams();
   const propertyFilter = searchParams.get('property');
@@ -134,15 +137,26 @@ export function TenantsPage() {
         </>
       )}
 
-      <div>
-        <h2 className="text-xl font-bold">שוכרים וחוזים</h2>
-        <p className="text-sm text-muted-foreground">
-          {propertyTitle ? `נכס: ${propertyTitle}` : 'ניהול שוכרים וחוזי שכירות'}
-        </p>
-        {propertyFilter && (
-          <Link to="/broker/tenants" className="mt-1 inline-block text-sm text-primary hover:underline">
-            הצג הכל
-          </Link>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-xl font-bold">שוכרים וחוזים</h2>
+          <p className="text-sm text-muted-foreground">
+            {propertyTitle ? `נכס: ${propertyTitle}` : 'ניהול שוכרים וחוזי שכירות'}
+          </p>
+          {propertyFilter && (
+            <Link to="/broker/tenants" className="mt-1 inline-block text-sm text-primary hover:underline">
+              הצג הכל
+            </Link>
+          )}
+        </div>
+        {section === 'tenants' && (
+          <Button
+            size="sm"
+            onClick={() => openQuickAdd('tenant', propertyFilter ? { propertyId: propertyFilter } : undefined)}
+          >
+            <Plus className="h-4 w-4" />
+            הוסף שוכר
+          </Button>
         )}
       </div>
 

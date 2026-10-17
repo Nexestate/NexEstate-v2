@@ -7,13 +7,12 @@ describe('property workspace URLs', () => {
     expect(propertySubNavUrl('payments', 'p1')).toBe('/broker/payments?property=p1');
   });
 
-  it('keeps documents/agreements on the property page', () => {
-    expect(propertySubNavUrl('documents', 'p1')).toBe('/broker/properties/p1?tab=documents');
+  it('keeps agreements on the property workspace page', () => {
+    expect(propertySubNavUrl('agreements', 'p1')).toBe('/broker/properties/p1?tab=agreements');
     expect(
-      isPropertySubNavActive('/broker/properties/p1', '?tab=documents', '/broker/properties/p1?tab=documents'),
+      isPropertySubNavActive('/broker/properties/p1', '?tab=agreements', '/broker/properties/p1?tab=agreements'),
     ).toBe(true);
     expect(isPropertySubNavActive('/broker/properties/p1', '', '/broker/properties/p1')).toBe(true);
-    expect(isPropertySubNavActive('/broker/properties/p1', '?tab=documents', '/broker/properties/p1')).toBe(false);
   });
 
   it('marks list routes active only for the same property', () => {

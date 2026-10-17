@@ -59,7 +59,6 @@ function buildPropertyNav(propertyId: string): { main: NavItem[]; more: NavItem[
     ],
     more: [
       { label: 'הסכם', to: propertyNavHref(propertyId, 'agreements'), icon: FileSignature },
-      { label: 'מסמכים', to: propertyNavHref(propertyId, 'documents'), icon: FileText },
       { label: 'תחזוקה', to: propertyNavHref(propertyId, 'maintenance'), icon: Wrench },
       { label: 'פעילות', to: propertyNavHref(propertyId, 'activity'), icon: Activity },
       { label: 'לוח בקרה', to: '/broker', icon: LayoutDashboard, end: true },

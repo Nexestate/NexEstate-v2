@@ -1,10 +1,9 @@
 import { AlertTriangle, CheckCircle2, FileSignature, FileText, Wrench } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useEntityDetail } from '../../contexts/EntityDetailContext';
 import {
   formatShortDate,
-  requirementsForTenantType,
   type ActivityItem,
   type WorkspaceAction,
   type WorkspaceSnapshot,
@@ -175,59 +174,6 @@ export function OverviewFacts({
           )}
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-export function DocumentsPanel({ tenants, propertyId }: { tenants: Tenant[]; propertyId: string }) {
-  const navigate = useNavigate();
-  const active = tenants.filter((t) => t.status !== 'ended');
-
-  return (
-    <div className="space-y-4">
-      <SectionHeading
-        title="כספת מסמכים"
-        description="רשימת החובה לפי סוג שוכר. העלאה פרטית תחובר בשלב הכספת — בלי קישורים ציבוריים."
-      />
-      {active.length === 0 ? (
-        <EmptyState
-          icon={FileText}
-          title="אין שוכר לתיק מסמכים"
-          description="הוסיפו שוכר לנכס כדי לראות אילו מסמכים חסרים."
-          actionLabel="לשוכרים"
-          onAction={() => navigate(`/broker/tenants?property=${propertyId}`)}
-        />
-      ) : (
-        active.map((tenant) => {
-          const required = requirementsForTenantType(tenant.tenant_type);
-          return (
-            <Card key={tenant.id}>
-              <CardHeader>
-                <CardTitle>
-                  {tenant.full_name}
-                  <span className="text-meta ms-2 font-normal">
-                    0/{required.length} מסמכי חובה הושלמו
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {required.map((req) => (
-                  <div key={req.id} className="flex items-center justify-between rounded-xl border border-border px-3 py-2">
-                    <span>{req.label}</span>
-                    <Badge variant="outline">חסר</Badge>
-                  </div>
-                ))}
-                <p className="text-meta">
-                  הקבצים יישמרו בבאקט פרטי עם כתובת חתומה קצרת־חיים. לא נשתמש ב־TEXT[] ולא ב־URL ציבורי.
-                </p>
-                <Link to={`/broker/tenants?property=${propertyId}`} className="text-sm text-primary hover:underline">
-                  פתיחת כרטיס שוכר ←
-                </Link>
-              </CardContent>
-            </Card>
-          );
-        })
-      )}
     </div>
   );
 }

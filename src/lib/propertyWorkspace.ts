@@ -7,7 +7,7 @@ import type {
   TenantType,
 } from '../types/domain';
 
-export type WorkspaceTab = 'overview' | 'agreements' | 'documents' | 'activity' | 'maintenance';
+export type WorkspaceTab = 'overview' | 'agreements' | 'activity' | 'maintenance';
 
 export type DocumentRequirement = {
   id: string;
@@ -150,8 +150,8 @@ export function buildWorkspaceActions(
     actions.push({
       id: 'docs',
       title: 'מסמכי שוכר טרם הושלמו',
-      detail: 'כספת המסמכים תשמור ת.ז., ערבויות והסכם חתום',
-      tab: 'documents',
+      detail: 'פתחו כרטיס שוכר לרשימת המסמכים הנדרשים',
+      href: `/broker/tenants?property=${propertyId}`,
       tone: 'info',
     });
   }

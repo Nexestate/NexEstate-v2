@@ -20,6 +20,7 @@ import {
   TENANT_STATUS_LABELS,
   UNIT_STATUS_LABELS,
 } from '../../types/domain';
+import { TenantDocumentsChecklist } from '../property/TenantDocumentsChecklist';
 import { UnitFormModal } from '../property/UnitFormModal';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
@@ -264,6 +265,7 @@ export function EntityDetailModal() {
                 )
               }
             />
+            <TenantDocumentsChecklist tenant={view.data} className="border-t border-border pt-4" />
           </DetailPanel>
         )}
 

@@ -1,6 +1,6 @@
 import { ArrowRight, Building2, MapPin, Pencil, Plus, Share2 } from 'lucide-react';
-import { useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ManagedUnitsTable } from '../../components/broker/ManagedUnitsTable';
 import { PropertySubNav } from '../../components/broker/PropertySubNav';
 import { PropertyUnitCards } from '../../components/broker/PropertyUnitCards';
@@ -8,7 +8,6 @@ import {
   ActivityPanel,
   AgreementsPanel,
   AttentionList,
-  DocumentsPanel,
   MaintenancePanel,
   OverviewFacts,
 } from '../../components/property/PropertyWorkspacePanels';
@@ -32,13 +31,20 @@ import { supabase } from '../../lib/supabase';
 import type { PropertyKind, PropertyStatus, PropertyVisibility } from '../../types';
 import type { PropertyUnit } from '../../types/domain';
 
-const WORKSPACE_TABS: WorkspaceTab[] = ['agreements', 'documents', 'activity', 'maintenance'];
+const WORKSPACE_TABS: WorkspaceTab[] = ['agreements', 'activity', 'maintenance'];
 
 export function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
   const tab = WORKSPACE_TABS.includes(tabParam as WorkspaceTab) ? (tabParam as WorkspaceTab) : 'overview';
+
+  useEffect(() => {
+    if (tabParam === 'documents' && id) {
+      navigate(`/broker/tenants?property=${id}`, { replace: true });
+    }
+  }, [tabParam, id, navigate]);
   const { user } = useAuth();
   const { property, tenants, leases, links, snapshot, actions, activity, loading, loadError, reload } =
     usePropertyWorkspace(id);
@@ -164,10 +170,12 @@ export function PropertyDetailPage() {
             <Pencil className="h-4 w-4" />
             עריכה
           </Button>
-          <Button onClick={() => setShareOpen(true)}>
-            <Share2 className="h-4 w-4" />
-            שתף נכס
-          </Button>
+          {tab === 'overview' && (
+            <Button onClick={() => setShareOpen(true)}>
+              <Share2 className="h-4 w-4" />
+              שתף נכס
+            </Button>
+          )}
         </div>
       </div>
 
@@ -200,7 +208,6 @@ export function PropertyDetailPage() {
         </div>
       )}
 
-      {tab === 'documents' && <DocumentsPanel tenants={tenants} propertyId={property.id} />}
       {tab === 'agreements' && <AgreementsPanel links={links} propertyId={property.id} />}
       {tab === 'activity' && <ActivityPanel items={activity} />}
       {tab === 'maintenance' && (

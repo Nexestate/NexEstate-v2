@@ -17,12 +17,11 @@ export type PropertySubNavSection =
   | 'units'
   | 'tenants'
   | 'agreements'
-  | 'documents'
   | 'payments'
   | 'activity'
   | 'maintenance';
 
-const WORKSPACE_TABS = new Set(['agreements', 'documents', 'activity', 'maintenance']);
+const WORKSPACE_TABS = new Set(['agreements', 'activity', 'maintenance']);
 
 export function propertySubNavUrl(section: PropertySubNavSection, propertyId: string): string {
   if (section === 'overview') return `/broker/properties/${propertyId}`;
