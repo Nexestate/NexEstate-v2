@@ -13,7 +13,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useEntityDetail } from '../../contexts/EntityDetailContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
-import { leaseNeedsAttention } from '../../lib/propertyWorkspace';
+import { leaseNeedsAttention, tenantsNeedingDocuments } from '../../lib/propertyWorkspace';
 import { fetchAccessiblePropertyIds, fetchLeasesForProperties, fetchTenantsForProperties } from '../../lib/services';
 import { formatCurrency } from '../../lib/utils';
 import type { Lease, Tenant } from '../../types/domain';
@@ -39,6 +39,7 @@ export function TenantsPage() {
   const attentionFilter = searchParams.get('attention');
   const section =
     searchParams.get('tab') === 'leases' || attentionFilter === 'renewal' ? 'leases' : 'tenants';
+  const docsAttention = attentionFilter === 'docs';
   const [search, setSearch] = useState('');
   const [leases, setLeases] = useState<Lease[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
@@ -85,18 +86,21 @@ export function TenantsPage() {
     return list;
   }, [leases, search, propertyFilter, attentionFilter]);
 
-  const filteredTenants = useMemo(
-    () =>
-      tenants.filter((t) => {
-        const matchesSearch =
-          t.full_name.includes(search) ||
-          (t.company_name?.includes(search) ?? false) ||
-          (t.property_title?.includes(search) ?? false);
-        const matchesProperty = !propertyFilter || t.property_id === propertyFilter;
-        return matchesSearch && matchesProperty;
-      }),
-    [tenants, search, propertyFilter],
-  );
+  const filteredTenants = useMemo(() => {
+    let list = tenants.filter((t) => {
+      const matchesSearch =
+        t.full_name.includes(search) ||
+        (t.company_name?.includes(search) ?? false) ||
+        (t.property_title?.includes(search) ?? false);
+      const matchesProperty = !propertyFilter || t.property_id === propertyFilter;
+      return matchesSearch && matchesProperty;
+    });
+    if (docsAttention) {
+      const needing = new Set(tenantsNeedingDocuments(list).map((t) => t.id));
+      list = list.filter((t) => needing.has(t.id));
+    }
+    return list;
+  }, [tenants, search, propertyFilter, docsAttention]);
 
   useEffect(() => {
     if (!openId || loading) return;
@@ -168,6 +172,12 @@ export function TenantsPage() {
       {attentionFilter === 'renewal' && propertyFilter && (
         <div className="rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
           מציג חוזים שפגו או מסתיימים בתוך 90 יום — בחרו חוזה מהרשימה לפרטים ולעריכה.
+        </div>
+      )}
+
+      {docsAttention && propertyFilter && (
+        <div className="rounded-xl border border-primary/35 bg-primary/10 px-4 py-3 text-sm">
+          מציג שוכרים פעילים שחסרים להם מסמכים — לחצו על שורה לפתיחת כרטיס השוכר והשלמת הרשימה.
         </div>
       )}
 

@@ -69,7 +69,7 @@ export function AgreementsPage() {
         }
       />
 
-      {links.length === 0 ? (
+      {filteredLinks.length === 0 ? (
         <EmptyState
           icon={FileSignature}
           title="אין קישורי חתימה"
@@ -90,7 +90,7 @@ export function AgreementsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {links.map((link: SigningLink) => (
+            {filteredLinks.map((link: SigningLink) => (
               <TableRow key={link.id}>
                 <TableCell>
                   <p className="font-medium">{link.client_name}</p>

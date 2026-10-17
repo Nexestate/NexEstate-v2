@@ -33,6 +33,11 @@ export function requirementsForTenantType(type?: TenantType): DocumentRequiremen
   return type === 'company' ? COMPANY_DOCUMENT_REQUIREMENTS : INDIVIDUAL_DOCUMENT_REQUIREMENTS;
 }
 
+/** Until document vault (2C), every active tenant is treated as missing uploads. */
+export function tenantsNeedingDocuments(tenants: Tenant[]): Tenant[] {
+  return tenants.filter((t) => t.status === 'active' || t.status === 'ending');
+}
+
 export type WorkspaceAction = {
   id: string;
   title: string;
@@ -149,9 +154,11 @@ export function buildWorkspaceActions(
     }
 
     const detail =
-      days < 0
-        ? `${nearest.tenant_name} · פג ב-${formatShortDate(nearest.end_date)} (לפני ${Math.abs(days)} יום)`
-        : `${nearest.tenant_name} · ${formatShortDate(nearest.end_date)} (עוד ${days} יום)`;
+      sorted.length === 1
+        ? days < 0
+          ? `${nearest.tenant_name} · פג ב-${formatShortDate(nearest.end_date)} (לפני ${Math.abs(days)} יום)`
+          : `${nearest.tenant_name} · ${formatShortDate(nearest.end_date)} (עוד ${days} יום)`
+        : `${sorted.length} חוזים · הקרוב: ${nearest.tenant_name} · ${formatShortDate(nearest.end_date)} · לחצו לרשימה`;
 
     actions.push({
       id: 'lease-end',
@@ -162,14 +169,22 @@ export function buildWorkspaceActions(
     });
   }
 
-  const docTenant = snapshot.currentTenants[0];
-  if (docTenant) {
-    const required = requirementsForTenantType(docTenant.tenant_type).length;
+  const tenantsMissingDocs = tenantsNeedingDocuments(snapshot.currentTenants);
+  if (tenantsMissingDocs.length > 0) {
+    const sample = tenantsMissingDocs
+      .slice(0, 2)
+      .map((t) => t.full_name)
+      .join(' · ');
+    const more =
+      tenantsMissingDocs.length > 2 ? ` · +${tenantsMissingDocs.length - 2} נוספים` : '';
     actions.push({
       id: 'docs',
-      title: 'מסמכי שוכר — השלמת רשימה',
-      detail: `${docTenant.full_name} · ${required} מסמכים נדרשים · פתיחת כרטיס שוכר`,
-      href: `/broker/tenants?property=${propertyId}&open=${docTenant.id}`,
+      title:
+        tenantsMissingDocs.length === 1
+          ? 'מסמכי שוכר — השלמת רשימה'
+          : `מסמכי שוכר — ${tenantsMissingDocs.length} שוכרים לטיפול`,
+      detail: `${sample}${more} · בחרו שוכר מהרשימה להשלמת מסמכים`,
+      href: `/broker/tenants?property=${propertyId}&attention=docs`,
       tone: 'info',
     });
   }

@@ -78,6 +78,21 @@ describe('workspace snapshot + actions', () => {
     expect(actions.some((a) => a.id === 'unsigned')).toBe(true);
   });
 
+  it('links document attention to tenant list, not a single open= modal', () => {
+    const snapshot = buildWorkspaceSnapshot({
+      property,
+      tenants: [tenant, { ...tenant, id: 't2', full_name: 'יוסי' }],
+      leases: [lease],
+      payments: [],
+      links: [],
+    });
+    const actions = buildWorkspaceActions(snapshot, 'p1');
+    const docs = actions.find((a) => a.id === 'docs');
+    expect(docs?.href).toBe('/broker/tenants?property=p1&attention=docs');
+    expect(docs?.href).not.toContain('open=');
+    expect(docs?.title).toContain('2 שוכרים');
+  });
+
   it('describes an already-ended lease as expired, not zero days', () => {
     const snapshot = buildWorkspaceSnapshot({
       property,
