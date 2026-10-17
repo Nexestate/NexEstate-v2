@@ -70,20 +70,39 @@ async function resolveStorageOwnerId(tenantId: string, fallbackManagerId: string
   return (data?.manager_id as string | undefined) ?? (data?.broker_id as string | undefined) ?? fallbackManagerId;
 }
 
+function isMissingDocumentFilesColumn(error: { message?: string; code?: string } | null): boolean {
+  if (!error) return false;
+  const msg = error.message ?? '';
+  return (
+    msg.includes('document_files') ||
+    error.code === 'PGRST204' ||
+    msg.includes('does not exist')
+  );
+}
+
 export async function fetchTenantDocumentFiles(tenantId: string): Promise<TenantDocumentFile[]> {
   if (isDemoMode()) return demoFiles.get(tenantId) ?? [];
 
   const client = requireSupabase();
-  const { data, error } = await client
+  const { data: notesRow, error: notesErr } = await client
     .from('tenants')
-    .select('document_files, notes')
+    .select('notes')
     .eq('id', tenantId)
     .maybeSingle();
-  throwIfError(error);
+  throwIfError(notesErr);
 
-  const fromColumn = parseTenantDocumentFiles(data?.document_files);
-  if (fromColumn.length > 0) return fromColumn;
-  return extractDocsFromNotes(data?.notes as string | null);
+  const { data: colRow, error: colErr } = await client
+    .from('tenants')
+    .select('document_files')
+    .eq('id', tenantId)
+    .maybeSingle();
+
+  if (!colErr && colRow?.document_files != null) {
+    const fromColumn = parseTenantDocumentFiles(colRow.document_files);
+    if (fromColumn.length > 0) return fromColumn;
+  }
+
+  return extractDocsFromNotes(notesRow?.notes as string | null);
 }
 
 async function persistDocumentFiles(tenantId: string, files: TenantDocumentFile[]): Promise<void> {
@@ -99,11 +118,7 @@ async function persistDocumentFiles(tenantId: string, files: TenantDocumentFile[
 
   if (!error) return;
 
-  const missingColumn =
-    error.message.includes('document_files') ||
-    error.code === 'PGRST204' ||
-    error.message.includes('column');
-  if (!missingColumn) throwIfError(error);
+  if (!isMissingDocumentFilesColumn(error)) throwIfError(error);
 
   const { data: row, error: readErr } = await client.from('tenants').select('notes').eq('id', tenantId).maybeSingle();
   throwIfError(readErr);

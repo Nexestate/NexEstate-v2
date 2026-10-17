@@ -14,7 +14,7 @@ import { fetchAccessibleProperties, updateUnit } from '../../lib/services';
 import { groupOccupiedUnitsByTenant, unitShowsTenant } from '../../lib/unitOccupancy';
 import { formatCurrency } from '../../lib/utils';
 import { notifyEntityCreated } from '../../contexts/QuickAddContext';
-import type { PropertyUnit, PropertyWithUnits } from '../../types/domain';
+import type { PropertyUnit, PropertyWithUnits, UnitStatus } from '../../types/domain';
 import { UNIT_STATUS_LABELS } from '../../types/domain';
 import { EntityLinkButton } from '../../components/broker/EntityLinkButton';
 import { PropertySubNav } from '../../components/broker/PropertySubNav';
@@ -36,6 +36,8 @@ export function UnitsPage() {
   const propertyFilter = searchParams.get('property');
   const openId = searchParams.get('open');
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | UnitStatus>('all');
+  const [sortBy, setSortBy] = useState<'unit_number' | 'rent' | 'status'>('unit_number');
   const [loading, setLoading] = useState(true);
   const [properties, setProperties] = useState<PropertyWithUnits[]>([]);
   const [editingUnit, setEditingUnit] = useState<(PropertyUnit & { propertyTitle: string }) | null>(null);
@@ -66,19 +68,33 @@ export function UnitsPage() {
     [properties],
   );
 
-  const filtered = useMemo(
-    () =>
-      units.filter((u) => {
-        const matchesProperty = !propertyFilter || u.property_id === propertyFilter;
-        const matchesSearch =
-          u.unit_number.includes(search) ||
-          (u.unit_name?.includes(search) ?? false) ||
-          u.propertyTitle.includes(search) ||
-          (u.tenant_name?.includes(search) ?? false);
-        return matchesProperty && matchesSearch;
-      }),
-    [units, search, propertyFilter],
+  const propertyScoped = useMemo(
+    () => units.filter((u) => !propertyFilter || u.property_id === propertyFilter),
+    [units, propertyFilter],
   );
+
+  const occupiedCount = propertyScoped.filter((u) => u.unit_status === 'occupied').length;
+  const vacantCount = propertyScoped.filter(
+    (u) => u.unit_status === 'available' || u.unit_status === 'reserved',
+  ).length;
+
+  const filtered = useMemo(() => {
+    let list = propertyScoped.filter((u) => {
+      const matchesSearch =
+        u.unit_number.includes(search) ||
+        (u.unit_name?.includes(search) ?? false) ||
+        u.propertyTitle.includes(search) ||
+        (u.tenant_name?.includes(search) ?? false);
+      return matchesSearch;
+    });
+    if (statusFilter !== 'all') list = list.filter((u) => u.unit_status === statusFilter);
+    list = [...list].sort((a, b) => {
+      if (sortBy === 'rent') return (b.monthly_rent ?? 0) - (a.monthly_rent ?? 0);
+      if (sortBy === 'status') return a.unit_status.localeCompare(b.unit_status);
+      return a.unit_number.localeCompare(b.unit_number, 'he', { numeric: true });
+    });
+    return list;
+  }, [propertyScoped, search, statusFilter, sortBy]);
 
   const { groups: tenantGroups, unassigned: otherUnits } = useMemo(
     () => (propertyFilter ? groupOccupiedUnitsByTenant(filtered) : { groups: [], unassigned: filtered }),
@@ -160,7 +176,48 @@ export function UnitsPage() {
         </Button>
       </div>
 
-      <FilterBar search={search} onSearchChange={setSearch} placeholder="חיפוש יחידה, נכס או שוכר..." />
+      {propertyFilter && (
+        <div className="flex flex-wrap gap-3 text-sm">
+          <span className="rounded-xl border border-success/40 bg-success/10 px-3 py-2">
+            תפוסות: <strong>{occupiedCount}</strong>
+          </span>
+          <span className="rounded-xl border border-primary/40 bg-primary/10 px-3 py-2">
+            פנויות: <strong>{vacantCount}</strong>
+          </span>
+          <span className="rounded-xl border border-border/80 bg-muted/30 px-3 py-2">
+            סה״כ: <strong>{propertyScoped.length}</strong>
+          </span>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <FilterBar search={search} onSearchChange={setSearch} placeholder="חיפוש יחידה, נכס או שוכר..." />
+        <div className="flex flex-wrap gap-2">
+          <select
+            className="h-11 rounded-xl border border-border bg-muted/50 px-3 text-sm"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as 'all' | UnitStatus)}
+            aria-label="סינון סטטוס"
+          >
+            <option value="all">כל הסטטוסים</option>
+            {Object.entries(UNIT_STATUS_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <select
+            className="h-11 rounded-xl border border-border bg-muted/50 px-3 text-sm"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as 'unit_number' | 'rent' | 'status')}
+            aria-label="מיון"
+          >
+            <option value="unit_number">מיון: מספר יחידה</option>
+            <option value="rent">מיון: שכ&quot;ד</option>
+            <option value="status">מיון: סטטוס</option>
+          </select>
+        </div>
+      </div>
 
       <div className="hidden md:block space-y-8">
         {propertyFilter && tenantGroups.length > 0 && (
@@ -247,7 +304,7 @@ export function UnitsPage() {
                     onClick={() => openUnit({ ...unit, propertyTitle: unit.propertyTitle, property_id: unit.property_id })}
                   >
                     <TableCell className="font-medium">{unit.unit_number}</TableCell>
-                    <TableCell>{unit.unit_name ?? '—'}</TableCell>
+                    <TableCell>{unit.unit_status === 'occupied' ? (unit.unit_name ?? '—') : '—'}</TableCell>
                     {!propertyFilter && (
                       <TableCell>
                         <Link to={`/broker/properties/${unit.property_id}?tab=tenants`} className="text-primary hover:underline">

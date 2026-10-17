@@ -121,7 +121,11 @@ export async function releaseUnitOccupancy(unitId: string): Promise<void> {
 
   const { error: unitErr } = await client
     .from('property_units')
-    .update({ tenant_id: null, updated_at: now })
+    .update({
+      tenant_id: null,
+      unit_name: null,
+      updated_at: now,
+    })
     .eq('id', unitId);
   throwIfError(unitErr);
 }
@@ -140,6 +144,7 @@ export async function updateUnit(id: string, payload: UnitUpdate): Promise<void>
           unit.tenant_id = undefined;
           unit.tenant_name = undefined;
           unit.lease_id = undefined;
+          unit.unit_name = undefined;
         }
         property.occupiedUnits = property.units.filter((u) => u.unit_status === 'occupied').length;
         property.monthlyIncome = property.units
@@ -157,7 +162,10 @@ export async function updateUnit(id: string, payload: UnitUpdate): Promise<void>
 
   const client = requireSupabase();
   const update: Record<string, unknown> = { ...payload, updated_at: new Date().toISOString() };
-  if (vacating) update.tenant_id = null;
+  if (vacating) {
+    update.tenant_id = null;
+    update.unit_name = null;
+  }
   const { error } = await client.from('property_units').update(update).eq('id', id);
   throwIfError(error);
 }

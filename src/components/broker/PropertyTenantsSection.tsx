@@ -94,7 +94,9 @@ export function PropertyTenantsSection({ propertyId }: PropertyTenantsSectionPro
       const matchesSearch =
         t.full_name.includes(search) ||
         (t.company_name?.includes(search) ?? false) ||
-        (t.property_title?.includes(search) ?? false);
+        (t.property_title?.includes(search) ?? false) ||
+        (t.unit_number?.includes(search) ?? false) ||
+        (t.unit_numbers?.some((u) => u.includes(search)) ?? false);
       const matchesProperty = !propertyId || t.property_id === propertyId;
       return matchesSearch && matchesProperty;
     });

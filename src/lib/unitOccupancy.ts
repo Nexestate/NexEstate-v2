@@ -5,6 +5,18 @@ export function unitShowsTenant(unit: Pick<PropertyUnit, 'unit_status' | 'tenant
   return unit.unit_status === 'occupied' && Boolean(unit.tenant_id ?? unit.tenant_name);
 }
 
+/** Strip stale tenant/lease labels from non-occupied units in UI lists. */
+export function presentationUnit(unit: PropertyUnit): PropertyUnit {
+  if (unit.unit_status === 'occupied') return unit;
+  return {
+    ...unit,
+    tenant_id: undefined,
+    tenant_name: undefined,
+    lease_id: undefined,
+    unit_name: undefined,
+  };
+}
+
 export type UnitWithMeta = PropertyUnit & { propertyTitle: string };
 
 export type TenantUnitGroup = {

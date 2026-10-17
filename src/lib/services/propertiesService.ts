@@ -1,4 +1,5 @@
 import { DEMO_PROPERTIES, getDemoProperty, DEMO_LEASES } from '../../data/demoData';
+import { presentationUnit } from '../unitOccupancy';
 import type { PropertyUnit, PropertyWithUnits } from '../../types/domain';
 import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
@@ -57,12 +58,7 @@ function enrichUnitsWithLeases(
 ): PropertyUnit[] {
   return units.map((unit) => {
     if (unit.unit_status !== 'occupied') {
-      return {
-        ...unit,
-        tenant_id: undefined,
-        tenant_name: undefined,
-        lease_id: undefined,
-      };
+      return presentationUnit(unit);
     }
     const lease = leasesByUnit.get(unit.id);
     if (!lease) return unit;

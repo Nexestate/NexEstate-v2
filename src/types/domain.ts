@@ -178,6 +178,8 @@ export interface Tenant {
   status: TenantStatus;
   rating?: TenantRating;
   unit_number?: string;
+  /** All active unit numbers when tenant has multiple leases. */
+  unit_numbers?: string[];
   property_title?: string;
   property_id?: string;
   unit_id?: string;

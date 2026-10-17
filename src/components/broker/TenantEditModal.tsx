@@ -2,7 +2,15 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { buildTenantChangeLogLines, prependChangeLog } from '../../lib/tenantChangeLog';
 import { embedDocsInNotes } from '../../lib/services/tenantDocumentsService';
-import { fetchProperty, fetchTenantById, reassignLeaseUnit, updateLease, updateTenant } from '../../lib/services';
+import {
+  attachTenantToUnit,
+  endActiveLease,
+  fetchProperty,
+  fetchTenantById,
+  reassignLeaseUnit,
+  updateLease,
+  updateTenant,
+} from '../../lib/services';
 import type { Lease, PropertyUnit, Tenant, TenantDocumentFile, TenantStatus, TenantType } from '../../types/domain';
 import { TenantDocumentsPanel } from '../property/TenantDocumentsPanel';
 import {
@@ -70,6 +78,8 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<TenantStatus>('active');
   const [leaseRows, setLeaseRows] = useState<LeaseEditRow[]>([]);
+  const [leasesMarkedEnd, setLeasesMarkedEnd] = useState<Set<string>>(() => new Set());
+  const [newLeaseRows, setNewLeaseRows] = useState<LeaseEditRow[]>([]);
   const [notesLog, setNotesLog] = useState('');
   const [newDocNote, setNewDocNote] = useState('');
   const [documentFiles, setDocumentFiles] = useState<TenantDocumentFile[]>([]);
@@ -78,6 +88,7 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
   const [saving, setSaving] = useState(false);
 
   const managerId = user?.id ?? '';
+  const propertyId = loadedTenant.property_id ?? tenant.property_id ?? leases[0]?.property_id;
 
   const activeLeases = useMemo(
     () => leases.filter((l) => l.is_active && l.tenant_id === tenant.id),
@@ -99,6 +110,8 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
     setNotesLog(t.notes ?? '');
     setNewDocNote('');
     setDocumentFiles(t.document_files ?? []);
+    setLeasesMarkedEnd(new Set());
+    setNewLeaseRows([]);
     const active = leaseSource.filter((l) => l.is_active && l.tenant_id === t.id);
     setLeaseRows(
       active.map((l) => ({
@@ -133,6 +146,30 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
     setLeaseRows((rows) => rows.map((r) => (r.leaseId === leaseId ? { ...r, ...patch } : r)));
   };
 
+  const updateNewLeaseRow = (leaseId: string, patch: Partial<LeaseEditRow>) => {
+    setNewLeaseRows((rows) => rows.map((r) => (r.leaseId === leaseId ? { ...r, ...patch } : r)));
+  };
+
+  const vacantUnits = useMemo(
+    () => units.filter((u) => u.unit_status === 'available' || u.unit_status === 'reserved'),
+    [units],
+  );
+
+  const addNewLeaseRow = () => {
+    setNewLeaseRows((rows) => [
+      ...rows,
+      {
+        leaseId: `new-${Date.now()}`,
+        unitId: vacantUnits[0]?.id ?? '',
+        startDate: '',
+        endDate: '',
+        monthlyRent: '',
+        deposit: '',
+        paymentMethod: 'transfer',
+      },
+    ]);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next: Record<string, string> = {};
@@ -147,9 +184,17 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
       if (!em.isValid) next.email = em.error!;
     }
     for (const row of leaseRows) {
+      if (leasesMarkedEnd.has(row.leaseId)) continue;
       const rent = validatePositiveNumber(row.monthlyRent, true);
       if (!rent.isValid) next[`rent_${row.leaseId}`] = rent.error!;
       if (!row.unitId) next[`unit_${row.leaseId}`] = 'יש לבחור יחידה';
+    }
+    for (const row of newLeaseRows) {
+      if (!row.unitId) next[`unit_${row.leaseId}`] = 'יש לבחור יחידה';
+      const rent = validatePositiveNumber(row.monthlyRent, true);
+      if (!rent.isValid) next[`rent_${row.leaseId}`] = rent.error!;
+      if (!row.startDate) next[`start_${row.leaseId}`] = 'תאריך התחלה חובה';
+      if (!row.endDate) next[`end_${row.leaseId}`] = 'תאריך סיום חובה';
     }
     setErrors(next);
     if (Object.keys(next).length) return;
@@ -190,7 +235,13 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
         notes: notesPayload || undefined,
       });
 
+      for (const leaseId of leasesMarkedEnd) {
+        const lease = activeLeases.find((l) => l.id === leaseId);
+        await endActiveLease(leaseId, lease?.unit_id);
+      }
+
       for (const row of leaseRows) {
+        if (leasesMarkedEnd.has(row.leaseId)) continue;
         const lease = activeLeases.find((l) => l.id === row.leaseId);
         if (!lease) continue;
         if (row.unitId && lease.unit_id !== row.unitId) {
@@ -203,6 +254,22 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
           deposit: row.deposit ? Number(row.deposit) : undefined,
           payment_method: row.paymentMethod,
         });
+      }
+
+      if (propertyId && user?.id) {
+        for (const row of newLeaseRows) {
+          await attachTenantToUnit(user.id, {
+            property_id: propertyId,
+            unit_id: row.unitId,
+            tenant_id: tenant.id,
+            tenant_name: fullName.trim(),
+            start_date: row.startDate,
+            end_date: row.endDate,
+            monthly_rent: Number(row.monthlyRent),
+            deposit: row.deposit ? Number(row.deposit) : undefined,
+            payment_method: row.paymentMethod,
+          });
+        }
       }
       await onSaved();
       onClose();
@@ -310,12 +377,55 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
         </section>
 
         <section className="space-y-4">
-          <h3 className="text-sm font-semibold">חוזי שכירות ({leaseRows.length})</h3>
-          {leaseRows.length === 0 ? (
-            <p className="text-meta text-sm">אין חוזים פעילים — הוסיפו חוזה דרך «הוסף שוכר» או יחידה חדשה.</p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold">
+              חוזי שכירות ({leaseRows.filter((r) => !leasesMarkedEnd.has(r.leaseId)).length + newLeaseRows.length})
+            </h3>
+            {propertyId && (
+              <Button type="button" size="sm" variant="outline" onClick={addNewLeaseRow}>
+                + הוסף יחידה לשוכר
+              </Button>
+            )}
+          </div>
+          {leaseRows.length === 0 && newLeaseRows.length === 0 ? (
+            <p className="text-meta text-sm">אין חוזים פעילים — הוסיפו יחידה למטה או דרך «הוסף שוכר».</p>
           ) : (
-            leaseRows.map((row) => (
-              <div key={row.leaseId} className="space-y-3 rounded-xl border border-border/80 bg-muted/20 p-4">
+            leaseRows.map((row) => {
+              const ending = leasesMarkedEnd.has(row.leaseId);
+              return (
+              <div
+                key={row.leaseId}
+                className={`space-y-3 rounded-xl border border-border/80 p-4 ${ending ? 'bg-destructive/10 opacity-70' : 'bg-muted/20'}`}
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-medium">חוזה פעיל</p>
+                  {!ending ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="text-destructive"
+                      onClick={() => setLeasesMarkedEnd((s) => new Set(s).add(row.leaseId))}
+                    >
+                      סיים / שחרר יחידה
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() =>
+                        setLeasesMarkedEnd((s) => {
+                          const n = new Set(s);
+                          n.delete(row.leaseId);
+                          return n;
+                        })
+                      }
+                    >
+                      בטל שחרור
+                    </Button>
+                  )}
+                </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium">יחידה (החלפה)</label>
                   <select
@@ -363,8 +473,66 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
                   </select>
                 </div>
               </div>
-            ))
+            );
+            })
           )}
+
+          {newLeaseRows.map((row) => (
+            <div key={row.leaseId} className="space-y-3 rounded-xl border border-primary/40 bg-primary/5 p-4">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-primary">יחידה חדשה לשוכר</p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setNewLeaseRows((rows) => rows.filter((r) => r.leaseId !== row.leaseId))}
+                >
+                  הסר
+                </Button>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">יחידה פנויה</label>
+                <select
+                  className={SELECT_CLASS}
+                  value={row.unitId}
+                  onChange={(e) => updateNewLeaseRow(row.leaseId, { unitId: e.target.value })}
+                >
+                  <option value="">בחרו יחידה</option>
+                  {vacantUnits.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      יח׳ {u.unit_number}
+                      {u.unit_name ? ` · ${u.unit_name}` : ''}
+                    </option>
+                  ))}
+                </select>
+                {errors[`unit_${row.leaseId}`] && (
+                  <p className="text-xs text-destructive">{errors[`unit_${row.leaseId}`]}</p>
+                )}
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Input
+                  label="התחלה"
+                  type="date"
+                  value={row.startDate}
+                  onChange={(e) => updateNewLeaseRow(row.leaseId, { startDate: e.target.value })}
+                  error={errors[`start_${row.leaseId}`]}
+                />
+                <Input
+                  label="סיום"
+                  type="date"
+                  value={row.endDate}
+                  onChange={(e) => updateNewLeaseRow(row.leaseId, { endDate: e.target.value })}
+                  error={errors[`end_${row.leaseId}`]}
+                />
+              </div>
+              <Input
+                label='שכ"ד (₪)'
+                value={row.monthlyRent}
+                onChange={(e) => updateNewLeaseRow(row.leaseId, { monthlyRent: e.target.value })}
+                error={errors[`rent_${row.leaseId}`]}
+              />
+            </div>
+          ))}
         </section>
       </form>
     </SlidePanel>

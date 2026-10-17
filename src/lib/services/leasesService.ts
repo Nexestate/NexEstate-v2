@@ -2,7 +2,7 @@ import { DEMO_LEASES, DEMO_MANAGED_PROPERTIES, DEMO_PROPERTIES, DEMO_TENANTS } f
 import type { Lease, PaymentMethod, Tenant, TenantStatus, TenantType } from '../../types/domain';
 import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 import { extractDocsFromNotes, parseTenantDocumentFiles, stripDocsFromNotes } from './tenantDocumentsService';
-import { updateUnit } from './unitsService';
+import { releaseUnitOccupancy, updateUnit } from './unitsService';
 
 type TenantLeaseContext = {
   property_id?: string;
@@ -125,28 +125,60 @@ export async function fetchTenantsForProperties(propertyIds: string[]): Promise<
     return [];
   }
 
-  const seen = new Set<string>();
-  const tenants: Tenant[] = [];
+  type Agg = {
+    tenant: Tenant;
+    unitNumbers: string[];
+    unitIds: string[];
+    leaseIds: string[];
+    totalRent: number;
+  };
+  const byTenant = new Map<string, Agg>();
 
   for (const row of data ?? []) {
     const tenantId = row.tenant_id as string | null;
-    if (!tenantId || seen.has(tenantId)) continue;
-    seen.add(tenantId);
+    if (!tenantId) continue;
 
     const rawTenant = row.tenants as Record<string, unknown> | Record<string, unknown>[] | null;
     const tenantRow = Array.isArray(rawTenant) ? rawTenant[0] : rawTenant;
     if (!tenantRow) continue;
 
-    tenants.push(
-      mapTenantFromRow(tenantRow, {
-        property_id: row.property_id as string,
-        property_title: (row.properties as { title?: string } | null)?.title,
-        unit_number: (row.property_units as { unit_number?: string } | null)?.unit_number,
-        unit_id: (row.unit_id as string | null) ?? undefined,
-        lease_id: row.id as string,
-      }),
-    );
+    const unitNum = (row.property_units as { unit_number?: string } | null)?.unit_number;
+    const unitId = (row.unit_id as string | null) ?? undefined;
+    const leaseId = row.id as string;
+
+    let agg = byTenant.get(tenantId);
+    if (!agg) {
+      agg = {
+        tenant: mapTenantFromRow(tenantRow, {
+          property_id: row.property_id as string,
+          property_title: (row.properties as { title?: string } | null)?.title,
+          unit_number: unitNum,
+          unit_id: unitId,
+          lease_id: leaseId,
+        }),
+        unitNumbers: unitNum ? [unitNum] : [],
+        unitIds: unitId ? [unitId] : [],
+        leaseIds: [leaseId],
+        totalRent: 0,
+      };
+      byTenant.set(tenantId, agg);
+    } else {
+      if (unitNum && !agg.unitNumbers.includes(unitNum)) agg.unitNumbers.push(unitNum);
+      if (unitId && !agg.unitIds.includes(unitId)) agg.unitIds.push(unitId);
+      if (!agg.leaseIds.includes(leaseId)) agg.leaseIds.push(leaseId);
+    }
   }
+
+  const tenants: Tenant[] = [...byTenant.values()].map((agg) => {
+    const sortedUnits = [...agg.unitNumbers].sort((a, b) => a.localeCompare(b, 'he', { numeric: true }));
+    return {
+      ...agg.tenant,
+      unit_numbers: sortedUnits,
+      unit_number: sortedUnits.length > 0 ? sortedUnits.join(' · ') : agg.tenant.unit_number,
+      unit_id: agg.unitIds[0] ?? agg.tenant.unit_id,
+      lease_id: agg.leaseIds[0] ?? agg.tenant.lease_id,
+    };
+  });
 
   return tenants.sort((a, b) => a.full_name.localeCompare(b.full_name, 'he'));
 }
@@ -593,6 +625,12 @@ export async function updateLease(id: string, payload: LeaseUpdatePayload): Prom
   const client = requireSupabase();
   const { error } = await client.from('leases').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', id);
   throwIfError(error);
+}
+
+/** Deactivate lease and free the unit (partial move-out / cancel one unit). */
+export async function endActiveLease(leaseId: string, unitId?: string): Promise<void> {
+  await updateLease(leaseId, { is_active: false });
+  if (unitId) await releaseUnitOccupancy(unitId);
 }
 
 /** Move an active lease to another unit within the same property. */
