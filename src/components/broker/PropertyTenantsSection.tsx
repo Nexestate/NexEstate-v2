@@ -349,8 +349,10 @@ export function PropertyTenantsSection({ propertyId }: PropertyTenantsSectionPro
                     <EntityLinkButton onClick={() => void openUnitById(tenant.property_id!, tenant.unit_id!)}>
                       {tenant.unit_number ?? '—'}
                     </EntityLinkButton>
+                  ) : tenant.unit_number ? (
+                    tenant.unit_number
                   ) : (
-                    tenant.unit_number ?? '—'
+                    <span className="text-muted-foreground">ללא יחידה פעילה</span>
                   )}
                 </TableCell>
                 <TableCell>{tenant.phone ?? '—'}</TableCell>

@@ -5,7 +5,15 @@ import { useEntityDetail } from '../../contexts/EntityDetailContext';
 import { notifyEntityCreated } from '../../contexts/QuickAddContext';
 import { tenantPaymentsHref, unitDetailHref } from '../../lib/propertyNav';
 import { unitShowsTenant } from '../../lib/unitOccupancy';
-import { fetchLeases, fetchPayments, fetchProperty, updatePayment, updateUnit } from '../../lib/services';
+import {
+  attachTenantToUnit,
+  fetchLeases,
+  fetchPayments,
+  fetchProperty,
+  fetchTenants,
+  updatePayment,
+  updateUnit,
+} from '../../lib/services';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatCurrency } from '../../lib/utils';
 import type { Lease, Payment, PaymentMethod, Tenant } from '../../types/domain';
@@ -59,6 +67,15 @@ export function EntityDetailModal() {
   const [propertyAddress, setPropertyAddress] = useState<string | undefined>();
   const [tenantPayments, setTenantPayments] = useState<Payment[]>([]);
   const [editKind, setEditKind] = useState<EditKind | null>(null);
+  const [unitPickerTenants, setUnitPickerTenants] = useState<Tenant[]>([]);
+
+  useEffect(() => {
+    if (editKind !== 'unit' || !user?.id) {
+      setUnitPickerTenants([]);
+      return;
+    }
+    void fetchTenants(user.id).then(setUnitPickerTenants);
+  }, [editKind, user?.id]);
 
   useEffect(() => {
     if (view?.kind !== 'tenant') {
@@ -477,7 +494,13 @@ export function EntityDetailModal() {
         <UnitFormModal
           open={editKind === 'unit'}
           onClose={() => setEditKind(null)}
-          title="עריכת יחידה"
+          title={`עריכת יחידה ${view.data.unit_number}`}
+          propertyId={view.data.property_id}
+          tenants={unitPickerTenants.map((t) => ({
+            id: t.id,
+            full_name: t.full_name,
+            company_name: t.company_name,
+          }))}
           initial={{
             unit_number: view.data.unit_number,
             unit_name: view.data.unit_name ?? '',
@@ -485,17 +508,43 @@ export function EntityDetailModal() {
             monthly_rent: view.data.monthly_rent?.toString() ?? '',
             unit_status: view.data.unit_status,
             floor: view.data.floor?.toString() ?? '',
+            tenant_id: view.data.tenant_id ?? '',
           }}
           onSubmit={async (values) => {
-            await updateUnit(view.data.id, {
+            const unit = view.data;
+            const unit_status = values.tenant_id ? 'occupied' : values.unit_status;
+            await updateUnit(unit.id, {
               unit_number: values.unit_number.trim(),
               unit_name: values.unit_name.trim() || undefined,
               area_sqm: values.area_sqm ? Number(values.area_sqm) : undefined,
               monthly_rent: values.monthly_rent ? Number(values.monthly_rent) : undefined,
-              unit_status: values.unit_status,
+              unit_status,
               floor: values.floor ? Number(values.floor) : undefined,
             });
+            const needsAttach =
+              Boolean(values.tenant_id) &&
+              values.tenant_id !== unit.tenant_id &&
+              !unit.lease_id &&
+              user?.id;
+            if (needsAttach && values.tenant_id && user?.id) {
+              const tenant = unitPickerTenants.find((t) => t.id === values.tenant_id);
+              if (tenant) {
+                const start = new Date();
+                const end = new Date(start);
+                end.setFullYear(end.getFullYear() + 1);
+                await attachTenantToUnit(user.id, {
+                  property_id: unit.property_id,
+                  unit_id: unit.id,
+                  tenant_id: tenant.id,
+                  tenant_name: tenant.full_name,
+                  start_date: start.toISOString().slice(0, 10),
+                  end_date: end.toISOString().slice(0, 10),
+                  monthly_rent: values.monthly_rent ? Number(values.monthly_rent) : unit.monthly_rent ?? 0,
+                });
+              }
+            }
             notifyEntityCreated('unit');
+            notifyEntityCreated('lease');
             setEditKind(null);
             await refreshView();
           }}

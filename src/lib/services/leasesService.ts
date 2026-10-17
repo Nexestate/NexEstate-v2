@@ -102,23 +102,35 @@ export async function fetchLeasesForProperties(propertyIds: string[]): Promise<L
 export async function fetchTenantsForProperties(propertyIds: string[]): Promise<Tenant[]> {
   if (!propertyIds.length) return [];
   if (isDemoMode()) {
-    return DEMO_TENANTS.map((tenant) => {
-      const lease = DEMO_LEASES.find((l) => l.tenant_id === tenant.id && l.is_active);
-      return {
+    const seen = new Set<string>();
+    const out: Tenant[] = [];
+    for (const lease of DEMO_LEASES) {
+      if (!propertyIds.includes(lease.property_id) || !lease.tenant_id) continue;
+      if (seen.has(lease.tenant_id)) continue;
+      const tenant = DEMO_TENANTS.find((t) => t.id === lease.tenant_id);
+      if (!tenant) continue;
+      seen.add(lease.tenant_id);
+      out.push({
         ...tenant,
-        property_id: lease?.property_id,
-        unit_id: lease?.unit_id,
-        lease_id: lease?.id,
-      };
-    }).filter((t) => t.property_id && propertyIds.includes(t.property_id));
+        property_id: lease.property_id,
+        property_title: lease.property_title,
+        unit_id: lease.is_active ? lease.unit_id : undefined,
+        lease_id: lease.is_active ? lease.id : undefined,
+        unit_number: lease.is_active ? lease.unit_number : undefined,
+      });
+    }
+    return out.sort((a, b) => a.full_name.localeCompare(b.full_name, 'he'));
   }
 
   const client = requireSupabase();
   const { data, error } = await client
     .from('leases')
-    .select('id, property_id, unit_id, tenant_id, tenants(*), properties(title), property_units(unit_number)')
+    .select(
+      'id, property_id, unit_id, tenant_id, is_active, monthly_rent, tenants(*), properties(title), property_units(unit_number)',
+    )
     .in('property_id', propertyIds)
-    .neq('is_active', false);
+    .order('is_active', { ascending: false })
+    .order('updated_at', { ascending: false });
 
   if (error) {
     console.warn('[fetchTenantsForProperties]', error.message);
@@ -142,9 +154,11 @@ export async function fetchTenantsForProperties(propertyIds: string[]): Promise<
     const tenantRow = Array.isArray(rawTenant) ? rawTenant[0] : rawTenant;
     if (!tenantRow) continue;
 
+    const isActive = row.is_active !== false;
     const unitNum = (row.property_units as { unit_number?: string } | null)?.unit_number;
     const unitId = (row.unit_id as string | null) ?? undefined;
     const leaseId = row.id as string;
+    const monthlyRent = (row.monthly_rent as number | null) ?? 0;
 
     let agg = byTenant.get(tenantId);
     if (!agg) {
@@ -152,20 +166,33 @@ export async function fetchTenantsForProperties(propertyIds: string[]): Promise<
         tenant: mapTenantFromRow(tenantRow, {
           property_id: row.property_id as string,
           property_title: (row.properties as { title?: string } | null)?.title,
-          unit_number: unitNum,
-          unit_id: unitId,
-          lease_id: leaseId,
+          unit_number: isActive ? unitNum : undefined,
+          unit_id: isActive ? unitId : undefined,
+          lease_id: isActive ? leaseId : undefined,
         }),
-        unitNumbers: unitNum ? [unitNum] : [],
-        unitIds: unitId ? [unitId] : [],
-        leaseIds: [leaseId],
-        totalRent: 0,
+        unitNumbers: isActive && unitNum ? [unitNum] : [],
+        unitIds: isActive && unitId ? [unitId] : [],
+        leaseIds: isActive ? [leaseId] : [],
+        totalRent: isActive ? monthlyRent : 0,
       };
       byTenant.set(tenantId, agg);
     } else {
-      if (unitNum && !agg.unitNumbers.includes(unitNum)) agg.unitNumbers.push(unitNum);
-      if (unitId && !agg.unitIds.includes(unitId)) agg.unitIds.push(unitId);
-      if (!agg.leaseIds.includes(leaseId)) agg.leaseIds.push(leaseId);
+      if (isActive) {
+        if (unitNum && !agg.unitNumbers.includes(unitNum)) agg.unitNumbers.push(unitNum);
+        if (unitId && !agg.unitIds.includes(unitId)) agg.unitIds.push(unitId);
+        if (!agg.leaseIds.includes(leaseId)) agg.leaseIds.push(leaseId);
+        agg.totalRent += monthlyRent;
+        if (!agg.tenant.lease_id) {
+          agg.tenant = {
+            ...agg.tenant,
+            property_id: row.property_id as string,
+            property_title: (row.properties as { title?: string } | null)?.title,
+            unit_number: unitNum,
+            unit_id: unitId,
+            lease_id: leaseId,
+          };
+        }
+      }
     }
   }
 

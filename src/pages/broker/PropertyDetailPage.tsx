@@ -28,10 +28,16 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { usePropertyWorkspace } from '../../hooks/usePropertyWorkspace';
 import type { WorkspaceTab } from '../../lib/propertyWorkspace';
-import { attachTenantToUnit, saveUnitOnboarding, updateProperty, updateUnit } from '../../lib/services';
+import {
+  attachTenantToUnit,
+  fetchTenants,
+  saveUnitOnboarding,
+  updateProperty,
+  updateUnit,
+} from '../../lib/services';
 import { supabase } from '../../lib/supabase';
 import type { PropertyKind, PropertyStatus, PropertyVisibility } from '../../types';
-import type { PropertyUnit } from '../../types/domain';
+import type { PropertyUnit, Tenant } from '../../types/domain';
 
 const WORKSPACE_TABS: WorkspaceTab[] = ['activity', 'maintenance'];
 
@@ -62,8 +68,17 @@ export function PropertyDetailPage() {
   const [editInitial, setEditInitial] = useState<Partial<PropertyFormValues> | undefined>();
   const [unitModalOpen, setUnitModalOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<PropertyUnit | null>(null);
+  const [unitPickerTenants, setUnitPickerTenants] = useState<Tenant[]>([]);
 
   useEntityCreated(['unit', 'tenant', 'lease', 'agreement'], reload);
+
+  useEffect(() => {
+    if (!editingUnit || !user?.id) {
+      setUnitPickerTenants([]);
+      return;
+    }
+    void fetchTenants(user.id).then(setUnitPickerTenants);
+  }, [editingUnit, user?.id]);
 
   const openEdit = async () => {
     if (!id || !property) return;
@@ -118,26 +133,24 @@ export function PropertyDetailPage() {
 
   const handleUnitSubmit = async (values: UnitFormValues) => {
     if (!id || !user) throw new Error('not auth');
-    const payload = {
+    if (!editingUnit) return;
+    const unit_status = values.tenant_id ? 'occupied' : values.unit_status;
+    await updateUnit(editingUnit.id, {
       unit_number: values.unit_number.trim(),
       unit_name: values.unit_name.trim() || undefined,
       area_sqm: values.area_sqm ? Number(values.area_sqm) : undefined,
       monthly_rent: values.monthly_rent ? Number(values.monthly_rent) : undefined,
-      unit_status: values.unit_status,
+      unit_status,
       floor: values.floor ? Number(values.floor) : undefined,
-    };
-
-    if (!editingUnit) return;
-    await updateUnit(editingUnit.id, payload);
+    });
 
     const needsAttach =
-      values.unit_status === 'occupied' &&
-      values.tenant_id &&
+      Boolean(values.tenant_id) &&
       values.tenant_id !== editingUnit.tenant_id &&
       !editingUnit.lease_id;
 
     if (needsAttach) {
-      const tenant = tenants.find((t) => t.id === values.tenant_id);
+      const tenant = unitPickerTenants.find((t) => t.id === values.tenant_id);
       if (tenant) {
         const start = new Date();
         const end = new Date(start);
@@ -286,7 +299,11 @@ export function PropertyDetailPage() {
         onSubmit={handleUnitSubmit}
         title={editingUnit ? `עריכת יחידה ${editingUnit.unit_number}` : 'עריכת יחידה'}
         propertyId={id}
-        tenants={tenants.map((t) => ({ id: t.id, full_name: t.full_name }))}
+        tenants={unitPickerTenants.map((t) => ({
+          id: t.id,
+          full_name: t.full_name,
+          company_name: t.company_name,
+        }))}
         initial={
           editingUnit
             ? {

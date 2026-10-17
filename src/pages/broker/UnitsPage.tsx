@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
-import { attachTenantToUnit, fetchAccessibleProperties, fetchTenantsForProperties, updateUnit } from '../../lib/services';
+import { attachTenantToUnit, fetchAccessibleProperties, fetchTenants, updateUnit } from '../../lib/services';
 import { groupOccupiedUnitsByTenant, unitShowsTenant } from '../../lib/unitOccupancy';
 import { formatCurrency } from '../../lib/utils';
 import { notifyEntityCreated } from '../../contexts/QuickAddContext';
@@ -121,23 +121,24 @@ export function UnitsPage() {
       setUnitTenants([]);
       return;
     }
-    void fetchTenantsForProperties([editingUnit.property_id]).then(setUnitTenants);
-  }, [editingUnit?.property_id]);
+    if (!user?.id) return;
+    void fetchTenants(user.id).then(setUnitTenants);
+  }, [editingUnit?.property_id, user?.id]);
 
   const handleUnitUpdate = async (values: UnitFormValues) => {
     if (!editingUnit || !user) return;
+    const unit_status = values.tenant_id ? 'occupied' : values.unit_status;
     await updateUnit(editingUnit.id, {
       unit_number: values.unit_number.trim(),
       unit_name: values.unit_name.trim() || undefined,
       area_sqm: values.area_sqm ? Number(values.area_sqm) : undefined,
       monthly_rent: values.monthly_rent ? Number(values.monthly_rent) : undefined,
-      unit_status: values.unit_status,
+      unit_status,
       floor: values.floor ? Number(values.floor) : undefined,
     });
 
     const needsAttach =
-      values.unit_status === 'occupied' &&
-      values.tenant_id &&
+      Boolean(values.tenant_id) &&
       values.tenant_id !== editingUnit.tenant_id &&
       !editingUnit.lease_id;
 
@@ -449,7 +450,11 @@ export function UnitsPage() {
         onSubmit={handleUnitUpdate}
         title={editingUnit ? `עריכת יחידה ${editingUnit.unit_number}` : 'עריכת יחידה'}
         propertyId={editingUnit?.property_id}
-        tenants={unitTenants.map((t) => ({ id: t.id, full_name: t.full_name }))}
+        tenants={unitTenants.map((t) => ({
+          id: t.id,
+          full_name: t.full_name,
+          company_name: t.company_name,
+        }))}
         initial={
           editingUnit
             ? {

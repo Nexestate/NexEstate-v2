@@ -28,7 +28,7 @@ const EMPTY: UnitFormValues = {
   tenant_id: '',
 };
 
-type UnitTenantOption = { id: string; full_name: string };
+type UnitTenantOption = { id: string; full_name: string; company_name?: string };
 
 interface UnitFormModalProps {
   open: boolean;
@@ -77,7 +77,7 @@ export function UnitFormModal({
       const floor = validatePositiveNumber(form.floor, false);
       if (!floor.isValid) next.floor = floor.error!;
     }
-    if (form.unit_status === 'occupied' && propertyId && tenants.length > 0 && !form.tenant_id) {
+    if (form.unit_status === 'occupied' && !form.tenant_id && tenants.length > 0) {
       next.tenant_id = 'יש לבחור שוכר ליחידה תפוסה';
     }
     setErrors(next);
@@ -127,7 +127,14 @@ export function UnitFormModal({
             <select
               className={SELECT_CLASS}
               value={form.unit_status}
-              onChange={(e) => setForm({ ...form, unit_status: e.target.value as UnitStatus })}
+              onChange={(e) => {
+                const unit_status = e.target.value as UnitStatus;
+                setForm((f) => ({
+                  ...f,
+                  unit_status,
+                  tenant_id: unit_status === 'available' ? '' : f.tenant_id,
+                }));
+              }}
             >
               {Object.entries(UNIT_STATUS_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -143,24 +150,36 @@ export function UnitFormModal({
             error={errors.floor}
           />
         </div>
-        {form.unit_status === 'occupied' && propertyId && tenants.length > 0 && (
+        {propertyId && (
           <div className="space-y-1.5">
             <label className="text-sm font-medium">שוכר</label>
-            <select
-              className={SELECT_CLASS}
-              value={form.tenant_id}
-              onChange={(e) => setForm({ ...form, tenant_id: e.target.value })}
-            >
-              <option value="">בחרו שוכר...</option>
-              {tenants.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.full_name}
-                </option>
-              ))}
-            </select>
+            {tenants.length === 0 ? (
+              <p className="text-sm text-muted-foreground">אין שוכרים ברשימה — הוסיפו שוכר דרך «הוסף שוכר».</p>
+            ) : (
+              <select
+                className={SELECT_CLASS}
+                value={form.tenant_id}
+                onChange={(e) => {
+                  const tenant_id = e.target.value;
+                  setForm((f) => ({
+                    ...f,
+                    tenant_id,
+                    unit_status: tenant_id ? 'occupied' : f.unit_status,
+                  }));
+                }}
+              >
+                <option value="">ללא שוכר (פנוי)</option>
+                {tenants.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.full_name}
+                    {t.company_name && t.company_name !== t.full_name ? ` · ${t.company_name}` : ''}
+                  </option>
+                ))}
+              </select>
+            )}
             {errors.tenant_id && <p className="text-sm text-destructive">{errors.tenant_id}</p>}
             <p className="text-xs text-muted-foreground">
-              שיוך שוכר יוצר חוזה שכירות פעיל (שנה) אם עדיין אין חוזה ליחידה.
+              בחירת שוכר מסמנת את היחידה כתפוסה ויוצרת חוזה לשנה אם אין חוזה פעיל.
             </p>
           </div>
         )}
