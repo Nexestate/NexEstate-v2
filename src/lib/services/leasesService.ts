@@ -487,27 +487,57 @@ export async function fetchTenantById(id: string): Promise<Tenant | undefined> {
   const tenants = await fetchTenants();
   return tenants.find((t) => t.id === id);
 }
-export async function updateTenant(id: string, payload: { full_name?: string; phone?: string; email?: string; status?: TenantStatus }): Promise<void> {
+export type TenantUpdatePayload = {
+  full_name?: string;
+  phone?: string;
+  email?: string;
+  status?: TenantStatus;
+  tenant_type?: TenantType;
+  id_number?: string;
+  company_name?: string;
+  company_number?: string;
+  contact_name?: string;
+};
+
+export async function updateTenant(id: string, payload: TenantUpdatePayload): Promise<void> {
   if (isDemoMode()) {
     const tenant = DEMO_TENANTS.find((t) => t.id === id);
     if (tenant) {
-      if (payload.full_name !== undefined) { tenant.full_name = payload.full_name; tenant.company_name = payload.full_name; }
+      if (payload.full_name !== undefined) tenant.full_name = payload.full_name;
+      if (payload.company_name !== undefined) tenant.company_name = payload.company_name;
       if (payload.phone !== undefined) tenant.phone = payload.phone;
       if (payload.email !== undefined) tenant.email = payload.email;
       if (payload.status !== undefined) tenant.status = payload.status;
+      if (payload.tenant_type !== undefined) tenant.tenant_type = payload.tenant_type;
     }
     return;
   }
   const client = requireSupabase();
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
-  if (payload.full_name !== undefined) { update.full_name = payload.full_name; update.company_name = payload.full_name; }
+  if (payload.full_name !== undefined) update.full_name = payload.full_name;
+  if (payload.company_name !== undefined) update.company_name = payload.company_name;
   if (payload.phone !== undefined) update.phone = payload.phone;
   if (payload.email !== undefined) update.email = payload.email;
   if (payload.status !== undefined) update.status = payload.status;
+  if (payload.tenant_type !== undefined) update.tenant_type = payload.tenant_type;
+  if (payload.id_number !== undefined) update.id_number = payload.id_number;
+  if (payload.company_number !== undefined) update.company_number = payload.company_number;
+  if (payload.contact_name !== undefined) update.contact_name = payload.contact_name;
   const { error } = await client.from('tenants').update(update).eq('id', id);
   throwIfError(error);
 }
-export async function updateLease(id: string, payload: { monthly_rent?: number; start_date?: string; end_date?: string; deposit?: number; is_active?: boolean }): Promise<void> {
+
+export type LeaseUpdatePayload = {
+  monthly_rent?: number;
+  start_date?: string;
+  end_date?: string;
+  deposit?: number;
+  is_active?: boolean;
+  unit_id?: string;
+  payment_method?: PaymentMethod;
+};
+
+export async function updateLease(id: string, payload: LeaseUpdatePayload): Promise<void> {
   if (isDemoMode()) {
     const lease = DEMO_LEASES.find((l) => l.id === id);
     if (lease) Object.assign(lease, payload);
@@ -516,4 +546,28 @@ export async function updateLease(id: string, payload: { monthly_rent?: number; 
   const client = requireSupabase();
   const { error } = await client.from('leases').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', id);
   throwIfError(error);
+}
+
+/** Move an active lease to another unit within the same property. */
+export async function reassignLeaseUnit(leaseId: string, newUnitId: string): Promise<void> {
+  const lease = await fetchLeaseById(leaseId);
+  if (!lease) throw new ServiceError('Lease not found');
+  const oldUnitId = lease.unit_id;
+  if (oldUnitId === newUnitId) return;
+
+  await updateLease(leaseId, { unit_id: newUnitId });
+
+  if (oldUnitId) {
+    await updateUnit(oldUnitId, {
+      unit_status: 'available',
+      tenant_id: null,
+      monthly_rent: undefined,
+    });
+  }
+
+  await updateUnit(newUnitId, {
+    unit_status: 'occupied',
+    tenant_id: lease.tenant_id,
+    monthly_rent: lease.monthly_rent,
+  });
 }

@@ -10,30 +10,40 @@ export function tenantPaymentsHref(tenantId: string, propertyId?: string): strin
 
 export const unitDetailHref = unitDetailUrl;
 
-export function tenantsPageUrl(options?: { property?: string; tab?: 'tenants' | 'leases' }): string {
+export function tenantsPageUrl(options?: {
+  property?: string;
+  tab?: 'tenants' | 'leases';
+  attention?: 'renewal';
+}): string {
   const params = new URLSearchParams();
   if (options?.property) params.set('property', options.property);
   if (options?.tab === 'leases') params.set('tab', 'leases');
+  if (options?.attention) params.set('attention', options.attention);
   const qs = params.toString();
   return qs ? `/broker/tenants?${qs}` : '/broker/tenants';
+}
+
+export function propertyLeasesAttentionHref(propertyId: string): string {
+  return tenantsPageUrl({ property: propertyId, tab: 'leases', attention: 'renewal' });
+}
+
+export function crmSigningAgreementsHref(propertyId?: string): string {
+  return propertyId ? `/broker/agreements?property=${propertyId}` : '/broker/agreements';
 }
 
 export type PropertySubNavSection =
   | 'overview'
   | 'units'
   | 'tenants'
-  | 'agreements'
-  | 'payments'
   | 'activity'
   | 'maintenance';
 
-const WORKSPACE_TABS = new Set(['agreements', 'activity', 'maintenance']);
+const WORKSPACE_TABS = new Set(['activity', 'maintenance']);
 
 export function propertySubNavUrl(section: PropertySubNavSection, propertyId: string): string {
   if (section === 'overview') return `/broker/properties/${propertyId}`;
   if (section === 'units') return `/broker/units?property=${propertyId}`;
   if (section === 'tenants') return `/broker/tenants?property=${propertyId}`;
-  if (section === 'payments') return `/broker/payments?property=${propertyId}`;
   return `/broker/properties/${propertyId}?tab=${section}`;
 }
 

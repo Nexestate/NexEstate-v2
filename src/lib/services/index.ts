@@ -39,6 +39,7 @@ export {
   createLease,
   updateTenant,
   updateLease,
+  reassignLeaseUnit,
   fetchLeaseById,
   fetchTenantById,
 } from './leasesService';

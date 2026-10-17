@@ -3,15 +3,9 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useEntityDetail } from '../../contexts/EntityDetailContext';
 import { notifyEntityCreated } from '../../contexts/QuickAddContext';
-import { tenantPaymentsHref, unitDetailHref } from '../../lib/propertyNav';
-import {
-  fetchLeaseById,
-  fetchPayments,
-  fetchProperty,
-  updatePayment,
-  updateTenant,
-  updateUnit,
-} from '../../lib/services';
+import { crmSigningAgreementsHref, tenantPaymentsHref, unitDetailHref } from '../../lib/propertyNav';
+import { fetchLeases, fetchPayments, fetchProperty, updatePayment, updateUnit } from '../../lib/services';
+import { useAuth } from '../../contexts/AuthContext';
 import { formatCurrency } from '../../lib/utils';
 import type { Lease, Payment, PaymentMethod, Tenant } from '../../types/domain';
 import {
@@ -29,7 +23,7 @@ import { DetailPanel, DetailRow, DetailSection } from '../ui/DetailPanel';
 import { Modal } from '../ui/Modal';
 import { NavLinkButton } from './NavLinkButton';
 import { PaymentFormModal } from './PaymentFormModal';
-import { TenantFormModal } from './QuickAddModals';
+import { TenantEditModal } from './TenantEditModal';
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString('he-IL');
@@ -58,16 +52,17 @@ export function EntityDetailModal() {
     openUnitById,
     openPayment,
   } = useEntityDetail();
-  const [activeLease, setActiveLease] = useState<Lease | null>(null);
-  const [unitName, setUnitName] = useState<string | undefined>();
+  const { user } = useAuth();
+  const [tenantLeases, setTenantLeases] = useState<Lease[]>([]);
+  const [unitNames, setUnitNames] = useState<Record<string, string>>({});
   const [propertyAddress, setPropertyAddress] = useState<string | undefined>();
   const [tenantPayments, setTenantPayments] = useState<Payment[]>([]);
   const [editKind, setEditKind] = useState<EditKind | null>(null);
 
   useEffect(() => {
     if (view?.kind !== 'tenant') {
-      setActiveLease(null);
-      setUnitName(undefined);
+      setTenantLeases([]);
+      setUnitNames({});
       setPropertyAddress(undefined);
       setTenantPayments([]);
       return;
@@ -75,31 +70,31 @@ export function EntityDetailModal() {
     const tenant = view.data;
     let cancelled = false;
     void (async () => {
-      let lease: Lease | null = null;
-      if (tenant.lease_id) {
-        lease = (await fetchLeaseById(tenant.lease_id)) ?? null;
-        if (!cancelled) setActiveLease(lease);
-        if (lease) {
-          const all = await fetchPayments();
-          if (!cancelled) setTenantPayments(all.filter((p) => p.lease_id === lease!.id));
-        }
-      } else if (!cancelled) {
-        setActiveLease(null);
-        setTenantPayments([]);
-      }
-      if (tenant.property_id) {
-        const property = await fetchProperty(tenant.property_id);
+      const allLeases = await fetchLeases(user?.id);
+      const mine = allLeases.filter((l) => l.tenant_id === tenant.id && l.is_active);
+      if (!cancelled) setTenantLeases(mine);
+
+      const allPayments = await fetchPayments();
+      const leaseIds = new Set(mine.map((l) => l.id));
+      if (!cancelled) setTenantPayments(allPayments.filter((p) => p.lease_id && leaseIds.has(p.lease_id)));
+
+      const propertyId = tenant.property_id ?? mine[0]?.property_id;
+      if (propertyId) {
+        const property = await fetchProperty(propertyId);
         if (!cancelled && property) {
           setPropertyAddress(`${property.address}, ${property.city}`);
-          const unit = property.units.find((u) => u.id === tenant.unit_id);
-          setUnitName(unit?.unit_name);
+          const names: Record<string, string> = {};
+          for (const u of property.units) {
+            if (u.unit_name) names[u.id] = u.unit_name;
+          }
+          setUnitNames(names);
         }
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [view]);
+  }, [view, user?.id]);
 
   useEffect(() => {
     setEditKind(null);
@@ -276,94 +271,97 @@ export function EntityDetailModal() {
               />
             </DetailSection>
 
-            <DetailSection title="השכרה" className="mt-4">
-              <DetailRow
-                label="נכס"
-                value={
-                  view.data.property_id
-                    ? propertyLink(view.data.property_id, view.data.property_title)
-                    : (view.data.property_title ?? '—')
-                }
-              />
-              <DetailRow
-                label="יחידה"
-                value={
-                  view.data.unit_id && view.data.property_id ? (
-                    <button
-                      type="button"
-                      className="text-primary hover:underline"
-                      onClick={() => openUnitById(view.data.property_id!, view.data.unit_id!)}
-                    >
-                      {unitLabel(view.data.unit_number, unitName)}
-                    </button>
-                  ) : (
-                    unitLabel(view.data.unit_number, unitName)
-                  )
-                }
-              />
-              <DetailRow
-                label="תקופת שכירות"
-                value={
-                  activeLease
-                    ? `${formatDate(activeLease.start_date)} – ${formatDate(activeLease.end_date)}`
-                    : '—'
-                }
-              />
-              <DetailRow
-                label="שכ&quot;ד חודשי"
-                value={
-                  (activeLease?.monthly_rent ?? view.data.monthly_rent) != null ? (
-                    <span className="text-primary">
-                      {formatCurrency(activeLease?.monthly_rent ?? view.data.monthly_rent!)}
-                    </span>
-                  ) : (
-                    '—'
-                  )
-                }
-              />
-              <DetailRow
-                label="פיקדון"
-                value={activeLease?.deposit ? formatCurrency(activeLease.deposit) : '—'}
-              />
-              <DetailRow
-                label="אמצעי תשלום"
-                value={
-                  activeLease?.payment_method
-                    ? PAYMENT_METHOD_LABELS[activeLease.payment_method]
-                    : '—'
-                }
-              />
+            <DetailSection title={`חוזים ויחידות (${tenantLeases.length})`} className="mt-4">
+              {tenantLeases.length === 0 ? (
+                <p className="text-meta text-sm">אין חוזים פעילים.</p>
+              ) : (
+                tenantLeases.map((lease) => (
+                  <div key={lease.id} className="mb-3 rounded-lg border border-border/80 bg-muted/15 p-3 last:mb-0">
+                    <DetailRow
+                      label="נכס"
+                      value={propertyLink(lease.property_id, lease.property_title ?? view.data.property_title)}
+                    />
+                    <DetailRow
+                      label="יחידה"
+                      value={
+                        lease.unit_id ? (
+                          <button
+                            type="button"
+                            className="text-primary hover:underline"
+                            onClick={() => openUnitById(lease.property_id, lease.unit_id!)}
+                          >
+                            {unitLabel(lease.unit_number, lease.unit_id ? unitNames[lease.unit_id] : undefined)}
+                          </button>
+                        ) : (
+                          lease.unit_number ?? '—'
+                        )
+                      }
+                    />
+                    <DetailRow
+                      label="תקופה"
+                      value={`${formatDate(lease.start_date)} – ${formatDate(lease.end_date)}`}
+                    />
+                    <DetailRow
+                      label="שכ&quot;ד"
+                      value={<span className="text-primary">{formatCurrency(lease.monthly_rent)}</span>}
+                    />
+                  </div>
+                ))
+              )}
+              <NavLinkButton
+                to={crmSigningAgreementsHref(view.data.property_id)}
+                onNavigate={navigateAway}
+                variant="ghost"
+                className="mt-2 w-full justify-center text-xs"
+              >
+                קישורי חתימה (CRM)
+              </NavLinkButton>
             </DetailSection>
 
-            {tenantPayments.length > 0 && (
-              <DetailSection title={`תשלומים (${tenantPayments.length})`} className="mt-4">
-                <ul className="max-h-44 space-y-2 overflow-y-auto">
-                  {tenantPayments.map((p) => (
-                    <li key={p.id}>
-                      <button
-                        type="button"
-                        className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-muted/40"
-                        onClick={() => openPayment(p)}
-                      >
-                        <span>{formatDate(p.due_date)}</span>
-                        <span className="flex items-center gap-2">
-                          <span className="font-medium">{formatCurrency(p.amount)}</span>
-                          <Badge variant="outline">{PAYMENT_STATUS_LABELS[p.status]}</Badge>
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                <NavLinkButton
-                  to={tenantPaymentsHref(view.data.id, view.data.property_id)}
-                  onNavigate={navigateAway}
-                  variant="ghost"
-                  className="mt-2 w-full justify-center"
-                >
-                  כל תשלומי השוכר
-                </NavLinkButton>
-              </DetailSection>
-            )}
+            <DetailSection
+              title={`תשלומי חוזה (${tenantPayments.length})`}
+              className="mt-4"
+            >
+              {tenantPayments.filter((p) => p.status === 'overdue').length > 0 && (
+                <p className="mb-2 text-sm font-medium text-destructive">
+                  {tenantPayments.filter((p) => p.status === 'overdue').length} תשלומים באיחור —{' '}
+                  {formatCurrency(
+                    tenantPayments.filter((p) => p.status === 'overdue').reduce((s, p) => s + p.amount, 0),
+                  )}
+                </p>
+              )}
+              {tenantPayments.length === 0 ? (
+                <p className="text-meta text-sm">אין תשלומים רשומים לחוזים הפעילים.</p>
+              ) : (
+                <>
+                  <ul className="max-h-44 space-y-2 overflow-y-auto">
+                    {tenantPayments.map((p) => (
+                      <li key={p.id}>
+                        <button
+                          type="button"
+                          className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-muted/40"
+                          onClick={() => openPayment(p)}
+                        >
+                          <span>{formatDate(p.due_date)}</span>
+                          <span className="flex items-center gap-2">
+                            <span className="font-medium">{formatCurrency(p.amount)}</span>
+                            <Badge variant="outline">{PAYMENT_STATUS_LABELS[p.status]}</Badge>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <NavLinkButton
+                    to={tenantPaymentsHref(view.data.id, view.data.property_id)}
+                    onNavigate={navigateAway}
+                    variant="ghost"
+                    className="mt-2 w-full justify-center"
+                  >
+                    כל תשלומי השוכר
+                  </NavLinkButton>
+                </>
+              )}
+            </DetailSection>
 
             <TenantDocumentsChecklist tenant={view.data} className="mt-4 border-t border-border pt-4" />
           </DetailPanel>
@@ -484,22 +482,14 @@ export function EntityDetailModal() {
       )}
 
       {view?.kind === 'tenant' && (
-        <TenantFormModal
+        <TenantEditModal
           open={editKind === 'tenant'}
           onClose={() => setEditKind(null)}
-          title="עריכת שוכר"
-          initial={{
-            full_name: view.data.full_name,
-            phone: view.data.phone,
-            email: view.data.email,
-          }}
-          onSubmit={async (values) => {
-            await updateTenant(view.data.id, {
-              full_name: values.full_name,
-              phone: values.phone,
-              email: values.email,
-            });
+          tenant={view.data}
+          leases={tenantLeases}
+          onSaved={async () => {
             notifyEntityCreated('tenant');
+            notifyEntityCreated('lease');
             setEditKind(null);
             await refreshView();
           }}

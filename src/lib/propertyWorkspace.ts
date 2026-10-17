@@ -7,7 +7,7 @@ import type {
   TenantType,
 } from '../types/domain';
 
-export type WorkspaceTab = 'overview' | 'agreements' | 'activity' | 'maintenance';
+export type WorkspaceTab = 'overview' | 'activity' | 'maintenance';
 
 export type DocumentRequirement = {
   id: string;
@@ -107,10 +107,11 @@ export function buildWorkspaceActions(
 
   if (snapshot.overduePayments.length > 0) {
     const total = snapshot.overduePayments.reduce((sum, p) => sum + p.amount, 0);
+    const names = [...new Set(snapshot.overduePayments.map((p) => p.tenant_name))].slice(0, 3).join(' · ');
     actions.push({
       id: 'overdue',
-      title: `${snapshot.overduePayments.length} תשלומים באיחור`,
-      detail: `יתרה פתוחה ${total.toLocaleString('he-IL')} ₪`,
+      title: `${snapshot.overduePayments.length} תשלומי חוזה באיחור`,
+      detail: `${names} · יתרה ${total.toLocaleString('he-IL')} ₪`,
       href: `/broker/payments?property=${propertyId}`,
       tone: 'warning',
     });
@@ -119,9 +120,9 @@ export function buildWorkspaceActions(
   if (snapshot.unsignedAgreements.length > 0) {
     actions.push({
       id: 'unsigned',
-      title: 'חסר חוזה חתום',
-      detail: `${snapshot.unsignedAgreements.length} הסכמים ממתינים לחתימה`,
-      href: `/broker/properties/${propertyId}?tab=agreements`,
+      title: 'קישורי חתימה (CRM) ממתינים',
+      detail: `${snapshot.unsignedAgreements.length} הסכמי חתימה דיגיטליים לטיפול`,
+      href: `/broker/agreements?property=${propertyId}`,
       tone: 'warning',
     });
   }
@@ -156,7 +157,7 @@ export function buildWorkspaceActions(
       id: 'lease-end',
       title,
       detail,
-      href: `/broker/tenants?property=${propertyId}&open=${nearest.tenant_id}`,
+      href: `/broker/tenants?property=${propertyId}&tab=leases&attention=renewal`,
       tone: days <= 30 ? 'warning' : 'info',
     });
   }
@@ -187,7 +188,7 @@ export function buildWorkspaceActions(
     actions.push({
       id: 'ok',
       title: 'אין חריגות פתוחות',
-      detail: 'הנכס מאויש, אין איחורים ידועים ואין הסכם ממתין',
+      detail: 'הנכס מאויש, אין איחורי תשלום ואין חוזים דחופים',
       tone: 'success',
     });
   }

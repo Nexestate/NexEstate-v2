@@ -1,0 +1,287 @@
+import { useEffect, useMemo, useState } from 'react';
+import { fetchProperty, reassignLeaseUnit, updateLease, updateTenant } from '../../lib/services';
+import type { Lease, PropertyUnit, Tenant, TenantStatus, TenantType } from '../../types/domain';
+import {
+  PAYMENT_METHOD_LABELS,
+  TENANT_STATUS_LABELS,
+  TENANT_TYPE_LABELS,
+  type PaymentMethod,
+} from '../../types/domain';
+import {
+  sanitizePhone,
+  validateEmail,
+  validateName,
+  validatePhone,
+  validatePositiveNumber,
+} from '../../lib/validation';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { SlidePanel } from '../ui/SlidePanel';
+
+const SELECT_CLASS =
+  'flex h-11 w-full rounded-xl border border-border bg-muted/50 px-4 text-sm';
+
+export type LeaseEditRow = {
+  leaseId: string;
+  unitId: string;
+  startDate: string;
+  endDate: string;
+  monthlyRent: string;
+  deposit: string;
+  paymentMethod: PaymentMethod;
+};
+
+export type TenantEditValues = {
+  tenant_type: TenantType;
+  full_name: string;
+  id_number: string;
+  company_name: string;
+  company_number: string;
+  contact_name: string;
+  phone: string;
+  email: string;
+  status: TenantStatus;
+  leases: LeaseEditRow[];
+};
+
+interface TenantEditModalProps {
+  open: boolean;
+  onClose: () => void;
+  tenant: Tenant;
+  leases: Lease[];
+  onSaved: () => void | Promise<void>;
+}
+
+export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: TenantEditModalProps) {
+  const [tenantType, setTenantType] = useState<TenantType>('sole_proprietor');
+  const [fullName, setFullName] = useState('');
+  const [idNumber, setIdNumber] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [companyNumber, setCompanyNumber] = useState('');
+  const [contactName, setContactName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<TenantStatus>('active');
+  const [leaseRows, setLeaseRows] = useState<LeaseEditRow[]>([]);
+  const [units, setUnits] = useState<PropertyUnit[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+
+  const propertyId = tenant.property_id ?? leases[0]?.property_id;
+
+  const activeLeases = useMemo(
+    () => leases.filter((l) => l.is_active && l.tenant_id === tenant.id),
+    [leases, tenant.id],
+  );
+
+  useEffect(() => {
+    if (!open) return;
+    setTenantType(tenant.tenant_type ?? 'sole_proprietor');
+    setFullName(tenant.full_name);
+    setIdNumber(tenant.id_number ?? '');
+    setCompanyName(tenant.company_name ?? '');
+    setCompanyNumber('');
+    setContactName(tenant.contact_name ?? '');
+    setPhone(tenant.phone ?? '');
+    setEmail(tenant.email ?? '');
+    setStatus(tenant.status);
+    setLeaseRows(
+      activeLeases.map((l) => ({
+        leaseId: l.id,
+        unitId: l.unit_id ?? '',
+        startDate: l.start_date.slice(0, 10),
+        endDate: l.end_date.slice(0, 10),
+        monthlyRent: String(l.monthly_rent),
+        deposit: l.deposit != null ? String(l.deposit) : '',
+        paymentMethod: (l.payment_method as PaymentMethod) ?? 'transfer',
+      })),
+    );
+    setErrors({});
+    if (propertyId) {
+      void fetchProperty(propertyId).then((p) => setUnits(p?.units ?? []));
+    } else {
+      setUnits([]);
+    }
+  }, [open, tenant, activeLeases, propertyId]);
+
+  const updateLeaseRow = (leaseId: string, patch: Partial<LeaseEditRow>) => {
+    setLeaseRows((rows) => rows.map((r) => (r.leaseId === leaseId ? { ...r, ...patch } : r)));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const next: Record<string, string> = {};
+    const name = validateName(fullName);
+    if (!name.isValid) next.full_name = name.error!;
+    if (phone) {
+      const p = validatePhone(phone);
+      if (!p.isValid) next.phone = p.error!;
+    }
+    if (email) {
+      const em = validateEmail(email);
+      if (!em.isValid) next.email = em.error!;
+    }
+    for (const row of leaseRows) {
+      const rent = validatePositiveNumber(row.monthlyRent, true);
+      if (!rent.isValid) next[`rent_${row.leaseId}`] = rent.error!;
+      if (!row.unitId) next[`unit_${row.leaseId}`] = 'יש לבחור יחידה';
+    }
+    setErrors(next);
+    if (Object.keys(next).length) return;
+
+    setSaving(true);
+    try {
+      await updateTenant(tenant.id, {
+        full_name: fullName.trim(),
+        tenant_type: tenantType,
+        id_number: idNumber.trim() || undefined,
+        company_name: companyName.trim() || undefined,
+        company_number: companyNumber.trim() || undefined,
+        contact_name: contactName.trim() || undefined,
+        phone: phone.trim() || undefined,
+        email: email.trim() || undefined,
+        status,
+      });
+
+      for (const row of leaseRows) {
+        const lease = activeLeases.find((l) => l.id === row.leaseId);
+        if (!lease) continue;
+        if (row.unitId && lease.unit_id !== row.unitId) {
+          await reassignLeaseUnit(row.leaseId, row.unitId);
+        }
+        await updateLease(row.leaseId, {
+          start_date: row.startDate,
+          end_date: row.endDate,
+          monthly_rent: Number(row.monthlyRent),
+          deposit: row.deposit ? Number(row.deposit) : undefined,
+          payment_method: row.paymentMethod,
+        });
+      }
+      await onSaved();
+      onClose();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <SlidePanel
+      open={open}
+      onClose={onClose}
+      title="עריכת שוכר"
+      className="max-w-xl"
+      closeOnBackdrop={false}
+      footer={
+        <div className="flex justify-end gap-2 border-t border-border/80 px-5 py-4">
+          <Button type="button" variant="outline" onClick={onClose}>
+            ביטול
+          </Button>
+          <Button type="submit" form="tenant-edit-form" disabled={saving}>
+            {saving ? 'שומר...' : 'שמור שינויים'}
+          </Button>
+        </div>
+      }
+    >
+      <form id="tenant-edit-form" onSubmit={handleSubmit} className="space-y-8 px-5 py-4">
+        <section className="space-y-4">
+          <h3 className="text-sm font-semibold">פרטי שוכר</h3>
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(TENANT_TYPE_LABELS) as TenantType[]).map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setTenantType(type)}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium ${
+                  tenantType === type ? 'bg-primary text-primary-foreground' : 'bg-muted/60'
+                }`}
+              >
+                {TENANT_TYPE_LABELS[type]}
+              </button>
+            ))}
+          </div>
+          <Input label="שם מלא" value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.full_name} required />
+          {tenantType === 'company' && (
+            <>
+              <Input label="שם חברה" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+              <Input label="ח.פ." value={companyNumber} onChange={(e) => setCompanyNumber(e.target.value)} />
+              <Input label="איש קשר" value={contactName} onChange={(e) => setContactName(e.target.value)} />
+            </>
+          )}
+          <Input label="ת.ז. / מזהה" value={idNumber} onChange={(e) => setIdNumber(e.target.value)} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Input label="טלפון" value={phone} onChange={(e) => setPhone(sanitizePhone(e.target.value))} error={errors.phone} />
+            <Input label='דוא"ל' value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">סטטוס</label>
+            <select className={SELECT_CLASS} value={status} onChange={(e) => setStatus(e.target.value as TenantStatus)}>
+              {Object.entries(TENANT_STATUS_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <h3 className="text-sm font-semibold">חוזי שכירות ({leaseRows.length})</h3>
+          {leaseRows.length === 0 ? (
+            <p className="text-meta text-sm">אין חוזים פעילים — הוסיפו חוזה דרך «הוסף שוכר» או יחידה חדשה.</p>
+          ) : (
+            leaseRows.map((row) => (
+              <div key={row.leaseId} className="space-y-3 rounded-xl border border-border/80 bg-muted/20 p-4">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium">יחידה (החלפה)</label>
+                  <select
+                    className={SELECT_CLASS}
+                    value={row.unitId}
+                    onChange={(e) => updateLeaseRow(row.leaseId, { unitId: e.target.value })}
+                  >
+                    <option value="">בחרו יחידה</option>
+                    {units.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        יח׳ {u.unit_number}
+                        {u.unit_name ? ` · ${u.unit_name}` : ''} ({u.unit_status})
+                      </option>
+                    ))}
+                  </select>
+                  {errors[`unit_${row.leaseId}`] && (
+                    <p className="text-xs text-destructive">{errors[`unit_${row.leaseId}`]}</p>
+                  )}
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Input label="התחלה" type="date" value={row.startDate} onChange={(e) => updateLeaseRow(row.leaseId, { startDate: e.target.value })} />
+                  <Input label="סיום" type="date" value={row.endDate} onChange={(e) => updateLeaseRow(row.leaseId, { endDate: e.target.value })} />
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Input
+                    label='שכ"ד (₪)'
+                    value={row.monthlyRent}
+                    onChange={(e) => updateLeaseRow(row.leaseId, { monthlyRent: e.target.value })}
+                    error={errors[`rent_${row.leaseId}`]}
+                  />
+                  <Input label="פיקדון" value={row.deposit} onChange={(e) => updateLeaseRow(row.leaseId, { deposit: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium">אמצעי תשלום</label>
+                  <select
+                    className={SELECT_CLASS}
+                    value={row.paymentMethod}
+                    onChange={(e) => updateLeaseRow(row.leaseId, { paymentMethod: e.target.value as PaymentMethod })}
+                  >
+                    {(Object.keys(PAYMENT_METHOD_LABELS) as PaymentMethod[]).map((m) => (
+                      <option key={m} value={m}>
+                        {PAYMENT_METHOD_LABELS[m]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            ))
+          )}
+        </section>
+      </form>
+    </SlidePanel>
+  );
+}

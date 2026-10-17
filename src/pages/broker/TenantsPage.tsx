@@ -13,6 +13,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useEntityDetail } from '../../contexts/EntityDetailContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
+import { leaseNeedsAttention } from '../../lib/propertyWorkspace';
 import { fetchAccessiblePropertyIds, fetchLeasesForProperties, fetchTenantsForProperties } from '../../lib/services';
 import { formatCurrency } from '../../lib/utils';
 import type { Lease, Tenant } from '../../types/domain';
@@ -35,7 +36,9 @@ export function TenantsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const propertyFilter = searchParams.get('property');
   const openId = searchParams.get('open');
-  const section = searchParams.get('tab') === 'leases' ? 'leases' : 'tenants';
+  const attentionFilter = searchParams.get('attention');
+  const section =
+    searchParams.get('tab') === 'leases' || attentionFilter === 'renewal' ? 'leases' : 'tenants';
   const [search, setSearch] = useState('');
   const [leases, setLeases] = useState<Lease[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
@@ -67,18 +70,20 @@ export function TenantsPage() {
 
   useEntityCreated(['lease', 'tenant'], load);
 
-  const filteredLeases = useMemo(
-    () =>
-      leases.filter((l) => {
-        const matchesSearch =
-          l.tenant_name.includes(search) ||
-          (l.property_title?.includes(search) ?? false) ||
-          (l.unit_number?.includes(search) ?? false);
-        const matchesProperty = !propertyFilter || l.property_id === propertyFilter;
-        return matchesSearch && matchesProperty;
-      }),
-    [leases, search, propertyFilter],
-  );
+  const filteredLeases = useMemo(() => {
+    let list = leases.filter((l) => {
+      const matchesSearch =
+        l.tenant_name.includes(search) ||
+        (l.property_title?.includes(search) ?? false) ||
+        (l.unit_number?.includes(search) ?? false);
+      const matchesProperty = !propertyFilter || l.property_id === propertyFilter;
+      return matchesSearch && matchesProperty;
+    });
+    if (attentionFilter === 'renewal') {
+      list = list.filter((l) => l.is_active && leaseNeedsAttention(l.end_date));
+    }
+    return list;
+  }, [leases, search, propertyFilter, attentionFilter]);
 
   const filteredTenants = useMemo(
     () =>
@@ -159,6 +164,12 @@ export function TenantsPage() {
           </Button>
         )}
       </div>
+
+      {attentionFilter === 'renewal' && propertyFilter && (
+        <div className="rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
+          מציג חוזים שפגו או מסתיימים בתוך 90 יום — בחרו חוזה מהרשימה לפרטים ולעריכה.
+        </div>
+      )}
 
       <Tabs
         tabs={[

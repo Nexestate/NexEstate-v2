@@ -1,4 +1,4 @@
-import { ChevronLeft, CreditCard, Eye, FileSignature, Layers, LogOut, Pencil, Plus, Shield, Users } from 'lucide-react';
+import { ChevronLeft, Eye, Layers, LogOut, Pencil, Plus, Shield, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -222,20 +222,6 @@ export function Sidebar({
                                     count: prop.tenantCount,
                                     icon: Users,
                                     addNew: 'tenant' as const,
-                                  },
-                                  {
-                                    label: 'תשלומים',
-                                    to: propertyNavHref(prop.id, 'payments'),
-                                    tab: 'payments' as const,
-                                    count: prop.paymentCount,
-                                    icon: CreditCard,
-                                  },
-                                  {
-                                    label: 'הסכם',
-                                    to: propertyNavHref(prop.id, 'agreements'),
-                                    tab: 'agreements' as const,
-                                    icon: FileSignature,
-                                    addNew: 'agreement' as const,
                                   },
                                 ].map((sub) => {
                                   const SubIcon = sub.icon;

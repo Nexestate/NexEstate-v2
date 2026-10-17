@@ -1,5 +1,6 @@
 import { Copy, ExternalLink, FileDown, FileSignature, MoreHorizontal, Plus, Send, Trash2, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { PageLoader } from '../../components/ui/PageLoader';
@@ -22,7 +23,13 @@ const STATUS_VARIANT: Record<string, 'primary' | 'success' | 'warning' | 'outlin
 
 export function AgreementsPage() {
   const { openQuickAdd } = useQuickAdd();
+  const [searchParams] = useSearchParams();
+  const propertyFilter = searchParams.get('property');
   const { links, loading, fetchLinks, cancelLink, deleteLink, markAsSent } = useSigningLinks();
+  const filteredLinks = useMemo(
+    () => (propertyFilter ? links.filter((l) => l.property_id === propertyFilter) : links),
+    [links, propertyFilter],
+  );
   const [copied, setCopied] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -48,10 +55,14 @@ export function AgreementsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="הסכמים וחתימה דיגיטלית"
-        description="יצירה וניהול קישורי חתימה ללקוחות"
+        title="הסכמי חתימה (CRM)"
+        description={
+          propertyFilter
+            ? 'קישורי חתימה דיגיטליים לנכס שנבחר — לא לבלבל עם חוזי שכירות'
+            : 'יצירה וניהול קישורי חתימה ללקוחות (נפרד מחוזי שכירות בנכסים מנוהלים)'
+        }
         action={
-          <Button onClick={() => openQuickAdd('agreement')}>
+          <Button onClick={() => openQuickAdd('agreement', propertyFilter ? { propertyId: propertyFilter } : undefined)}>
             <Plus className="h-4 w-4" />
             קישור חדש
           </Button>

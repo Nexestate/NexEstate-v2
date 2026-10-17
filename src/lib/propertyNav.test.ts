@@ -4,14 +4,10 @@ import { isPropertySubNavActive, propertySubNavUrl } from './propertyNav';
 describe('property workspace URLs', () => {
   it('keeps operational lists on existing routes', () => {
     expect(propertySubNavUrl('tenants', 'p1')).toBe('/broker/tenants?property=p1');
-    expect(propertySubNavUrl('payments', 'p1')).toBe('/broker/payments?property=p1');
+    expect(propertySubNavUrl('maintenance', 'p1')).toBe('/broker/properties/p1?tab=maintenance');
   });
 
-  it('keeps agreements on the property workspace page', () => {
-    expect(propertySubNavUrl('agreements', 'p1')).toBe('/broker/properties/p1?tab=agreements');
-    expect(
-      isPropertySubNavActive('/broker/properties/p1', '?tab=agreements', '/broker/properties/p1?tab=agreements'),
-    ).toBe(true);
+  it('marks property overview tab active without query', () => {
     expect(isPropertySubNavActive('/broker/properties/p1', '', '/broker/properties/p1')).toBe(true);
   });
 

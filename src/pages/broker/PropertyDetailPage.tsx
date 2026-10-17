@@ -6,7 +6,6 @@ import { PropertySubNav } from '../../components/broker/PropertySubNav';
 import { PropertyUnitCards } from '../../components/broker/PropertyUnitCards';
 import {
   ActivityPanel,
-  AgreementsPanel,
   AttentionList,
   MaintenancePanel,
   OverviewFacts,
@@ -33,7 +32,7 @@ import { supabase } from '../../lib/supabase';
 import type { PropertyKind, PropertyStatus, PropertyVisibility } from '../../types';
 import type { PropertyUnit } from '../../types/domain';
 
-const WORKSPACE_TABS: WorkspaceTab[] = ['agreements', 'activity', 'maintenance'];
+const WORKSPACE_TABS: WorkspaceTab[] = ['activity', 'maintenance'];
 
 export function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,13 +42,14 @@ export function PropertyDetailPage() {
   const tab = WORKSPACE_TABS.includes(tabParam as WorkspaceTab) ? (tabParam as WorkspaceTab) : 'overview';
 
   useEffect(() => {
-    if (tabParam === 'documents' && id) {
-      navigate(`/broker/tenants?property=${id}`, { replace: true });
-    }
+    if (!id || !tabParam) return;
+    if (tabParam === 'documents') navigate(`/broker/tenants?property=${id}`, { replace: true });
+    if (tabParam === 'agreements') navigate(`/broker/agreements?property=${id}`, { replace: true });
+    if (tabParam === 'payments') navigate(`/broker/payments?property=${id}`, { replace: true });
   }, [tabParam, id, navigate]);
   const { user } = useAuth();
   const { toast } = useToast();
-  const { property, tenants, leases, links, snapshot, actions, activity, loading, loadError, reload } =
+  const { property, tenants, leases, snapshot, actions, activity, loading, loadError, reload } =
     usePropertyWorkspace(id);
   const [shareOpen, setShareOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -207,7 +207,6 @@ export function PropertyDetailPage() {
         </div>
       )}
 
-      {tab === 'agreements' && <AgreementsPanel links={links} propertyId={property.id} />}
       {tab === 'activity' && <ActivityPanel items={activity} />}
       {tab === 'maintenance' && (
         <MaintenancePanel count={snapshot.maintenanceUnits} propertyId={property.id} />

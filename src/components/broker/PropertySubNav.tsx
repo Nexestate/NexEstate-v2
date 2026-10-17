@@ -1,4 +1,4 @@
-import { Activity, Building2, CreditCard, FileSignature, Home, Users, Wrench } from 'lucide-react';
+import { Activity, Building2, Home, Users, Wrench } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { isPropertySubNavActive, propertySubNavUrl, type PropertySubNavSection } from '../../lib/propertyNav';
 import { cn } from '../../lib/utils';
@@ -7,8 +7,6 @@ const TABS: { id: PropertySubNavSection; label: string; icon: typeof Home }[] = 
   { id: 'overview', label: 'סקירה', icon: Building2 },
   { id: 'units', label: 'יחידות', icon: Home },
   { id: 'tenants', label: 'שוכרים', icon: Users },
-  { id: 'agreements', label: 'הסכם', icon: FileSignature },
-  { id: 'payments', label: 'תשלומים', icon: CreditCard },
   { id: 'maintenance', label: 'תחזוקה', icon: Wrench },
   { id: 'activity', label: 'פעילות', icon: Activity },
 ];

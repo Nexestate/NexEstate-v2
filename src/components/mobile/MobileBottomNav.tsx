@@ -55,10 +55,9 @@ function buildPropertyNav(propertyId: string): { main: NavItem[]; more: NavItem[
       { label: 'דף נכס', to: propertyNavHref(propertyId, 'overview'), icon: Building2, end: true },
       { label: 'יחידות', to: propertyNavHref(propertyId, 'units'), icon: Home },
       { label: 'שוכרים', to: propertyNavHref(propertyId, 'tenants'), icon: Users },
-      { label: 'תשלומים', to: propertyNavHref(propertyId, 'payments'), icon: CreditCard },
     ],
     more: [
-      { label: 'הסכם', to: propertyNavHref(propertyId, 'agreements'), icon: FileSignature },
+      { label: 'הסכמי חתימה (CRM)', to: `/broker/agreements?property=${propertyId}`, icon: FileSignature },
       { label: 'תחזוקה', to: propertyNavHref(propertyId, 'maintenance'), icon: Wrench },
       { label: 'פעילות', to: propertyNavHref(propertyId, 'activity'), icon: Activity },
       { label: 'לוח בקרה', to: '/broker', icon: LayoutDashboard, end: true },
