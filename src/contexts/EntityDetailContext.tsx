@@ -29,6 +29,26 @@ interface EntityDetailContextValue {
 
 const EntityDetailContext = createContext<EntityDetailContextValue | null>(null);
 
+function mergeTenantWithLease(tenant: Tenant | undefined, lease: Lease): Tenant {
+  return {
+    id: lease.tenant_id,
+    full_name: tenant?.full_name ?? lease.tenant_name,
+    tenant_type: tenant?.tenant_type,
+    company_name: tenant?.company_name,
+    contact_name: tenant?.contact_name,
+    id_number: tenant?.id_number,
+    email: tenant?.email,
+    phone: tenant?.phone,
+    status: tenant?.status ?? (lease.is_active ? 'active' : 'ended'),
+    property_id: lease.property_id,
+    property_title: lease.property_title ?? tenant?.property_title,
+    unit_id: lease.unit_id ?? tenant?.unit_id,
+    unit_number: lease.unit_number ?? tenant?.unit_number,
+    lease_id: lease.id,
+    monthly_rent: lease.monthly_rent,
+  };
+}
+
 export function EntityDetailProvider({
   children,
   userId,
@@ -41,7 +61,6 @@ export function EntityDetailProvider({
 
   const openUnit = useCallback((unit: UnitDetail) => setView({ kind: 'unit', data: unit }), []);
   const openTenant = useCallback((tenant: Tenant) => setView({ kind: 'tenant', data: tenant }), []);
-  const openLease = useCallback((lease: Lease) => setView({ kind: 'lease', data: lease }), []);
   const openPayment = useCallback((payment: Payment) => setView({ kind: 'payment', data: payment }), []);
   const close = useCallback(() => setView(null), []);
 
@@ -75,11 +94,15 @@ export function EntityDetailProvider({
     setLoading(true);
     try {
       const lease = (await fetchLeases(userId)).find((l) => l.id === leaseId);
-      if (lease) setView({ kind: 'lease', data: lease });
+      if (!lease) return;
+      const tenant = (await fetchTenants(userId)).find((t) => t.id === lease.tenant_id);
+      setView({ kind: 'tenant', data: mergeTenantWithLease(tenant, lease) });
     } finally {
       setLoading(false);
     }
   }, [userId]);
+
+  const openLease = useCallback((lease: Lease) => void openLeaseById(lease.id), [openLeaseById]);
 
   const openPaymentById = useCallback(async (paymentId: string) => {
     setLoading(true);

@@ -330,9 +330,7 @@ export function TenantsPage() {
                 </TableCell>
                 <TableCell>
                   {tenant.lease_id ? (
-                    <EntityLinkButton onClick={() => void openLeaseById(tenant.lease_id!)}>
-                      צפייה
-                    </EntityLinkButton>
+                    <EntityLinkButton onClick={() => void openTenantById(tenant.id)}>פתיחה</EntityLinkButton>
                   ) : (
                     '—'
                   )}

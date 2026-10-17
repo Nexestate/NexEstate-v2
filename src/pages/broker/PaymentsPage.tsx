@@ -31,8 +31,9 @@ export function PaymentsPage() {
   const { user } = useAuth();
   const { openQuickAdd } = useQuickAdd();
   const [searchParams] = useSearchParams();
-  const { openPayment, openPaymentById, openTenantById, openUnitById, openLeaseById } = useEntityDetail();
+  const { openPayment, openPaymentById, openTenantById, openUnitById } = useEntityDetail();
   const propertyFilter = searchParams.get('property');
+  const tenantFilter = searchParams.get('tenant');
   const openId = searchParams.get('open');
   const [search, setSearch] = useState('');
 
@@ -48,10 +49,12 @@ export function PaymentsPage() {
 
   useEntityCreated('payment', reload);
 
-  const scoped = useMemo(
-    () => payments?.filter((p) => !propertyFilter || p.property_id === propertyFilter) ?? [],
-    [payments, propertyFilter],
-  );
+  const scoped = useMemo(() => {
+    let list = payments ?? [];
+    if (propertyFilter) list = list.filter((p) => p.property_id === propertyFilter);
+    if (tenantFilter) list = list.filter((p) => p.tenant_id === tenantFilter);
+    return list;
+  }, [payments, propertyFilter, tenantFilter]);
 
   const filtered = useMemo(
     () =>
@@ -83,17 +86,24 @@ export function PaymentsPage() {
 
   return (
     <div className="space-y-6">
-      {propertyFilter && (
-        <>
-          <BackButton to="/broker/payments" label="חזרה לכל התשלומים" />
-          <PropertySubNav propertyId={propertyFilter} />
-        </>
+      {(propertyFilter || tenantFilter) && (
+        <BackButton
+          to={propertyFilter ? `/broker/payments?property=${propertyFilter}` : '/broker/payments'}
+          label={tenantFilter ? 'חזרה לתשלומי הנכס' : 'חזרה לכל התשלומים'}
+        />
       )}
+      {propertyFilter && !tenantFilter && <PropertySubNav propertyId={propertyFilter} />}
 
       <PageHeader
         title="תשלומים"
         description={
-          propertyFilter ? 'תשלומים עבור הנכס שנבחר' : "מעקב תשלומי שכירות וצ'קים"
+          tenantFilter
+            ? scoped[0]?.tenant_name
+              ? `תשלומים — ${scoped[0].tenant_name}`
+              : 'תשלומים לשוכר שנבחר'
+            : propertyFilter
+              ? 'תשלומים עבור הנכס שנבחר'
+              : "מעקב תשלומי שכירות וצ'קים"
         }
         action={
           <Button onClick={() => openQuickAdd('payment', propertyFilter ? { propertyId: propertyFilter } : undefined)}>
@@ -103,7 +113,15 @@ export function PaymentsPage() {
         }
       />
 
-      {propertyFilter && (
+      {tenantFilter && (
+        <Link
+          to={propertyFilter ? `/broker/payments?property=${propertyFilter}` : '/broker/payments'}
+          className="text-sm text-primary hover:underline"
+        >
+          {propertyFilter ? 'כל תשלומי הנכס' : 'הצג את כל התשלומים'}
+        </Link>
+      )}
+      {propertyFilter && !tenantFilter && (
         <Link to="/broker/payments" className="text-sm text-primary hover:underline">
           הצג את כל התשלומים
         </Link>
@@ -150,7 +168,7 @@ export function PaymentsPage() {
               <TableHead>אמצעי תשלום</TableHead>
               <TableHead>תאריך יעד</TableHead>
               <TableHead>סטטוס</TableHead>
-              <TableHead>חוזה</TableHead>
+              <TableHead>פרטי שוכר</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -192,10 +210,8 @@ export function PaymentsPage() {
                   <Badge variant={STATUS_VARIANT[p.status]}>{PAYMENT_STATUS_LABELS[p.status]}</Badge>
                 </TableCell>
                 <TableCell>
-                  {p.lease_id ? (
-                    <EntityLinkButton onClick={() => void openLeaseById(p.lease_id!)}>
-                      צפייה
-                    </EntityLinkButton>
+                  {p.tenant_id ? (
+                    <EntityLinkButton onClick={() => void openTenantById(p.tenant_id!)}>פתיחה</EntityLinkButton>
                   ) : (
                     '—'
                   )}

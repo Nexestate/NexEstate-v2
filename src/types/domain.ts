@@ -153,6 +153,8 @@ export interface Tenant {
   full_name: string;
   tenant_type?: TenantType;
   company_name?: string;
+  contact_name?: string;
+  id_number?: string;
   email?: string;
   phone?: string;
   status: TenantStatus;

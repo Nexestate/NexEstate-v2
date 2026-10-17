@@ -2,6 +2,12 @@ export function unitDetailUrl(propertyId: string, unitId: string): string {
   return `/broker/units?property=${propertyId}&open=${unitId}`;
 }
 
+export function tenantPaymentsHref(tenantId: string, propertyId?: string): string {
+  const params = new URLSearchParams({ tenant: tenantId });
+  if (propertyId) params.set('property', propertyId);
+  return `/broker/payments?${params.toString()}`;
+}
+
 export const unitDetailHref = unitDetailUrl;
 
 export function tenantsPageUrl(options?: { property?: string; tab?: 'tenants' | 'leases' }): string {
