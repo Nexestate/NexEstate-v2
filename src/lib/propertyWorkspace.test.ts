@@ -82,7 +82,7 @@ describe('workspace snapshot + actions', () => {
     const snapshot = buildWorkspaceSnapshot({
       property,
       tenants: [tenant],
-      leases: [{ ...lease, end_date: '2026-01-01' }],
+      leases: [{ ...lease, end_date: '2026-10-10' }],
       payments: [],
       links: [],
     });

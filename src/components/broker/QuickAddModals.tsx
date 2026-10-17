@@ -14,7 +14,7 @@ import {
   createProperty,
   createTask,
   createTenantWithLease,
-  createUnit,
+  saveUnitOnboarding,
   fetchAccessiblePropertyIds,
   fetchLeasesForProperties,
 } from '../../lib/services';
@@ -34,8 +34,8 @@ import {
   propertyFormToPayload,
   type PropertyFormValues,
 } from '../property/PropertyFormModal';
-import { UnitFormModal, type UnitFormValues } from '../property/UnitFormModal';
 import { TenantOnboardingModal } from './TenantOnboardingModal';
+import { UnitOnboardingModal } from './UnitOnboardingModal';
 import { PaymentFormModal } from './PaymentFormModal';
 import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../ui/Button';
@@ -167,24 +167,19 @@ export function QuickAddModals() {
         }}
       />
 
-      <UnitFormModal
+      <UnitOnboardingModal
         open={state.type === 'unit'}
         onClose={closeQuickAdd}
-        onSubmit={async (values: UnitFormValues) => {
+        propertyId={state.propertyId}
+        brokerId={user?.id ?? ''}
+        onSubmit={async (payload) => {
           if (!user || !state.propertyId) throw new Error('not auth');
-          await createUnit({
-            property_id: state.propertyId,
-            broker_id: user.id,
-            unit_number: values.unit_number.trim(),
-            unit_name: values.unit_name.trim() || undefined,
-            area_sqm: values.area_sqm ? Number(values.area_sqm) : undefined,
-            monthly_rent: values.monthly_rent ? Number(values.monthly_rent) : undefined,
-            unit_status: values.unit_status,
-            floor: values.floor ? Number(values.floor) : undefined,
-          });
+          await saveUnitOnboarding(user.id, payload);
+          if (payload.occupancy === 'new_tenant') notifyEntityCreated('tenant');
+          if (payload.occupancy !== 'vacant') notifyEntityCreated('lease');
+          toast({ variant: 'success', title: 'היחידה נשמרה בהצלחה' });
           closeAfterSuccess('unit', closeQuickAdd);
         }}
-        title="יחידה חדשה"
       />
 
       <PaymentQuickAddModal

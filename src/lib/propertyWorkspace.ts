@@ -73,7 +73,7 @@ export function buildWorkspaceSnapshot(input: {
   const upcoming = [...activeLeases].sort(
     (a, b) => new Date(a.end_date).getTime() - new Date(b.end_date).getTime(),
   );
-  const leasesNeedingRenewal = activeLeases.filter((l) => daysUntil(l.end_date) <= 90);
+  const leasesNeedingRenewal = activeLeases.filter((l) => leaseNeedsAttention(l.end_date));
   const pendingPay = payments
     .filter((p) => p.status === 'pending' || p.status === 'pending_verification')
     .sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime());
@@ -124,45 +124,51 @@ export function buildWorkspaceActions(
       href: `/broker/properties/${propertyId}?tab=agreements`,
       tone: 'warning',
     });
-  } else if (snapshot.activeLeases.length > 0 && snapshot.signedAgreements.length === 0) {
-    actions.push({
-      id: 'no-agreement',
-      title: 'אין הסכם חתום לנכס',
-      detail: 'צרו קישור חתימה לשוכר הפעיל',
-      href: `/broker/properties/${propertyId}?tab=agreements`,
-      tone: 'warning',
-    });
   }
 
   if (snapshot.leasesNeedingRenewal.length > 0) {
-    const count = snapshot.leasesNeedingRenewal.length;
-    const nearest = snapshot.leasesNeedingRenewal.sort(
+    const sorted = [...snapshot.leasesNeedingRenewal].sort(
       (a, b) => new Date(a.end_date).getTime() - new Date(b.end_date).getTime(),
-    )[0]!;
+    );
+    const nearest = sorted[0]!;
     const days = daysUntil(nearest.end_date);
+    const expiredCount = sorted.filter((l) => daysUntil(l.end_date) < 0).length;
+    const upcomingCount = sorted.length - expiredCount;
+
+    let title: string;
+    if (sorted.length === 1) {
+      title =
+        days < 0 ? 'חוזה פג — נדרש חידוש או יציאה' : `חוזה מסתיים בעוד ${days} יום`;
+    } else if (expiredCount > 0 && upcomingCount > 0) {
+      title = `${expiredCount} חוזים פגו · ${upcomingCount} מסתיימים ב-90 יום`;
+    } else if (expiredCount > 0) {
+      title = `${expiredCount} חוזים פגו — לטיפול`;
+    } else {
+      title = `${upcomingCount} חוזים מסתיימים ב-90 יום`;
+    }
+
+    const detail =
+      days < 0
+        ? `${nearest.tenant_name} · פג ב-${formatShortDate(nearest.end_date)} (לפני ${Math.abs(days)} יום)`
+        : `${nearest.tenant_name} · ${formatShortDate(nearest.end_date)} (עוד ${days} יום)`;
+
     actions.push({
       id: 'lease-end',
-      title:
-        count > 1
-          ? `${count} חוזים דורשים חידוש או סגירה`
-          : days < 0
-            ? 'חוזה פג — נדרש חידוש או יציאה'
-            : `חוזה מסתיים בעוד ${days} יום`,
-      detail:
-        count > 1
-          ? `הקרוב: ${nearest.tenant_name} · ${formatShortDate(nearest.end_date)}`
-          : `${nearest.tenant_name} · ${formatShortDate(nearest.end_date)}`,
-      href: `/broker/tenants?property=${propertyId}&tab=leases&open=${nearest.id}`,
+      title,
+      detail,
+      href: `/broker/tenants?property=${propertyId}&open=${nearest.tenant_id}`,
       tone: days <= 30 ? 'warning' : 'info',
     });
   }
 
-  if (snapshot.currentTenants.length > 0) {
+  const docTenant = snapshot.currentTenants[0];
+  if (docTenant) {
+    const required = requirementsForTenantType(docTenant.tenant_type).length;
     actions.push({
       id: 'docs',
-      title: 'מסמכי שוכר טרם הושלמו',
-      detail: 'פתחו כרטיס שוכר לרשימת המסמכים הנדרשים',
-      href: `/broker/tenants?property=${propertyId}`,
+      title: 'מסמכי שוכר — השלמת רשימה',
+      detail: `${docTenant.full_name} · ${required} מסמכים נדרשים · פתיחת כרטיס שוכר`,
+      href: `/broker/tenants?property=${propertyId}&open=${docTenant.id}`,
       tone: 'info',
     });
   }
@@ -245,6 +251,12 @@ export function buildPropertyActivity(input: {
 
 function daysUntil(iso: string): number {
   return Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000);
+}
+
+/** End date within 90 days ahead or up to 90 days in the past. */
+export function leaseNeedsAttention(endDate: string): boolean {
+  const d = daysUntil(endDate);
+  return d <= 90 && d >= -90;
 }
 
 export function formatShortDate(iso: string): string {

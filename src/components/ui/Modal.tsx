@@ -11,6 +11,8 @@ interface ModalProps {
   children: React.ReactNode;
   className?: string;
   size?: 'md' | 'lg' | 'xl' | 'drawer';
+  /** When false, clicking the backdrop does not close the dialog. */
+  closeOnBackdrop?: boolean;
 }
 
 const SIZE_CLASS: Record<NonNullable<ModalProps['size']>, string> = {
@@ -21,7 +23,15 @@ const SIZE_CLASS: Record<NonNullable<ModalProps['size']>, string> = {
     'max-w-lg sm:max-h-full sm:max-w-xl sm:ms-auto sm:me-0 sm:rounded-none sm:rounded-s-3xl sm:rounded-t-3xl',
 };
 
-export function Modal({ open, onClose, title, children, className, size = 'md' }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  className,
+  size = 'md',
+  closeOnBackdrop = true,
+}: ModalProps) {
   useBodyScrollLock(open);
   const titleId = useId();
 
@@ -38,7 +48,11 @@ export function Modal({ open, onClose, title, children, className, size = 'md' }
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <button type="button" aria-label="סגור" className="absolute inset-0 overlay-blur" onClick={onClose} />
+      {closeOnBackdrop ? (
+        <button type="button" aria-label="סגור" className="absolute inset-0 overlay-blur" onClick={onClose} />
+      ) : (
+        <div className="absolute inset-0 overlay-blur" aria-hidden />
+      )}
       <div
         role="dialog"
         aria-modal="true"

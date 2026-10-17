@@ -56,6 +56,7 @@ export function TenantOnboardingModal({ open, onClose, propertyId, onSubmit }: T
 
   useEffect(() => {
     if (!open) return;
+    resetForm();
     setErrors({});
     setLoadError(null);
     if (!propertyId) {
@@ -176,6 +177,7 @@ export function TenantOnboardingModal({ open, onClose, propertyId, onSubmit }: T
       onClose={onClose}
       title="שוכר חדש — נכס מנוהל"
       className="max-w-xl"
+      closeOnBackdrop={false}
       footer={
         <div className="flex justify-end gap-2 border-t border-border/80 px-5 py-4">
           <Button type="button" variant="outline" onClick={onClose}>

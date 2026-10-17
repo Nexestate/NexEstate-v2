@@ -7,6 +7,8 @@ export {
 } from './accessiblePropertiesService';
 export { fetchProperties, fetchProperty, createProperty, updateProperty } from './propertiesService';
 export { createUnit, updateUnit } from './unitsService';
+export { saveUnitOnboarding } from './unitOnboardingService';
+export type { UnitOnboardingSubmit, UnitOccupancyMode } from './unitOnboardingService';
 export type { UnitInsert, UnitUpdate } from './unitsService';
 export type { PropertyInsert } from './propertiesService';
 export { fetchLeads, fetchClients, createLead, createClient, updateClient, updateLead, updateLeadStatus } from './leadsService';
@@ -33,13 +35,14 @@ export {
   fetchTenantsForProperties,
   createTenant,
   createTenantWithLease,
+  attachTenantToUnit,
   createLease,
   updateTenant,
   updateLease,
   fetchLeaseById,
   fetchTenantById,
 } from './leasesService';
-export type { CreateTenantWithLeaseInput } from './leasesService';
+export type { AttachTenantToUnitInput, CreateTenantWithLeaseInput } from './leasesService';
 export { fetchSigningLink, completeSigning, fetchSigningLinks } from './signingService';
 export { fetchTasks, createTask, updateTask, updateTaskStatus } from './tasksService';
 export {

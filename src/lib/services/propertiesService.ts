@@ -5,15 +5,35 @@ import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './servi
 type LeaseLink = { id: string; tenant_id: string; tenant_name: string };
 
 function mapUnitRow(u: Record<string, unknown>): PropertyUnit {
+  const rawAmenities = u.amenities;
+  let amenities: string[] | undefined;
+  if (Array.isArray(rawAmenities)) {
+    amenities = rawAmenities as string[];
+  } else if (typeof rawAmenities === 'string') {
+    try {
+      amenities = JSON.parse(rawAmenities) as string[];
+    } catch {
+      amenities = undefined;
+    }
+  }
+
   return {
     id: u.id as string,
     property_id: u.property_id as string,
     unit_number: u.unit_number as string,
     unit_name: (u.unit_name as string | null) ?? undefined,
+    unit_type: (u.unit_type as PropertyUnit['unit_type'] | null) ?? undefined,
     area_sqm: (u.area_sqm as number | null) ?? undefined,
     monthly_rent: (u.monthly_rent as number | null) ?? undefined,
     unit_status: u.unit_status as PropertyUnit['unit_status'],
     floor: (u.floor as number | null) ?? undefined,
+    building: (u.building as string | null) ?? undefined,
+    rooms: (u.rooms as number | null) ?? undefined,
+    bathrooms: (u.bathrooms as number | null) ?? undefined,
+    management_fee: (u.management_fee as number | null) ?? undefined,
+    amenities,
+    description: (u.description as string | null) ?? undefined,
+    notes: (u.notes as string | null) ?? undefined,
   };
 }
 

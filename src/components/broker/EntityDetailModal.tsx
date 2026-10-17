@@ -150,6 +150,7 @@ export function EntityDetailModal() {
         onClose={close}
         title={view ? titles[view.kind] : 'טוען...'}
         size="xl"
+        closeOnBackdrop={false}
       >
         {loading && !view ? (
           <div className="flex justify-center py-8">

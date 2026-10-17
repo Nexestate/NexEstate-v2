@@ -279,7 +279,6 @@ export async function createTenantWithLease(
       property_id: input.property_id,
       unit_id: input.unit_id,
       tenant_id: tenantId,
-      tenant_name: displayName,
       start_date: input.start_date,
       end_date: input.end_date,
       monthly_rent: input.monthly_rent,
@@ -299,6 +298,74 @@ export async function createTenantWithLease(
   });
 
   return { tenantId, leaseId: leaseData.id as string };
+}
+
+export type AttachTenantToUnitInput = {
+  property_id: string;
+  unit_id: string;
+  tenant_id: string;
+  tenant_name: string;
+  start_date: string;
+  end_date: string;
+  monthly_rent: number;
+  deposit?: number;
+  payment_method?: PaymentMethod;
+};
+
+/** Link an existing tenant to a newly created unit via active lease. */
+export async function attachTenantToUnit(userId: string, input: AttachTenantToUnitInput): Promise<string> {
+  const propertyTitle = DEMO_MANAGED_PROPERTIES.find((p) => p.id === input.property_id)?.title;
+
+  if (isDemoMode()) {
+    const leaseId = `lease-${Date.now()}`;
+    DEMO_LEASES.unshift({
+      id: leaseId,
+      property_id: input.property_id,
+      property_title: propertyTitle,
+      unit_id: input.unit_id,
+      tenant_id: input.tenant_id,
+      tenant_name: input.tenant_name,
+      start_date: input.start_date,
+      end_date: input.end_date,
+      monthly_rent: input.monthly_rent,
+      deposit: input.deposit,
+      is_active: true,
+    });
+    await updateUnit(input.unit_id, {
+      unit_status: 'occupied',
+      tenant_id: input.tenant_id,
+      monthly_rent: input.monthly_rent,
+    });
+    return leaseId;
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from('leases')
+    .insert({
+      manager_id: userId,
+      property_id: input.property_id,
+      unit_id: input.unit_id,
+      tenant_id: input.tenant_id,
+      start_date: input.start_date,
+      end_date: input.end_date,
+      monthly_rent: input.monthly_rent,
+      deposit: input.deposit ?? null,
+      payment_method: input.payment_method ?? null,
+      is_active: true,
+    })
+    .select('id')
+    .single();
+  throwIfError(error);
+  if (!data) throw new ServiceError('Lease insert returned no data');
+
+  await updateUnit(input.unit_id, {
+    unit_status: 'occupied',
+    tenant_id: input.tenant_id,
+    monthly_rent: input.monthly_rent,
+  });
+
+  return data.id as string;
 }
 
 export async function createLease(
@@ -335,7 +402,6 @@ export async function createLease(
     .insert({
       manager_id: managerId,
       property_id: payload.property_id,
-      tenant_name: payload.tenant_name,
       monthly_rent: payload.monthly_rent,
       start_date: payload.start_date,
       end_date: payload.end_date,

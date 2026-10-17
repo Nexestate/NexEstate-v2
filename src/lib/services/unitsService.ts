@@ -1,15 +1,23 @@
 import { DEMO_PROPERTIES } from '../../data/demoData';
-import type { PropertyUnit, UnitStatus } from '../../types/domain';
+import type { PropertyUnit, UnitStatus, UnitType } from '../../types/domain';
 import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
 export type UnitInsert = {
   property_id: string;
   unit_number: string;
   unit_name?: string;
+  unit_type?: UnitType;
   area_sqm?: number;
   monthly_rent?: number;
   unit_status?: UnitStatus;
   floor?: number;
+  building?: string;
+  rooms?: number;
+  bathrooms?: number;
+  management_fee?: number;
+  amenities?: string[];
+  description?: string;
+  notes?: string;
   broker_id?: string;
 };
 
@@ -27,9 +35,18 @@ export async function createUnit(payload: UnitInsert): Promise<string> {
       property_id: payload.property_id,
       unit_number: payload.unit_number,
       unit_name: payload.unit_name,
+      unit_type: payload.unit_type,
       area_sqm: payload.area_sqm,
       monthly_rent: payload.monthly_rent,
       unit_status: payload.unit_status ?? 'available',
+      floor: payload.floor,
+      building: payload.building,
+      rooms: payload.rooms,
+      bathrooms: payload.bathrooms,
+      management_fee: payload.management_fee,
+      amenities: payload.amenities,
+      description: payload.description,
+      notes: payload.notes,
     };
     property.units.push(unit);
     property.totalUnits = property.units.length;
@@ -47,10 +64,18 @@ export async function createUnit(payload: UnitInsert): Promise<string> {
       property_id: payload.property_id,
       unit_number: payload.unit_number,
       unit_name: payload.unit_name ?? null,
+      unit_type: payload.unit_type ?? 'office',
       area_sqm: payload.area_sqm ?? null,
       monthly_rent: payload.monthly_rent ?? null,
       unit_status: payload.unit_status ?? 'available',
       floor: payload.floor ?? null,
+      building: payload.building ?? null,
+      rooms: payload.rooms ?? null,
+      bathrooms: payload.bathrooms ?? null,
+      management_fee: payload.management_fee ?? null,
+      amenities: payload.amenities ?? [],
+      description: payload.description ?? null,
+      notes: payload.notes ?? null,
       broker_id: payload.broker_id ?? null,
     })
     .select('id')

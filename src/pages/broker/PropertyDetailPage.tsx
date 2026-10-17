@@ -17,7 +17,9 @@ import {
   type PropertyFormValues,
 } from '../../components/property/PropertyFormModal';
 import { SharePropertyModal } from '../../components/property/SharePropertyModal';
+import { UnitOnboardingModal } from '../../components/broker/UnitOnboardingModal';
 import { UnitFormModal, type UnitFormValues } from '../../components/property/UnitFormModal';
+import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { PageSkeleton } from '../../components/ui/Skeleton';
@@ -26,7 +28,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { usePropertyWorkspace } from '../../hooks/usePropertyWorkspace';
 import type { WorkspaceTab } from '../../lib/propertyWorkspace';
-import { createUnit, updateProperty, updateUnit } from '../../lib/services';
+import { saveUnitOnboarding, updateProperty, updateUnit } from '../../lib/services';
 import { supabase } from '../../lib/supabase';
 import type { PropertyKind, PropertyStatus, PropertyVisibility } from '../../types';
 import type { PropertyUnit } from '../../types/domain';
@@ -46,6 +48,7 @@ export function PropertyDetailPage() {
     }
   }, [tabParam, id, navigate]);
   const { user } = useAuth();
+  const { toast } = useToast();
   const { property, tenants, leases, links, snapshot, actions, activity, loading, loadError, reload } =
     usePropertyWorkspace(id);
   const [shareOpen, setShareOpen] = useState(false);
@@ -118,12 +121,8 @@ export function PropertyDetailPage() {
       floor: values.floor ? Number(values.floor) : undefined,
     };
 
-    if (editingUnit) {
-      await updateUnit(editingUnit.id, payload);
-    } else {
-      await createUnit({ ...payload, property_id: id, broker_id: user.id });
-      notifyEntityCreated('unit');
-    }
+    if (!editingUnit) return;
+    await updateUnit(editingUnit.id, payload);
     setUnitModalOpen(false);
     setEditingUnit(null);
     reload();
@@ -229,14 +228,31 @@ export function PropertyDetailPage() {
         title="עריכת נכס"
       />
 
+      <UnitOnboardingModal
+        open={unitModalOpen && !editingUnit}
+        onClose={() => setUnitModalOpen(false)}
+        propertyId={id}
+        brokerId={user?.id ?? ''}
+        onSubmit={async (payload) => {
+          if (!user || !id) throw new Error('not auth');
+          await saveUnitOnboarding(user.id, payload);
+          if (payload.occupancy === 'new_tenant') notifyEntityCreated('tenant');
+          if (payload.occupancy !== 'vacant') notifyEntityCreated('lease');
+          notifyEntityCreated('unit');
+          toast({ variant: 'success', title: 'היחידה נשמרה בהצלחה' });
+          setUnitModalOpen(false);
+          reload();
+        }}
+      />
+
       <UnitFormModal
-        open={unitModalOpen}
+        open={Boolean(editingUnit)}
         onClose={() => {
           setUnitModalOpen(false);
           setEditingUnit(null);
         }}
         onSubmit={handleUnitSubmit}
-        title={editingUnit ? `עריכת יחידה ${editingUnit.unit_number}` : 'יחידה חדשה'}
+        title={editingUnit ? `עריכת יחידה ${editingUnit.unit_number}` : 'עריכת יחידה'}
         initial={
           editingUnit
             ? {

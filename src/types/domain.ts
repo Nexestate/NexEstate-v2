@@ -94,6 +94,13 @@ export interface PropertyUnit {
   tenant_id?: string;
   lease_id?: string;
   floor?: number;
+  building?: string;
+  rooms?: number;
+  bathrooms?: number;
+  management_fee?: number;
+  amenities?: string[];
+  description?: string;
+  notes?: string;
 }
 
 export interface PropertyWithUnits extends Property {

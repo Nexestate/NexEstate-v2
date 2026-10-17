@@ -123,7 +123,8 @@ export function PropertyFormModal({
 
   return (
     <Modal open={open} onClose={onClose} title={title}>
-      <form onSubmit={handleSubmit} className="max-h-[70vh] space-y-3 overflow-y-auto pe-1">
+      <form onSubmit={handleSubmit} className="max-h-[70vh] space-y-5 overflow-y-auto pe-1">
+        <p className="text-sm font-semibold text-foreground">פרטים בסיסיים</p>
         <Input
           label="כותרת"
           value={form.title}
@@ -191,6 +192,7 @@ export function PropertyFormModal({
             error={errors.city}
           />
         </div>
+        <p className="text-sm font-semibold text-foreground">מיקום ומאפיינים</p>
         <Input
           label="כתובת"
           value={form.address}
@@ -228,6 +230,7 @@ export function PropertyFormModal({
           value={form.year_built}
           onChange={(e) => set('year_built', e.target.value)}
         />
+        <p className="text-sm font-semibold text-foreground">פרסום ותיאור</p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Input
             label="קו רוחב (lat)"

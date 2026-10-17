@@ -11,9 +11,18 @@ interface SlidePanelProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   className?: string;
+  closeOnBackdrop?: boolean;
 }
 
-export function SlidePanel({ open, onClose, title, children, footer, className }: SlidePanelProps) {
+export function SlidePanel({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+  className,
+  closeOnBackdrop = true,
+}: SlidePanelProps) {
   useBodyScrollLock(open);
 
   useEffect(() => {
@@ -29,7 +38,11 @@ export function SlidePanel({ open, onClose, title, children, footer, className }
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      <button type="button" aria-label="סגור" className="absolute inset-0 overlay-blur" onClick={onClose} />
+      {closeOnBackdrop ? (
+        <button type="button" aria-label="סגור" className="absolute inset-0 overlay-blur" onClick={onClose} />
+      ) : (
+        <div className="absolute inset-0 overlay-blur" aria-hidden />
+      )}
       <aside
         role="dialog"
         aria-modal="true"
