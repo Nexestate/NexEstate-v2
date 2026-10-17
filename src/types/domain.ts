@@ -428,6 +428,20 @@ export const PAYMENT_REQUEST_TYPE_LABELS: Record<PaymentRequestType, string> = {
   repair: 'תיקון',
 };
 
+export const TENANT_TYPE_LABELS: Record<TenantType, string> = {
+  sole_proprietor: 'עוסק מורשה / יחיד',
+  company: 'חברה בע"מ',
+};
+
+export const UNIT_TYPE_LABELS: Record<UnitType, string> = {
+  office: 'משרד',
+  industrial: 'תעשייה',
+  storage: 'מחסן',
+  residential: 'מגורים',
+  commercial: 'מסחרי',
+  other: 'אחר',
+};
+
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   check: "צ'ק",
   transfer: 'העברה בנקאית',

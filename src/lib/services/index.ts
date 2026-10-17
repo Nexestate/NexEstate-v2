@@ -32,12 +32,14 @@ export {
   fetchTenants,
   fetchTenantsForProperties,
   createTenant,
+  createTenantWithLease,
   createLease,
   updateTenant,
   updateLease,
   fetchLeaseById,
   fetchTenantById,
 } from './leasesService';
+export type { CreateTenantWithLeaseInput } from './leasesService';
 export { fetchSigningLink, completeSigning, fetchSigningLinks } from './signingService';
 export { fetchTasks, createTask, updateTask, updateTaskStatus } from './tasksService';
 export {

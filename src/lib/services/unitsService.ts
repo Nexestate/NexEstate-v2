@@ -13,7 +13,9 @@ export type UnitInsert = {
   broker_id?: string;
 };
 
-export type UnitUpdate = Partial<Omit<UnitInsert, 'property_id'>>;
+export type UnitUpdate = Partial<Omit<UnitInsert, 'property_id'>> & {
+  tenant_id?: string | null;
+};
 
 export async function createUnit(payload: UnitInsert): Promise<string> {
   if (isDemoMode()) {

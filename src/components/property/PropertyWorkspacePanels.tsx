@@ -1,5 +1,5 @@
 import { AlertTriangle, CheckCircle2, FileSignature, FileText, Wrench } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useEntityDetail } from '../../contexts/EntityDetailContext';
 import {
@@ -48,7 +48,9 @@ export function AttentionList({
               </div>
             );
           }
-          const to = action.href ?? `/broker/properties/${propertyId}${action.tab ? `?tab=${action.tab}` : ''}`;
+          const to =
+            action.href ??
+            (action.tab ? `/broker/properties/${propertyId}?tab=${action.tab}` : `/broker/properties/${propertyId}`);
           return (
             <Link
               key={action.id}
@@ -59,7 +61,7 @@ export function AttentionList({
                 <p className="text-lg font-semibold">{action.title}</p>
                 <p className="text-meta mt-0.5">{action.detail}</p>
               </div>
-              <span className="shrink-0 text-sm text-primary">פתח ←</span>
+              <span className="shrink-0 text-sm font-semibold text-primary">פתח ←</span>
             </Link>
           );
         })}
@@ -71,7 +73,6 @@ export function AttentionList({
 export function OverviewFacts({
   property,
   tenants,
-  leases,
   snapshot,
 }: {
   property: PropertyWithUnits;
@@ -80,25 +81,88 @@ export function OverviewFacts({
   snapshot: WorkspaceSnapshot;
 }) {
   const { openTenant } = useEntityDetail();
+  const navigate = useNavigate();
   const current = tenants.filter((t) => t.status === 'active' || t.status === 'ending');
-  const activeLease = leases.find((l) => l.is_active);
+  const preview = current.slice(0, 6);
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Card>
-        <CardHeader>
-          <CardTitle>שוכר וחוזה פעיל</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle>סקירה כללית</CardTitle>
+          <Link to={`/broker/units?property=${property.id}`} className="text-sm text-primary hover:underline">
+            כל היחידות ←
+          </Link>
+        </CardHeader>
+        <CardContent>
+          <dl className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <dt className="text-meta">תפוסה</dt>
+              <dd className="text-value text-2xl">{snapshot.occupancyPercent}%</dd>
+            </div>
+            <div>
+              <dt className="text-meta">יחידות תפוסות</dt>
+              <dd className="text-value text-2xl">
+                {property.occupiedUnits}/{property.totalUnits}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-meta">שוכרים פעילים</dt>
+              <dd className="text-lg font-semibold">{current.length}</dd>
+            </div>
+            <div>
+              <dt className="text-meta">חוזים פעילים</dt>
+              <dd className="text-lg font-semibold">{snapshot.activeLeases.length}</dd>
+            </div>
+            <div>
+              <dt className="text-meta">שכ&quot;ד חודשי (סה&quot;כ)</dt>
+              <dd className="text-lg font-semibold">{formatCurrency(snapshot.monthlyRent)}</dd>
+            </div>
+            <div>
+              <dt className="text-meta">חוזים לטיפול (90 יום)</dt>
+              <dd className="text-lg font-semibold">{snapshot.leasesNeedingRenewal.length}</dd>
+            </div>
+            <div>
+              <dt className="text-meta">הסכמי חתימה</dt>
+              <dd className="text-lg font-semibold">
+                {snapshot.signedAgreements.length} חתומים · {snapshot.unsignedAgreements.length} ממתינים
+              </dd>
+            </div>
+            <div>
+              <dt className="text-meta">יחידות בתחזוקה</dt>
+              <dd className="text-lg font-semibold">{snapshot.maintenanceUnits}</dd>
+            </div>
+          </dl>
+          <p className="text-meta mt-4 border-t border-border/60 pt-4">
+            {property.address}, {property.city}
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle>שוכרים פעילים</CardTitle>
+          <Link to={`/broker/tenants?property=${property.id}`} className="text-sm text-primary hover:underline">
+            כל השוכרים ←
+          </Link>
         </CardHeader>
         <CardContent className="space-y-3">
-          {current.length === 0 ? (
-            <p className="text-meta">אין שוכר פעיל — הנכס או היחידות פנויים.</p>
+          {preview.length === 0 ? (
+            <EmptyState
+              icon={FileText}
+              title="אין שוכרים פעילים"
+              description="הוסיפו שוכר וחוזה כדי לנהל את הנכס."
+              actionLabel="לשוכרים"
+              onAction={() => navigate(`/broker/tenants?property=${property.id}`)}
+              className="py-4"
+            />
           ) : (
-            current.map((tenant) => (
+            preview.map((tenant) => (
               <button
                 key={tenant.id}
                 type="button"
                 onClick={() => openTenant(tenant)}
-                className="flex w-full items-start justify-between rounded-xl border border-border p-3 text-start hover:border-primary/40"
+                className="flex w-full items-start justify-between rounded-xl border border-border p-3 text-start transition-colors hover:border-primary/40 hover:bg-muted/20"
               >
                 <div>
                   <p className="font-medium">{tenant.full_name}</p>
@@ -113,64 +177,55 @@ export function OverviewFacts({
               </button>
             ))
           )}
-          <dl className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <dt className="text-meta">תפוסה</dt>
-              <dd className="font-semibold">{snapshot.occupied ? `${snapshot.occupancyPercent}%` : 'פנוי'}</dd>
-            </div>
-            <div>
-              <dt className="text-meta">שכירות חודשית</dt>
-              <dd className="font-semibold">{formatCurrency(snapshot.monthlyRent)}</dd>
-            </div>
-            <div>
-              <dt className="text-meta">סיום חוזה</dt>
-              <dd className="font-semibold">
-                {snapshot.nextLeaseEnd ? formatShortDate(snapshot.nextLeaseEnd.end_date) : '—'}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-meta">הסכם חתום</dt>
-              <dd className="font-semibold">{snapshot.signedAgreements.length > 0 ? 'כן' : 'לא'}</dd>
-            </div>
-          </dl>
-          {activeLease && (
-            <p className="text-meta">
-              חוזה {activeLease.tenant_name} · {formatShortDate(activeLease.start_date)}–{formatShortDate(activeLease.end_date)}
-            </p>
+          {current.length > preview.length && (
+            <p className="text-meta text-center">+{current.length - preview.length} שוכרים נוספים</p>
           )}
-          <p className="text-meta">
-            יחידות {property.occupiedUnits}/{property.totalUnits} · {property.address}, {property.city}
-          </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="lg:col-span-2">
         <CardHeader>
-          <CardTitle>התשלום הבא</CardTitle>
+          <CardTitle>תשלומים</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {snapshot.nextPayment ? (
-            <div className="space-y-2">
-              <p className="text-value">{formatCurrency(snapshot.nextPayment.amount)}</p>
-              <p className="text-meta">
-                {snapshot.nextPayment.tenant_name} · עד {formatShortDate(snapshot.nextPayment.due_date)}
-              </p>
-              <Badge variant={snapshot.nextPayment.status === 'overdue' ? 'warning' : 'primary'}>
-                {snapshot.nextPayment.status === 'overdue' ? 'באיחור' : 'ממתין'}
-              </Badge>
+            <>
               <div>
-                <Link to={`/broker/payments?property=${property.id}`} className="text-sm text-primary hover:underline">
-                  לכל התשלומים ←
-                </Link>
+                <p className="text-value">{formatCurrency(snapshot.nextPayment.amount)}</p>
+                <p className="text-meta">
+                  {snapshot.nextPayment.tenant_name} · עד {formatShortDate(snapshot.nextPayment.due_date)}
+                </p>
+                <Badge
+                  className="mt-2"
+                  variant={snapshot.nextPayment.status === 'overdue' ? 'warning' : 'primary'}
+                >
+                  {snapshot.nextPayment.status === 'overdue' ? 'באיחור' : 'ממתין'}
+                </Badge>
               </div>
-            </div>
+              <Link to={`/broker/payments?property=${property.id}`} className="text-sm text-primary hover:underline">
+                לכל התשלומים ←
+              </Link>
+            </>
           ) : (
-            <EmptyState
-              icon={CheckCircle2}
-              title="אין תשלום ממתין"
-              description="כשתיווצר חיוב או דרישת תשלום — היא תופיע כאן."
-              className="py-6"
-            />
+            <>
+              <EmptyState
+                icon={CheckCircle2}
+                title="אין תשלום ממתין"
+                description="כשתיווצר חיוב — הוא יופיע כאן."
+                className="py-4 sm:flex-1"
+              />
+              <Link to={`/broker/payments?property=${property.id}`} className="text-sm text-primary hover:underline">
+                לכל התשלומים ←
+              </Link>
+            </>
+          )}
+          {snapshot.overduePayments.length > 0 && (
+            <p className="text-sm text-warning sm:w-full">
+              {snapshot.overduePayments.length} תשלומים באיחור —{' '}
+              <Link to={`/broker/payments?property=${property.id}`} className="font-semibold underline">
+                לטיפול
+              </Link>
+            </p>
           )}
         </CardContent>
       </Card>
@@ -195,51 +250,46 @@ export function AgreementsPanel({ links, propertyId }: { links: SigningLink[]; p
       {links.length === 0 ? (
         <EmptyState
           icon={FileSignature}
-          title="אין הסכם לנכס"
-          description="צרו קישור חתימה מאובטח לשוכר — הסטטוס יופיע כאן."
-          actionLabel="צור הסכם"
+          title="אין הסכמי חתימה"
+          description="צרו קישור חתימה דיגיטלי לשוכר או לקונה."
+          actionLabel="הסכם חדש"
           onAction={() => openQuickAdd('agreement', { propertyId })}
         />
       ) : (
-        <div className="space-y-2">
-          {links.map((link) => (
-            <div key={link.id} className="flex items-center justify-between rounded-xl border border-border p-4">
+        links.map((link) => (
+          <Card key={link.id}>
+            <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
               <div>
                 <p className="font-medium">{link.client_name}</p>
-                <p className="text-meta">{link.client_email || link.client_phone || '—'}</p>
+                <p className="text-meta">{link.agreement_type}</p>
               </div>
-              <Badge variant={link.status === 'signed' ? 'success' : 'warning'}>
+              <Badge variant={link.status === 'signed' ? 'success' : 'outline'}>
                 {SIGNING_STATUS_LABELS[link.status]}
               </Badge>
-            </div>
-          ))}
-        </div>
+            </CardContent>
+          </Card>
+        ))
       )}
     </div>
   );
 }
 
 export function ActivityPanel({ items }: { items: ActivityItem[] }) {
-  if (items.length === 0) {
-    return (
-      <EmptyState
-        icon={FileText}
-        title="אין פעילות עדיין"
-        description="חוזים, תשלומים וחתימות בנכס יופיעו כאן כציר זמן."
-      />
-    );
-  }
-
   return (
-    <div className="space-y-3">
-      <SectionHeading title="פעילות הנכס" description="אירועים אמיתיים מחוזים, תשלומים והסכמים." />
-      {items.map((item) => (
-        <div key={item.id} className="rounded-xl border border-border p-4">
-          <p className="font-medium">{item.title}</p>
-          {item.detail && <p className="text-meta mt-0.5">{item.detail}</p>}
-          <p className="text-meta mt-1">{formatShortDate(item.at)}</p>
-        </div>
-      ))}
+    <div className="space-y-4">
+      <SectionHeading title="פעילות אחרונה" description="חוזים, תשלומים והסכמים — לפי תאריך." />
+      {items.length === 0 ? (
+        <EmptyState icon={FileText} title="אין פעילות" description="פעולות בנכס יופיעו כאן." />
+      ) : (
+        <ul className="space-y-2">
+          {items.slice(0, 20).map((item) => (
+            <li key={item.id} className="rounded-xl border border-border px-4 py-3">
+              <p className="font-medium">{item.title}</p>
+              {item.detail && <p className="text-meta">{item.detail}</p>}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -247,23 +297,25 @@ export function ActivityPanel({ items }: { items: ActivityItem[] }) {
 export function MaintenancePanel({ count, propertyId }: { count: number; propertyId: string }) {
   return (
     <div className="space-y-4">
-      <SectionHeading title="תחזוקה" description="יחידות בסטטוס תחזוקה. קריאות שירות מלאות יתווספו בהמשך." />
+      <SectionHeading
+        title="תחזוקה"
+        description="יחידות במצב תחזוקה בנכס."
+        action={
+          <Link to={`/broker/units?property=${propertyId}`}>
+            <Button size="sm" variant="outline">
+              <Wrench className="h-4 w-4" />
+              יחידות
+            </Button>
+          </Link>
+        }
+      />
       {count === 0 ? (
-        <EmptyState
-          icon={Wrench}
-          title="אין תקלות פתוחות"
-          description="כשיחידה תסומן בתחזוקה או תיפתח משימת טיפול — היא תופיע כאן."
-        />
+        <EmptyState icon={Wrench} title="אין יחידות בתחזוקה" description="כל היחידות זמינות או תפוסות." />
       ) : (
         <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="font-medium">{count} יחידות בתחזוקה</p>
-              <p className="text-meta">עברו לרשימת היחידות כדי לעדכן סטטוס</p>
-            </div>
-            <Link to={`/broker/units?property=${propertyId}`}>
-              <Button variant="outline">ליחידות</Button>
-            </Link>
+          <CardContent className="py-6">
+            <p className="text-value">{count}</p>
+            <p className="text-meta">יחידות דורשות טיפול — עדכנו סטטוס ביחידות.</p>
           </CardContent>
         </Card>
       )}

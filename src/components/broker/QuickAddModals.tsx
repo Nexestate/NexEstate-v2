@@ -13,7 +13,7 @@ import {
   createPayment,
   createProperty,
   createTask,
-  createTenant,
+  createTenantWithLease,
   createUnit,
   fetchAccessiblePropertyIds,
   fetchLeasesForProperties,
@@ -35,7 +35,9 @@ import {
   type PropertyFormValues,
 } from '../property/PropertyFormModal';
 import { UnitFormModal, type UnitFormValues } from '../property/UnitFormModal';
+import { TenantOnboardingModal } from './TenantOnboardingModal';
 import { PaymentFormModal } from './PaymentFormModal';
+import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Modal } from '../ui/Modal';
@@ -50,6 +52,7 @@ function closeAfterSuccess(type: QuickAddType, closeQuickAdd: () => void) {
 
 export function QuickAddModals() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const { state, closeQuickAdd } = useQuickAdd();
   const { createLink, fetchLinks } = useSigningLinks();
 
@@ -129,13 +132,28 @@ export function QuickAddModals() {
         }}
       />
 
-      <TenantFormModal
+      <TenantOnboardingModal
         open={state.type === 'tenant'}
         onClose={closeQuickAdd}
+        propertyId={state.propertyId}
         onSubmit={async (values) => {
           if (!user) throw new Error('not auth');
-          await createTenant(user.id, { ...values, property_id: state.propertyId });
-          closeAfterSuccess('tenant', closeQuickAdd);
+          try {
+            await createTenantWithLease(user.id, values);
+            toast({
+              variant: 'success',
+              title: 'השוכר נשמר',
+              description: 'השוכר, החוזה והיחידה עודכנו ברשימה.',
+            });
+            closeAfterSuccess('tenant', closeQuickAdd);
+          } catch (err) {
+            toast({
+              variant: 'error',
+              title: 'שמירה נכשלה',
+              description: err instanceof Error ? err.message : 'נסו שוב או בדקו הרשאות',
+            });
+            throw err;
+          }
         }}
       />
 

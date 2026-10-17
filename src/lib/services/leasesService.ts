@@ -1,6 +1,27 @@
-import { DEMO_LEASES, DEMO_MANAGED_PROPERTIES, DEMO_TENANTS } from '../../data/demoData';
-import type { Lease, Tenant, TenantStatus } from '../../types/domain';
+import { DEMO_LEASES, DEMO_MANAGED_PROPERTIES, DEMO_PROPERTIES, DEMO_TENANTS } from '../../data/demoData';
+import type { Lease, PaymentMethod, Tenant, TenantStatus, TenantType } from '../../types/domain';
 import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
+import { updateUnit } from './unitsService';
+
+export type CreateTenantWithLeaseInput = {
+  property_id: string;
+  unit_id: string;
+  tenant_type: TenantType;
+  full_name: string;
+  id_number?: string;
+  company_name?: string;
+  company_number?: string;
+  contact_name?: string;
+  phone?: string;
+  email?: string;
+  notes?: string;
+  start_date: string;
+  end_date: string;
+  monthly_rent: number;
+  payment_method?: PaymentMethod;
+  deposit?: number;
+  pending_document_names?: string[];
+};
 
 function mapLeaseRow(row: Record<string, unknown>): Lease {
   return {
@@ -16,6 +37,7 @@ function mapLeaseRow(row: Record<string, unknown>): Lease {
     monthly_rent: row.monthly_rent as number,
     deposit: (row.deposit as number | null) ?? undefined,
     is_active: row.is_active as boolean,
+    payment_method: (row.payment_method as PaymentMethod | null) ?? undefined,
   };
 }
 
@@ -142,18 +164,139 @@ export async function createTenant(
     .from('tenants')
     .insert({
       manager_id: managerId,
+      broker_id: managerId,
       full_name: payload.full_name,
       company_name: payload.full_name,
       email: payload.email,
       phone: payload.phone,
       status: 'active',
-      property_id: payload.property_id,
     })
     .select('id')
     .single();
   throwIfError(error);
   if (!data) throw new ServiceError('Tenant insert returned no data');
   return data.id as string;
+}
+
+export async function createTenantWithLease(
+  userId: string,
+  input: CreateTenantWithLeaseInput,
+): Promise<{ tenantId: string; leaseId: string }> {
+  const docNote =
+    input.pending_document_names?.length ?
+      `\nמסמכים שנבחרו (העלאה לכספת בקרוב): ${input.pending_document_names.join(', ')}`
+    : '';
+  const notes = [input.notes?.trim(), docNote.trim()].filter(Boolean).join('\n') || undefined;
+
+  const displayName =
+    input.tenant_type === 'company' ?
+      (input.company_name?.trim() || input.full_name.trim())
+    : input.full_name.trim();
+
+  if (isDemoMode()) {
+    const tenantId = `tenant-${Date.now()}`;
+    const leaseId = `lease-${Date.now()}`;
+    const propertyTitle = DEMO_MANAGED_PROPERTIES.find((p) => p.id === input.property_id)?.title;
+
+    DEMO_TENANTS.unshift({
+      id: tenantId,
+      full_name: displayName,
+      tenant_type: input.tenant_type,
+      company_name: input.company_name ?? displayName,
+      email: input.email,
+      phone: input.phone,
+      status: 'active',
+      property_title: propertyTitle,
+      property_id: input.property_id,
+      unit_id: input.unit_id,
+      lease_id: leaseId,
+      monthly_rent: input.monthly_rent,
+    });
+
+    DEMO_LEASES.unshift({
+      id: leaseId,
+      property_id: input.property_id,
+      property_title: propertyTitle,
+      unit_id: input.unit_id,
+      tenant_id: tenantId,
+      tenant_name: displayName,
+      start_date: input.start_date,
+      end_date: input.end_date,
+      monthly_rent: input.monthly_rent,
+      deposit: input.deposit,
+      is_active: true,
+      payment_method: input.payment_method,
+    });
+
+    for (const property of DEMO_PROPERTIES) {
+      const unit = property.units.find((u) => u.id === input.unit_id);
+      if (unit) {
+        unit.unit_status = 'occupied';
+        unit.tenant_id = tenantId;
+        unit.tenant_name = displayName;
+        unit.lease_id = leaseId;
+        unit.monthly_rent = input.monthly_rent;
+        property.occupiedUnits = property.units.filter((u) => u.unit_status === 'occupied').length;
+        break;
+      }
+    }
+
+    return { tenantId, leaseId };
+  }
+
+  const client = requireSupabase();
+
+  const tenantRow: Record<string, unknown> = {
+    manager_id: userId,
+    broker_id: userId,
+    full_name: displayName,
+    tenant_type: input.tenant_type,
+    id_number: input.id_number?.trim() || null,
+    company_name: input.tenant_type === 'company' ? input.company_name?.trim() || displayName : displayName,
+    company_number: input.company_number?.trim() || null,
+    contact_name: input.contact_name?.trim() || null,
+    phone: input.phone?.trim() || null,
+    email: input.email?.trim() || null,
+    notes: notes ?? null,
+    status: 'active',
+  };
+
+  const { data: tenantData, error: tenantError } = await client
+    .from('tenants')
+    .insert(tenantRow)
+    .select('id')
+    .single();
+  throwIfError(tenantError);
+  if (!tenantData) throw new ServiceError('Tenant insert returned no data');
+  const tenantId = tenantData.id as string;
+
+  const { data: leaseData, error: leaseError } = await client
+    .from('leases')
+    .insert({
+      manager_id: userId,
+      property_id: input.property_id,
+      unit_id: input.unit_id,
+      tenant_id: tenantId,
+      tenant_name: displayName,
+      start_date: input.start_date,
+      end_date: input.end_date,
+      monthly_rent: input.monthly_rent,
+      deposit: input.deposit ?? null,
+      payment_method: input.payment_method ?? null,
+      is_active: true,
+    })
+    .select('id')
+    .single();
+  throwIfError(leaseError);
+  if (!leaseData) throw new ServiceError('Lease insert returned no data');
+
+  await updateUnit(input.unit_id, {
+    unit_status: 'occupied',
+    tenant_id: tenantId,
+    monthly_rent: input.monthly_rent,
+  });
+
+  return { tenantId, leaseId: leaseData.id as string };
 }
 
 export async function createLease(

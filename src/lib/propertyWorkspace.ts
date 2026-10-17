@@ -47,6 +47,8 @@ export type WorkspaceSnapshot = {
   occupancyPercent: number;
   currentTenants: Tenant[];
   activeLeases: Lease[];
+  /** Active leases ending within 90 days or already past end date. */
+  leasesNeedingRenewal: Lease[];
   nextLeaseEnd?: Lease;
   monthlyRent: number;
   nextPayment?: Payment;
@@ -71,6 +73,7 @@ export function buildWorkspaceSnapshot(input: {
   const upcoming = [...activeLeases].sort(
     (a, b) => new Date(a.end_date).getTime() - new Date(b.end_date).getTime(),
   );
+  const leasesNeedingRenewal = activeLeases.filter((l) => daysUntil(l.end_date) <= 90);
   const pendingPay = payments
     .filter((p) => p.status === 'pending' || p.status === 'pending_verification')
     .sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime());
@@ -85,6 +88,7 @@ export function buildWorkspaceSnapshot(input: {
     occupancyPercent,
     currentTenants,
     activeLeases,
+    leasesNeedingRenewal,
     nextLeaseEnd: upcoming[0],
     monthlyRent,
     nextPayment: overduePayments[0] ?? pendingPay[0],
@@ -117,7 +121,7 @@ export function buildWorkspaceActions(
       id: 'unsigned',
       title: 'חסר חוזה חתום',
       detail: `${snapshot.unsignedAgreements.length} הסכמים ממתינים לחתימה`,
-      tab: 'agreements',
+      href: `/broker/properties/${propertyId}?tab=agreements`,
       tone: 'warning',
     });
   } else if (snapshot.activeLeases.length > 0 && snapshot.signedAgreements.length === 0) {
@@ -125,25 +129,32 @@ export function buildWorkspaceActions(
       id: 'no-agreement',
       title: 'אין הסכם חתום לנכס',
       detail: 'צרו קישור חתימה לשוכר הפעיל',
-      tab: 'agreements',
+      href: `/broker/properties/${propertyId}?tab=agreements`,
       tone: 'warning',
     });
   }
 
-  if (snapshot.nextLeaseEnd) {
-    const days = daysUntil(snapshot.nextLeaseEnd.end_date);
-    if (days <= 90) {
-      actions.push({
-        id: 'lease-end',
-        title:
-          days < 0
-            ? 'החוזה הסתיים — נדרש חידוש או יציאה'
-            : `החוזה מסתיים בעוד ${days} יום`,
-        detail: `${snapshot.nextLeaseEnd.tenant_name} · ${formatShortDate(snapshot.nextLeaseEnd.end_date)}`,
-        href: `/broker/tenants?property=${propertyId}&tab=leases`,
-        tone: days <= 30 ? 'warning' : 'info',
-      });
-    }
+  if (snapshot.leasesNeedingRenewal.length > 0) {
+    const count = snapshot.leasesNeedingRenewal.length;
+    const nearest = snapshot.leasesNeedingRenewal.sort(
+      (a, b) => new Date(a.end_date).getTime() - new Date(b.end_date).getTime(),
+    )[0]!;
+    const days = daysUntil(nearest.end_date);
+    actions.push({
+      id: 'lease-end',
+      title:
+        count > 1
+          ? `${count} חוזים דורשים חידוש או סגירה`
+          : days < 0
+            ? 'חוזה פג — נדרש חידוש או יציאה'
+            : `חוזה מסתיים בעוד ${days} יום`,
+      detail:
+        count > 1
+          ? `הקרוב: ${nearest.tenant_name} · ${formatShortDate(nearest.end_date)}`
+          : `${nearest.tenant_name} · ${formatShortDate(nearest.end_date)}`,
+      href: `/broker/tenants?property=${propertyId}&tab=leases&open=${nearest.id}`,
+      tone: days <= 30 ? 'warning' : 'info',
+    });
   }
 
   if (snapshot.currentTenants.length > 0) {
@@ -161,7 +172,7 @@ export function buildWorkspaceActions(
       id: 'maint',
       title: `${snapshot.maintenanceUnits} יחידות בתחזוקה`,
       detail: 'בדקו סטטוס יחידה ופתחו משימת טיפול',
-      tab: 'maintenance',
+      href: `/broker/properties/${propertyId}?tab=maintenance`,
       tone: 'info',
     });
   }

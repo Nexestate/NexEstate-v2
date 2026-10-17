@@ -87,6 +87,8 @@ describe('workspace snapshot + actions', () => {
       links: [],
     });
     const actions = buildWorkspaceActions(snapshot, 'p1');
-    expect(actions.some((a) => a.title.includes('הסתיים'))).toBe(true);
+    expect(actions.some((a) => a.id === 'lease-end' && (a.title.includes('פג') || a.title.includes('חידוש')))).toBe(
+      true,
+    );
   });
 });
