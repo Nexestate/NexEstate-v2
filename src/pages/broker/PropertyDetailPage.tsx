@@ -2,6 +2,7 @@ import { ArrowRight, Building2, MapPin, Pencil, Plus, Share2 } from 'lucide-reac
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ManagedUnitsTable } from '../../components/broker/ManagedUnitsTable';
+import { PropertyTenantsSection } from '../../components/broker/PropertyTenantsSection';
 import { PropertySubNav } from '../../components/broker/PropertySubNav';
 import { PropertyUnitCards } from '../../components/broker/PropertyUnitCards';
 import {
@@ -39,11 +40,16 @@ export function PropertyDetailPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const tab = WORKSPACE_TABS.includes(tabParam as WorkspaceTab) ? (tabParam as WorkspaceTab) : 'overview';
+  const tab =
+    tabParam === 'tenants'
+      ? 'tenants'
+      : WORKSPACE_TABS.includes(tabParam as WorkspaceTab)
+        ? (tabParam as WorkspaceTab)
+        : 'overview';
 
   useEffect(() => {
     if (!id || !tabParam) return;
-    if (tabParam === 'documents') navigate(`/broker/tenants?property=${id}`, { replace: true });
+    if (tabParam === 'documents') navigate(`/broker/properties/${id}?tab=tenants&attention=docs`, { replace: true });
     if (tabParam === 'agreements') navigate(`/broker/agreements?property=${id}`, { replace: true });
     if (tabParam === 'payments') navigate(`/broker/payments?property=${id}`, { replace: true });
   }, [tabParam, id, navigate]);
@@ -206,6 +212,8 @@ export function PropertyDetailPage() {
           </Card>
         </div>
       )}
+
+      {tab === 'tenants' && id && <PropertyTenantsSection propertyId={id} />}
 
       {tab === 'activity' && <ActivityPanel items={activity} />}
       {tab === 'maintenance' && (

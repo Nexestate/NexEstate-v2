@@ -1,7 +1,43 @@
 import { DEMO_LEASES, DEMO_MANAGED_PROPERTIES, DEMO_PROPERTIES, DEMO_TENANTS } from '../../data/demoData';
 import type { Lease, PaymentMethod, Tenant, TenantStatus, TenantType } from '../../types/domain';
 import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
+import { extractDocsFromNotes, parseTenantDocumentFiles, stripDocsFromNotes } from './tenantDocumentsService';
 import { updateUnit } from './unitsService';
+
+type TenantLeaseContext = {
+  property_id?: string;
+  property_title?: string;
+  unit_id?: string;
+  unit_number?: string;
+  lease_id?: string;
+  monthly_rent?: number;
+};
+
+function mapTenantFromRow(row: Record<string, unknown>, lease?: TenantLeaseContext): Tenant {
+  return {
+    id: row.id as string,
+    full_name: row.full_name as string,
+    tenant_type: (row.tenant_type as Tenant['tenant_type'] | null) ?? undefined,
+    company_name: (row.company_name as string | null) ?? undefined,
+    company_number: (row.company_number as string | null) ?? undefined,
+    contact_name: (row.contact_name as string | null) ?? undefined,
+    id_number: (row.id_number as string | null) ?? undefined,
+    email: (row.email as string | null) ?? undefined,
+    phone: (row.phone as string | null) ?? undefined,
+    notes: stripDocsFromNotes(row.notes as string | null) || undefined,
+    document_files:
+      parseTenantDocumentFiles(row.document_files).length > 0
+        ? parseTenantDocumentFiles(row.document_files)
+        : extractDocsFromNotes(row.notes as string | null),
+    status: row.status as Tenant['status'],
+    property_id: lease?.property_id ?? (row.property_id as string | undefined),
+    property_title: lease?.property_title,
+    unit_number: lease?.unit_number,
+    unit_id: lease?.unit_id,
+    lease_id: lease?.lease_id,
+    monthly_rent: lease?.monthly_rent,
+  };
+}
 
 export type CreateTenantWithLeaseInput = {
   property_id: string;
@@ -101,22 +137,15 @@ export async function fetchTenantsForProperties(propertyIds: string[]): Promise<
     const tenantRow = Array.isArray(rawTenant) ? rawTenant[0] : rawTenant;
     if (!tenantRow) continue;
 
-    tenants.push({
-      id: tenantId,
-      full_name: tenantRow.full_name as string,
-      tenant_type: (tenantRow.tenant_type as Tenant['tenant_type'] | null) ?? undefined,
-      company_name: (tenantRow.company_name as string | null) ?? undefined,
-      contact_name: (tenantRow.contact_name as string | null) ?? undefined,
-      id_number: (tenantRow.id_number as string | null) ?? undefined,
-      email: (tenantRow.email as string | null) ?? undefined,
-      phone: (tenantRow.phone as string | null) ?? undefined,
-      status: tenantRow.status as Tenant['status'],
-      property_id: row.property_id as string,
-      property_title: (row.properties as { title?: string } | null)?.title,
-      unit_number: (row.property_units as { unit_number?: string } | null)?.unit_number,
-      unit_id: (row.unit_id as string | null) ?? undefined,
-      lease_id: row.id as string,
-    });
+    tenants.push(
+      mapTenantFromRow(tenantRow, {
+        property_id: row.property_id as string,
+        property_title: (row.properties as { title?: string } | null)?.title,
+        unit_number: (row.property_units as { unit_number?: string } | null)?.unit_number,
+        unit_id: (row.unit_id as string | null) ?? undefined,
+        lease_id: row.id as string,
+      }),
+    );
   }
 
   return tenants.sort((a, b) => a.full_name.localeCompare(b.full_name, 'he'));
@@ -460,22 +489,7 @@ export async function fetchTenants(managerId?: string): Promise<Tenant[]> {
 
   return (data ?? []).map((row) => {
     const lease = leaseByTenant.get(row.id as string);
-    return {
-      id: row.id,
-      full_name: row.full_name,
-      tenant_type: row.tenant_type ?? undefined,
-      company_name: row.company_name ?? undefined,
-      contact_name: row.contact_name ?? undefined,
-      id_number: row.id_number ?? undefined,
-      email: row.email ?? undefined,
-      phone: row.phone ?? undefined,
-      status: row.status,
-      property_id: lease?.property_id ?? (row.property_id as string | undefined),
-      property_title: lease?.property_title,
-      unit_number: lease?.unit_number,
-      unit_id: lease?.unit_id,
-      lease_id: lease?.lease_id,
-    };
+    return mapTenantFromRow(row as Record<string, unknown>, lease);
   });
 }
 
@@ -483,9 +497,40 @@ export async function fetchLeaseById(id: string): Promise<Lease | undefined> {
   const leases = await fetchLeases();
   return leases.find((l) => l.id === id);
 }
-export async function fetchTenantById(id: string): Promise<Tenant | undefined> {
-  const tenants = await fetchTenants();
-  return tenants.find((t) => t.id === id);
+export async function fetchTenantById(id: string, managerId?: string): Promise<Tenant | undefined> {
+  if (isDemoMode()) {
+    const tenants = await fetchTenants(managerId);
+    return tenants.find((t) => t.id === id);
+  }
+
+  const client = requireSupabase();
+  const { data, error } = await client.from('tenants').select('*').eq('id', id).maybeSingle();
+  throwIfError(error);
+  if (!data) return undefined;
+
+  let leaseCtx: TenantLeaseContext | undefined;
+  if (managerId) {
+    const { data: lease } = await client
+      .from('leases')
+      .select('id, property_id, unit_id, monthly_rent, property_units(unit_number), properties(title)')
+      .eq('tenant_id', id)
+      .eq('manager_id', managerId)
+      .eq('is_active', true)
+      .limit(1)
+      .maybeSingle();
+    if (lease) {
+      leaseCtx = {
+        property_id: lease.property_id as string,
+        unit_id: (lease.unit_id as string | null) ?? undefined,
+        lease_id: lease.id as string,
+        monthly_rent: lease.monthly_rent as number,
+        unit_number: (lease.property_units as { unit_number?: string } | null)?.unit_number,
+        property_title: (lease.properties as { title?: string } | null)?.title,
+      };
+    }
+  }
+
+  return mapTenantFromRow(data as Record<string, unknown>, leaseCtx);
 }
 export type TenantUpdatePayload = {
   full_name?: string;
@@ -497,6 +542,7 @@ export type TenantUpdatePayload = {
   company_name?: string;
   company_number?: string;
   contact_name?: string;
+  notes?: string;
 };
 
 export async function updateTenant(id: string, payload: TenantUpdatePayload): Promise<void> {
@@ -523,6 +569,7 @@ export async function updateTenant(id: string, payload: TenantUpdatePayload): Pr
   if (payload.id_number !== undefined) update.id_number = payload.id_number;
   if (payload.company_number !== undefined) update.company_number = payload.company_number;
   if (payload.contact_name !== undefined) update.contact_name = payload.contact_name;
+  if (payload.notes !== undefined) update.notes = payload.notes;
   const { error } = await client.from('tenants').update(update).eq('id', id);
   throwIfError(error);
 }

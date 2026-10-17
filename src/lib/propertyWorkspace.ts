@@ -164,7 +164,7 @@ export function buildWorkspaceActions(
       id: 'lease-end',
       title,
       detail,
-      href: `/broker/tenants?property=${propertyId}&tab=leases&attention=renewal`,
+      href: `/broker/properties/${propertyId}?tab=tenants&list=leases&attention=renewal`,
       tone: days <= 30 ? 'warning' : 'info',
     });
   }
@@ -184,7 +184,7 @@ export function buildWorkspaceActions(
           ? 'מסמכי שוכר — השלמת רשימה'
           : `מסמכי שוכר — ${tenantsMissingDocs.length} שוכרים לטיפול`,
       detail: `${sample}${more} · בחרו שוכר מהרשימה להשלמת מסמכים`,
-      href: `/broker/tenants?property=${propertyId}&attention=docs`,
+      href: `/broker/properties/${propertyId}?tab=tenants&attention=docs`,
       tone: 'info',
     });
   }

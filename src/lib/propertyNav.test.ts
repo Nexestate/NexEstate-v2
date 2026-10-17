@@ -3,7 +3,7 @@ import { isPropertySubNavActive, propertySubNavUrl } from './propertyNav';
 
 describe('property workspace URLs', () => {
   it('keeps operational lists on existing routes', () => {
-    expect(propertySubNavUrl('tenants', 'p1')).toBe('/broker/tenants?property=p1');
+    expect(propertySubNavUrl('tenants', 'p1')).toBe('/broker/properties/p1?tab=tenants');
     expect(propertySubNavUrl('maintenance', 'p1')).toBe('/broker/properties/p1?tab=maintenance');
   });
 

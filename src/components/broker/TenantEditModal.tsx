@@ -1,6 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
-import { fetchProperty, reassignLeaseUnit, updateLease, updateTenant } from '../../lib/services';
-import type { Lease, PropertyUnit, Tenant, TenantStatus, TenantType } from '../../types/domain';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { buildTenantChangeLogLines, prependChangeLog } from '../../lib/tenantChangeLog';
+import { embedDocsInNotes } from '../../lib/services/tenantDocumentsService';
+import { fetchProperty, fetchTenantById, reassignLeaseUnit, updateLease, updateTenant } from '../../lib/services';
+import type { Lease, PropertyUnit, Tenant, TenantDocumentFile, TenantStatus, TenantType } from '../../types/domain';
+import { TenantDocumentsPanel } from '../property/TenantDocumentsPanel';
 import {
   PAYMENT_METHOD_LABELS,
   TENANT_STATUS_LABELS,
@@ -53,6 +57,9 @@ interface TenantEditModalProps {
 }
 
 export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: TenantEditModalProps) {
+  const { user } = useAuth();
+  const snapshotRef = useRef<Tenant | null>(null);
+  const [loadedTenant, setLoadedTenant] = useState<Tenant>(tenant);
   const [tenantType, setTenantType] = useState<TenantType>('sole_proprietor');
   const [fullName, setFullName] = useState('');
   const [idNumber, setIdNumber] = useState('');
@@ -63,30 +70,38 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<TenantStatus>('active');
   const [leaseRows, setLeaseRows] = useState<LeaseEditRow[]>([]);
+  const [notesLog, setNotesLog] = useState('');
+  const [newDocNote, setNewDocNote] = useState('');
+  const [documentFiles, setDocumentFiles] = useState<TenantDocumentFile[]>([]);
   const [units, setUnits] = useState<PropertyUnit[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
-  const propertyId = tenant.property_id ?? leases[0]?.property_id;
+  const managerId = user?.id ?? '';
 
   const activeLeases = useMemo(
     () => leases.filter((l) => l.is_active && l.tenant_id === tenant.id),
     [leases, tenant.id],
   );
 
-  useEffect(() => {
-    if (!open) return;
-    setTenantType(tenant.tenant_type ?? 'sole_proprietor');
-    setFullName(tenant.full_name);
-    setIdNumber(tenant.id_number ?? '');
-    setCompanyName(tenant.company_name ?? '');
-    setCompanyNumber('');
-    setContactName(tenant.contact_name ?? '');
-    setPhone(tenant.phone ?? '');
-    setEmail(tenant.email ?? '');
-    setStatus(tenant.status);
+  const applyTenantToForm = (t: Tenant, leaseSource: Lease[]) => {
+    snapshotRef.current = t;
+    setLoadedTenant(t);
+    setTenantType(t.tenant_type ?? 'sole_proprietor');
+    setFullName(t.full_name);
+    setIdNumber(t.id_number ?? '');
+    setCompanyName(t.company_name ?? '');
+    setCompanyNumber(t.company_number ?? '');
+    setContactName(t.contact_name ?? '');
+    setPhone(t.phone ?? '');
+    setEmail(t.email ?? '');
+    setStatus(t.status);
+    setNotesLog(t.notes ?? '');
+    setNewDocNote('');
+    setDocumentFiles(t.document_files ?? []);
+    const active = leaseSource.filter((l) => l.is_active && l.tenant_id === t.id);
     setLeaseRows(
-      activeLeases.map((l) => ({
+      active.map((l) => ({
         leaseId: l.id,
         unitId: l.unit_id ?? '',
         startDate: l.start_date.slice(0, 10),
@@ -96,13 +111,23 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
         paymentMethod: (l.payment_method as PaymentMethod) ?? 'transfer',
       })),
     );
+  };
+
+  useEffect(() => {
+    if (!open) return;
     setErrors({});
-    if (propertyId) {
-      void fetchProperty(propertyId).then((p) => setUnits(p?.units ?? []));
-    } else {
-      setUnits([]);
-    }
-  }, [open, tenant, activeLeases, propertyId]);
+    void (async () => {
+      const full = (await fetchTenantById(tenant.id, managerId)) ?? tenant;
+      applyTenantToForm(full, leases);
+      const pid = full.property_id ?? tenant.property_id ?? leases[0]?.property_id;
+      if (pid) {
+        const p = await fetchProperty(pid);
+        setUnits(p?.units ?? []);
+      } else {
+        setUnits([]);
+      }
+    })();
+  }, [open, tenant.id, managerId, leases, tenant]);
 
   const updateLeaseRow = (leaseId: string, patch: Partial<LeaseEditRow>) => {
     setLeaseRows((rows) => rows.map((r) => (r.leaseId === leaseId ? { ...r, ...patch } : r)));
@@ -131,6 +156,27 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
 
     setSaving(true);
     try {
+      const before = snapshotRef.current ?? loadedTenant;
+      const changeLines = buildTenantChangeLogLines({
+        before,
+        after: {
+          full_name: fullName,
+          tenant_type: tenantType,
+          status,
+          phone: phone.trim() || undefined,
+          email: email.trim() || undefined,
+          id_number: idNumber.trim() || undefined,
+          company_name: companyName.trim() || undefined,
+          company_number: companyNumber.trim() || undefined,
+          contact_name: contactName.trim() || undefined,
+        },
+        leasesBefore: activeLeases,
+        leaseRowsAfter: leaseRows,
+        units,
+      });
+      const mergedNotes = prependChangeLog(notesLog, changeLines, newDocNote);
+      const notesPayload = embedDocsInNotes(mergedNotes, documentFiles);
+
       await updateTenant(tenant.id, {
         full_name: fullName.trim(),
         tenant_type: tenantType,
@@ -141,6 +187,7 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
         phone: phone.trim() || undefined,
         email: email.trim() || undefined,
         status,
+        notes: notesPayload || undefined,
       });
 
       for (const row of leaseRows) {
@@ -169,7 +216,7 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
       open={open}
       onClose={onClose}
       title="עריכת שוכר"
-      className="max-w-xl"
+      className="max-w-2xl"
       closeOnBackdrop={false}
       footer={
         <div className="flex justify-end gap-2 border-t border-border/80 px-5 py-4">
@@ -221,6 +268,44 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
                 </option>
               ))}
             </select>
+          </div>
+        </section>
+
+        {managerId && (
+          <section className="space-y-3 rounded-xl border border-primary/25 bg-primary/5 p-4">
+            <h3 className="text-sm font-semibold">מסמכים</h3>
+            <p className="text-meta text-xs">העלאה ומחיקה נשמרות מיד — אין צורך ללחוץ «שמור» רק בשביל קבצים.</p>
+            <TenantDocumentsPanel
+              tenant={{ id: tenant.id, tenant_type: tenantType, document_files: documentFiles }}
+              managerId={managerId}
+              editable
+              onFilesChange={setDocumentFiles}
+            />
+          </section>
+        )}
+
+        <section className="space-y-3">
+          <h3 className="text-sm font-semibold">תיעוד והערות</h3>
+          <p className="text-meta text-xs">
+            שינויים בשדות ובחוזים יירשמו אוטומטית בשמירה. ניתן להוסיף הערה ידנית (חידוש הסכם, החלפת נכס וכו&apos;).
+          </p>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">הערה לתיעוד (אופציונלי)</label>
+            <textarea
+              className="min-h-[72px] w-full rounded-xl border border-border bg-muted/50 px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              value={newDocNote}
+              onChange={(e) => setNewDocNote(e.target.value)}
+              placeholder="לדוגמה: חידוש לשנתיים, העברה מיחידה 5 ל-7…"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">יומן תיעוד (קריאה / עריכה)</label>
+            <textarea
+              className="min-h-[120px] w-full rounded-xl border border-border bg-muted/50 px-4 py-3 font-mono text-xs leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              value={notesLog}
+              onChange={(e) => setNotesLog(e.target.value)}
+              dir="rtl"
+            />
           </div>
         </section>
 

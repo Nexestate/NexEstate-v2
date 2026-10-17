@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useEntityDetail } from '../../contexts/EntityDetailContext';
 import { notifyEntityCreated } from '../../contexts/QuickAddContext';
-import { crmSigningAgreementsHref, tenantPaymentsHref, unitDetailHref } from '../../lib/propertyNav';
+import { tenantPaymentsHref, unitDetailHref } from '../../lib/propertyNav';
+import { unitShowsTenant } from '../../lib/unitOccupancy';
 import { fetchLeases, fetchPayments, fetchProperty, updatePayment, updateUnit } from '../../lib/services';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatCurrency } from '../../lib/utils';
@@ -112,7 +113,12 @@ export function EntityDetailModal() {
   const navigateAway = () => close();
 
   const editButton = view ? (
-    <Button type="button" size="sm" variant="outline" onClick={() => setEditKind(view.kind)}>
+    <Button
+      type="button"
+      size="sm"
+      variant="outline"
+      onClick={() => setEditKind(view.kind === 'tenant' ? 'tenant' : view.kind)}
+    >
       <Pencil className="h-4 w-4" />
       עריכה
     </Button>
@@ -157,13 +163,13 @@ export function EntityDetailModal() {
           <DetailPanel
             actions={
               <>
-                {view.data.tenant_id && (
+                {unitShowsTenant(view.data) && view.data.tenant_id && (
                   <Button type="button" size="sm" variant="outline" onClick={() => openTenantById(view.data.tenant_id!)}>
                     <User className="h-4 w-4" />
                     שוכר
                   </Button>
                 )}
-                {view.data.tenant_id && (
+                {unitShowsTenant(view.data) && view.data.tenant_id && (
                   <NavLinkButton
                     to={tenantPaymentsHref(view.data.tenant_id, view.data.property_id)}
                     onNavigate={navigateAway}
@@ -197,7 +203,7 @@ export function EntityDetailModal() {
             <DetailRow
               label="שוכר"
               value={
-                view.data.tenant_id && view.data.tenant_name ? (
+                unitShowsTenant(view.data) && view.data.tenant_id && view.data.tenant_name ? (
                   <button
                     type="button"
                     className="text-primary hover:underline"
@@ -206,7 +212,7 @@ export function EntityDetailModal() {
                     {view.data.tenant_name}
                   </button>
                 ) : (
-                  view.data.tenant_name ?? '—'
+                  '—'
                 )
               }
             />
@@ -275,7 +281,17 @@ export function EntityDetailModal() {
               {tenantLeases.length === 0 ? (
                 <p className="text-meta text-sm">אין חוזים פעילים.</p>
               ) : (
-                tenantLeases.map((lease) => (
+                <>
+                  {tenantLeases.length > 1 && (
+                    <p className="mb-3 rounded-xl border border-border/80 bg-muted/20 px-3 py-2 text-sm">
+                      <span className="font-semibold">יחידות בשכירות: </span>
+                      {tenantLeases
+                        .map((l) => (l.unit_number ? `יח׳ ${l.unit_number}` : '—'))
+                        .join(' · ')}
+                      <span className="text-meta"> — לעריכה או החלפת יחידה השתמשו ב«עריכה» למעלה.</span>
+                    </p>
+                  )}
+                  {tenantLeases.map((lease) => (
                   <div key={lease.id} className="mb-3 rounded-lg border border-border/80 bg-muted/15 p-3 last:mb-0">
                     <DetailRow
                       label="נכס"
@@ -306,16 +322,9 @@ export function EntityDetailModal() {
                       value={<span className="text-primary">{formatCurrency(lease.monthly_rent)}</span>}
                     />
                   </div>
-                ))
+                ))}
+                </>
               )}
-              <NavLinkButton
-                to={crmSigningAgreementsHref(view.data.property_id)}
-                onNavigate={navigateAway}
-                variant="ghost"
-                className="mt-2 w-full justify-center text-xs"
-              >
-                קישורי חתימה (CRM)
-              </NavLinkButton>
             </DetailSection>
 
             <DetailSection
@@ -363,7 +372,19 @@ export function EntityDetailModal() {
               )}
             </DetailSection>
 
-            <TenantDocumentsChecklist tenant={view.data} className="mt-4 border-t border-border pt-4" />
+            {view.data.notes?.trim() && (
+              <DetailSection title="תיעוד" className="mt-4">
+                <pre className="max-h-48 overflow-y-auto whitespace-pre-wrap rounded-xl border border-border/80 bg-muted/20 p-3 text-xs leading-relaxed">
+                  {view.data.notes}
+                </pre>
+              </DetailSection>
+            )}
+
+            <TenantDocumentsChecklist
+              tenant={view.data}
+              managerId={user?.id}
+              className="mt-4 border-t border-border pt-4"
+            />
           </DetailPanel>
         )}
 

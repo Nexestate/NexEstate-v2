@@ -155,15 +155,26 @@ export interface PropertyLandingPageRow {
   created_at?: string;
 }
 
+export type TenantDocumentFile = {
+  requirement_id: string;
+  storage_path: string;
+  file_name: string;
+  uploaded_at: string;
+  content_type?: string;
+};
+
 export interface Tenant {
   id: string;
   full_name: string;
   tenant_type?: TenantType;
   company_name?: string;
+  company_number?: string;
   contact_name?: string;
   id_number?: string;
   email?: string;
   phone?: string;
+  notes?: string;
+  document_files?: TenantDocumentFile[];
   status: TenantStatus;
   rating?: TenantRating;
   unit_number?: string;

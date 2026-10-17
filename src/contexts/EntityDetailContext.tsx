@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
 import { fetchProperty } from '../lib/services/propertiesService';
-import { fetchLeases, fetchTenants } from '../lib/services/leasesService';
+import { fetchLeases, fetchTenantById, fetchTenants } from '../lib/services/leasesService';
 import { fetchPayments } from '../lib/services/auctionsService';
 import type { Lease, Payment, PropertyUnit, Tenant } from '../types/domain';
 
@@ -46,6 +46,9 @@ function mergeTenantWithLease(tenant: Tenant | undefined, lease: Lease): Tenant 
     unit_number: lease.unit_number ?? tenant?.unit_number,
     lease_id: lease.id,
     monthly_rent: lease.monthly_rent,
+    notes: tenant?.notes,
+    document_files: tenant?.document_files,
+    company_number: tenant?.company_number,
   };
 }
 
@@ -83,7 +86,7 @@ export function EntityDetailProvider({
   const openTenantById = useCallback(async (tenantId: string) => {
     setLoading(true);
     try {
-      const tenant = (await fetchTenants(userId)).find((t) => t.id === tenantId);
+      const tenant = await fetchTenantById(tenantId, userId);
       if (tenant) setView({ kind: 'tenant', data: tenant });
     } finally {
       setLoading(false);

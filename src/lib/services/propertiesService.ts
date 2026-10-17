@@ -56,6 +56,14 @@ function enrichUnitsWithLeases(
   leasesByUnit: Map<string, LeaseLink>,
 ): PropertyUnit[] {
   return units.map((unit) => {
+    if (unit.unit_status !== 'occupied') {
+      return {
+        ...unit,
+        tenant_id: undefined,
+        tenant_name: undefined,
+        lease_id: undefined,
+      };
+    }
     const lease = leasesByUnit.get(unit.id);
     if (!lease) return unit;
     return {

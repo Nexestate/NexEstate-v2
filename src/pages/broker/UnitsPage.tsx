@@ -11,7 +11,9 @@ import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { fetchAccessibleProperties, updateUnit } from '../../lib/services';
+import { groupOccupiedUnitsByTenant, unitShowsTenant } from '../../lib/unitOccupancy';
 import { formatCurrency } from '../../lib/utils';
+import { notifyEntityCreated } from '../../contexts/QuickAddContext';
 import type { PropertyUnit, PropertyWithUnits } from '../../types/domain';
 import { UNIT_STATUS_LABELS } from '../../types/domain';
 import { EntityLinkButton } from '../../components/broker/EntityLinkButton';
@@ -78,6 +80,11 @@ export function UnitsPage() {
     [units, search, propertyFilter],
   );
 
+  const { groups: tenantGroups, unassigned: otherUnits } = useMemo(
+    () => (propertyFilter ? groupOccupiedUnitsByTenant(filtered) : { groups: [], unassigned: filtered }),
+    [filtered, propertyFilter],
+  );
+
   useEffect(() => {
     if (!openId || loading) return;
     const unit = units.find((u) => u.id === openId);
@@ -102,6 +109,8 @@ export function UnitsPage() {
       unit_status: values.unit_status,
       floor: values.floor ? Number(values.floor) : undefined,
     });
+    notifyEntityCreated('unit');
+    notifyEntityCreated('lease');
     setEditingUnit(null);
     load();
   };
@@ -118,7 +127,7 @@ export function UnitsPage() {
     <div className="space-y-6">
       {propertyFilter && (
         <>
-          <BackButton to="/broker/units" label="חזרה לכל היחידות" />
+          <BackButton to={`/broker/properties/${propertyFilter}`} label="חזרה לנכס" />
           <PropertySubNav propertyId={propertyFilter} />
         </>
       )}
@@ -153,80 +162,146 @@ export function UnitsPage() {
 
       <FilterBar search={search} onSearchChange={setSearch} placeholder="חיפוש יחידה, נכס או שוכר..." />
 
-      <div className="hidden md:block">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>מספר</TableHead>
-              <TableHead>שם</TableHead>
-              <TableHead>נכס</TableHead>
-              <TableHead>סטטוס</TableHead>
-              <TableHead>שוכר</TableHead>
-              <TableHead>חוזה</TableHead>
-              <TableHead>שטח</TableHead>
-              <TableHead>שכ&quot;ד</TableHead>
-              <TableHead className="w-12" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((unit) => (
-              <TableRow
-                key={unit.id}
-                className={`cursor-pointer ${openId === unit.id ? 'bg-primary/5 ring-1 ring-primary/30' : ''}`}
-                onClick={() => openUnit({ ...unit, propertyTitle: unit.propertyTitle, property_id: unit.property_id })}
-              >
-                <TableCell className="font-medium">{unit.unit_number}</TableCell>
-                <TableCell>{unit.unit_name ?? '—'}</TableCell>
-                <TableCell>
-                  <Link to={`/broker/properties/${unit.property_id}`} className="text-primary hover:underline">
-                    {unit.propertyTitle}
-                  </Link>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={STATUS_VARIANT[unit.unit_status] ?? 'outline'}>
-                    {UNIT_STATUS_LABELS[unit.unit_status]}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {unit.tenant_id ? (
-                    <EntityLinkButton onClick={() => void openTenantById(unit.tenant_id!)}>
-                      {unit.tenant_name}
-                    </EntityLinkButton>
-                  ) : (
-                    '—'
-                  )}
-                </TableCell>
-                <TableCell>
-                  {unit.lease_id ? (
-                    <EntityLinkButton onClick={() => void openLeaseById(unit.lease_id!)}>
-                      צפייה
-                    </EntityLinkButton>
-                  ) : (
-                    '—'
-                  )}
-                </TableCell>
-                <TableCell>{unit.area_sqm ? `${unit.area_sqm} מ"ר` : '—'}</TableCell>
-                <TableCell className="font-medium text-primary">
-                  {unit.monthly_rent ? formatCurrency(unit.monthly_rent) : '—'}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    aria-label="עריכת יחידה"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingUnit(unit);
-                    }}
+      <div className="hidden md:block space-y-8">
+        {propertyFilter && tenantGroups.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">שוכרים ויחידות (לפי לקוח)</h3>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>שוכר</TableHead>
+                  <TableHead>יחידות</TableHead>
+                  <TableHead>שטח</TableHead>
+                  <TableHead>שכ&quot;ד כולל</TableHead>
+                  <TableHead className="w-40" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {tenantGroups.map((group) => (
+                  <TableRow key={group.tenantId}>
+                    <TableCell className="font-medium">
+                      <EntityLinkButton onClick={() => void openTenantById(group.tenantId)}>
+                        {group.tenantName}
+                      </EntityLinkButton>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1.5">
+                        {group.units.map((u) => (
+                          <button
+                            key={u.id}
+                            type="button"
+                            className="rounded-lg border border-border/80 bg-muted/30 px-2 py-1 text-xs hover:border-primary/50"
+                            onClick={() =>
+                              openUnit({ ...u, propertyTitle: u.propertyTitle, property_id: u.property_id })
+                            }
+                          >
+                            יח׳ {u.unit_number}
+                            {u.unit_name ? ` · ${u.unit_name}` : ''}
+                          </button>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {group.units.reduce((s, u) => s + (u.area_sqm ?? 0), 0) || '—'}
+                      {group.units.some((u) => u.area_sqm) ? ' מ"ר' : ''}
+                    </TableCell>
+                    <TableCell className="font-medium text-primary">{formatCurrency(group.totalRent)}</TableCell>
+                    <TableCell>
+                      <Button type="button" size="sm" variant="outline" onClick={() => void openTenantById(group.tenantId)}>
+                        עריכה / החלפת יחידות
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+
+        {(propertyFilter ? otherUnits : filtered).length > 0 && (
+          <div className="space-y-3">
+            {propertyFilter && (
+              <h3 className="text-sm font-semibold text-foreground">
+                {tenantGroups.length > 0 ? 'יחידות בודדות / פנויות' : 'כל היחידות'}
+              </h3>
+            )}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>מספר</TableHead>
+                  <TableHead>שם</TableHead>
+                  {!propertyFilter && <TableHead>נכס</TableHead>}
+                  <TableHead>סטטוס</TableHead>
+                  {!propertyFilter && <TableHead>שוכר</TableHead>}
+                  <TableHead>חוזה</TableHead>
+                  <TableHead>שטח</TableHead>
+                  <TableHead>שכ&quot;ד</TableHead>
+                  <TableHead className="w-12" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(propertyFilter ? otherUnits : filtered).map((unit) => (
+                  <TableRow
+                    key={unit.id}
+                    className={`cursor-pointer ${openId === unit.id ? 'bg-primary/5 ring-1 ring-primary/30' : ''}`}
+                    onClick={() => openUnit({ ...unit, propertyTitle: unit.propertyTitle, property_id: unit.property_id })}
                   >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                    <TableCell className="font-medium">{unit.unit_number}</TableCell>
+                    <TableCell>{unit.unit_name ?? '—'}</TableCell>
+                    {!propertyFilter && (
+                      <TableCell>
+                        <Link to={`/broker/properties/${unit.property_id}?tab=tenants`} className="text-primary hover:underline">
+                          {unit.propertyTitle}
+                        </Link>
+                      </TableCell>
+                    )}
+                    <TableCell>
+                      <Badge variant={STATUS_VARIANT[unit.unit_status] ?? 'outline'}>
+                        {UNIT_STATUS_LABELS[unit.unit_status]}
+                      </Badge>
+                    </TableCell>
+                    {!propertyFilter && (
+                      <TableCell>
+                        {unitShowsTenant(unit) && unit.tenant_id ? (
+                          <EntityLinkButton onClick={() => void openTenantById(unit.tenant_id!)}>
+                            {unit.tenant_name}
+                          </EntityLinkButton>
+                        ) : (
+                          '—'
+                        )}
+                      </TableCell>
+                    )}
+                    <TableCell>
+                      {unitShowsTenant(unit) && unit.lease_id ? (
+                        <EntityLinkButton onClick={() => void openLeaseById(unit.lease_id!)}>צפייה</EntityLinkButton>
+                      ) : (
+                        '—'
+                      )}
+                    </TableCell>
+                    <TableCell>{unit.area_sqm ? `${unit.area_sqm} מ"ר` : '—'}</TableCell>
+                    <TableCell className="font-medium text-primary">
+                      {unit.monthly_rent ? formatCurrency(unit.monthly_rent) : '—'}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        aria-label="עריכת יחידה"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingUnit(unit);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </div>
 
       <div className="space-y-3 md:hidden">
@@ -247,7 +322,7 @@ export function UnitsPage() {
                 {unit.propertyTitle}
               </Link>
             </p>
-            {unit.tenant_name && (
+            {unitShowsTenant(unit) && unit.tenant_name && (
               <p className="mt-1 text-sm">
                 שוכר:{' '}
                 {unit.tenant_id ? (

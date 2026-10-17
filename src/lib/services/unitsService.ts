@@ -1,4 +1,4 @@
-import { DEMO_PROPERTIES } from '../../data/demoData';
+import { DEMO_LEASES, DEMO_PROPERTIES } from '../../data/demoData';
 import type { PropertyUnit, UnitStatus, UnitType } from '../../types/domain';
 import { isDemoMode, requireSupabase, ServiceError, throwIfError } from './serviceHelpers';
 
@@ -85,12 +85,62 @@ export async function createUnit(payload: UnitInsert): Promise<string> {
   return data.id as string;
 }
 
+/** End active leases on this unit and clear tenant link (when unit is not occupied). */
+export async function releaseUnitOccupancy(unitId: string): Promise<void> {
+  if (isDemoMode()) {
+    for (const lease of DEMO_LEASES) {
+      if (lease.unit_id === unitId && lease.is_active) lease.is_active = false;
+    }
+    for (const property of DEMO_PROPERTIES) {
+      const unit = property.units.find((u) => u.id === unitId);
+      if (unit) {
+        unit.tenant_id = undefined;
+        unit.tenant_name = undefined;
+        unit.lease_id = undefined;
+      }
+    }
+    return;
+  }
+
+  const client = requireSupabase();
+  const now = new Date().toISOString();
+  const { data: leases, error: leaseErr } = await client
+    .from('leases')
+    .select('id')
+    .eq('unit_id', unitId)
+    .eq('is_active', true);
+  throwIfError(leaseErr);
+
+  for (const row of leases ?? []) {
+    const { error } = await client
+      .from('leases')
+      .update({ is_active: false, updated_at: now })
+      .eq('id', row.id as string);
+    throwIfError(error);
+  }
+
+  const { error: unitErr } = await client
+    .from('property_units')
+    .update({ tenant_id: null, updated_at: now })
+    .eq('id', unitId);
+  throwIfError(unitErr);
+}
+
 export async function updateUnit(id: string, payload: UnitUpdate): Promise<void> {
+  const nextStatus = payload.unit_status;
+  const vacating = nextStatus !== undefined && nextStatus !== 'occupied';
+
   if (isDemoMode()) {
     for (const property of DEMO_PROPERTIES) {
       const unit = property.units.find((u) => u.id === id);
       if (unit) {
+        if (vacating) await releaseUnitOccupancy(id);
         Object.assign(unit, payload);
+        if (vacating) {
+          unit.tenant_id = undefined;
+          unit.tenant_name = undefined;
+          unit.lease_id = undefined;
+        }
         property.occupiedUnits = property.units.filter((u) => u.unit_status === 'occupied').length;
         property.monthlyIncome = property.units
           .filter((u) => u.unit_status === 'occupied')
@@ -101,7 +151,13 @@ export async function updateUnit(id: string, payload: UnitUpdate): Promise<void>
     throw new ServiceError('Unit not found');
   }
 
+  if (vacating) {
+    await releaseUnitOccupancy(id);
+  }
+
   const client = requireSupabase();
-  const { error } = await client.from('property_units').update(payload).eq('id', id);
+  const update: Record<string, unknown> = { ...payload, updated_at: new Date().toISOString() };
+  if (vacating) update.tenant_id = null;
+  const { error } = await client.from('property_units').update(update).eq('id', id);
   throwIfError(error);
 }

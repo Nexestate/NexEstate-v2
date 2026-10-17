@@ -11,7 +11,6 @@ import {
   type TenantType,
 } from '../../types/domain';
 import { validateEmail, validateName, validatePhone, validatePositiveNumber, validateRequired, sanitizePhone } from '../../lib/validation';
-import { TenantDocumentsChecklist } from '../property/TenantDocumentsChecklist';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { SlidePanel } from '../ui/SlidePanel';
@@ -353,9 +352,8 @@ export function TenantOnboardingModal({ open, onClose, propertyId, onSubmit }: T
 
         <section className="space-y-4">
           <h3 className="text-sm font-semibold text-foreground">מסמכים</h3>
-          <TenantDocumentsChecklist tenant={{ tenant_type: tenantType }} />
           <p className="text-meta">
-            ניתן לבחור קבצים כעת; העלאה לכספת פרטית תחובר בשלב 2C. שמות הקבצים יירשמו בהערות השוכר עד אז.
+            מסמכים נדרשים: {requiredDocs.map((d) => d.label).join(' · ')}. לאחר השמירה — העלאה ומחיקה ב«עריכת שוכר».
           </p>
           <ul className="space-y-3">
             {requiredDocs.map((doc) => (

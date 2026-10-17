@@ -142,7 +142,7 @@ export function OverviewFacts({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2">
           <CardTitle>שוכרים פעילים</CardTitle>
-          <Link to={`/broker/tenants?property=${property.id}`} className="text-sm text-primary hover:underline">
+          <Link to={`/broker/properties/${property.id}?tab=tenants`} className="text-sm text-primary hover:underline">
             כל השוכרים ←
           </Link>
         </CardHeader>
@@ -153,7 +153,7 @@ export function OverviewFacts({
               title="אין שוכרים פעילים"
               description="הוסיפו שוכר וחוזה כדי לנהל את הנכס."
               actionLabel="לשוכרים"
-              onAction={() => navigate(`/broker/tenants?property=${property.id}`)}
+              onAction={() => navigate(`/broker/properties/${property.id}?tab=tenants`)}
               className="py-4"
             />
           ) : (

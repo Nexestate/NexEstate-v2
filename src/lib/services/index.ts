@@ -6,7 +6,7 @@ export {
   isSharedOnlyRole,
 } from './accessiblePropertiesService';
 export { fetchProperties, fetchProperty, createProperty, updateProperty } from './propertiesService';
-export { createUnit, updateUnit } from './unitsService';
+export { createUnit, updateUnit, releaseUnitOccupancy } from './unitsService';
 export { saveUnitOnboarding } from './unitOnboardingService';
 export type { UnitOnboardingSubmit, UnitOccupancyMode } from './unitOnboardingService';
 export type { UnitInsert, UnitUpdate } from './unitsService';
@@ -115,5 +115,13 @@ export {
   deletePropertyImage,
   uploadSignedContract,
 } from './storageService';
+
+export {
+  uploadTenantDocument,
+  deleteTenantDocument,
+  fetchTenantDocumentFiles,
+  getTenantDocumentDownloadUrl,
+  documentsForTenant,
+} from './tenantDocumentsService';
 
 export { invokeEdgeFunction, notifyShare, generateAgreementPdf } from './edgeFunctions';

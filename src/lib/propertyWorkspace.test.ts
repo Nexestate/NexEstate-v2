@@ -88,7 +88,7 @@ describe('workspace snapshot + actions', () => {
     });
     const actions = buildWorkspaceActions(snapshot, 'p1');
     const docs = actions.find((a) => a.id === 'docs');
-    expect(docs?.href).toBe('/broker/tenants?property=p1&attention=docs');
+    expect(docs?.href).toBe('/broker/properties/p1?tab=tenants&attention=docs');
     expect(docs?.href).not.toContain('open=');
     expect(docs?.title).toContain('2 שוכרים');
   });
