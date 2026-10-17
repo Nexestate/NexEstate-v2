@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { AGREEMENT_TYPE_LABELS } from '../lib/constants';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { ensureProfile } from '../lib/services/profilesService';
+import { sendSigningLinkEmail } from '../lib/services/edgeFunctions';
 import { isDemoMode } from '../lib/services/serviceHelpers';
 import { DEMO_SIGNING_LINKS } from '../data/demoData';
 import type { SigningLink } from '../types/domain';
@@ -271,6 +272,29 @@ export function useSigningLinks() {
     return updateLink(id, { status: 'sent' });
   };
 
+  const emailSigningLink = async (
+    link: Pick<SigningLink, 'id' | 'token' | 'client_email' | 'client_name' | 'broker_name' | 'status'>,
+  ): Promise<{ sent: boolean; error?: string }> => {
+    const email = link.client_email?.trim();
+    if (!email) return { sent: false, error: 'חסר אימייל ללקוח' };
+
+    const signingUrl = `${window.location.origin}/sign/${link.token}`;
+    const result = await sendSigningLinkEmail({
+      recipientEmail: email,
+      recipientName: link.client_name,
+      signingUrl,
+      brokerName: link.broker_name ?? user?.full_name,
+    });
+    if (!result.sent) return result;
+
+    if (link.status === 'pending') {
+      await updateLink(link.id, { status: 'sent' });
+    } else {
+      await fetchLinks();
+    }
+    return { sent: true };
+  };
+
   const getPublicLink = async (token: string): Promise<SigningLink | null> => {
     if (isDemoMode() || !isSupabaseConfigured) {
       return DEMO_SIGNING_LINKS.find((l) => l.token === token) ?? null;
@@ -374,6 +398,7 @@ export function useSigningLinks() {
     deleteLink,
     cancelLink,
     markAsSent,
+    emailSigningLink,
     getPublicLink,
     completeSignature,
     getStats,

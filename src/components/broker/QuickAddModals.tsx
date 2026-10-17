@@ -54,9 +54,9 @@ export function QuickAddModals() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { state, closeQuickAdd } = useQuickAdd();
-  const { createLink, fetchLinks } = useSigningLinks();
+  const { createLink, fetchLinks, emailSigningLink } = useSigningLinks();
 
-  const handleAgreementCreate = async (values: SigningLinkFormValues): Promise<{ token: string } | void> => {
+  const handleAgreementCreate = async (values: SigningLinkFormValues) => {
     const result = await createLink({
       client_name: values.client_name,
       client_phone: values.client_phone,
@@ -79,7 +79,13 @@ export function QuickAddModals() {
     }
     await fetchLinks();
     notifyEntityCreated('agreement');
-    return { token: result.link.token };
+    return {
+      token: result.link.token,
+      linkId: result.link.id,
+      clientEmail: values.client_email.trim(),
+      clientName: values.client_name.trim(),
+      status: result.link.status,
+    };
   };
 
   const handlePropertyCreate = async (values: PropertyFormValues) => {
@@ -94,6 +100,16 @@ export function QuickAddModals() {
         open={state.type === 'agreement'}
         onClose={closeQuickAdd}
         onSubmit={handleAgreementCreate}
+        onSendEmail={(ctx) =>
+          emailSigningLink({
+            id: ctx.linkId,
+            token: ctx.token,
+            client_email: ctx.clientEmail,
+            client_name: ctx.clientName,
+            broker_name: user?.full_name,
+            status: ctx.status,
+          })
+        }
       />
 
       <PropertyFormModal

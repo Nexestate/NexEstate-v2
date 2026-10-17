@@ -1,4 +1,5 @@
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy, Mail } from 'lucide-react';
+import { SIGNING_STATUS_LABELS, type SigningLink } from '../../types/domain';
 import { useEffect, useState } from 'react';
 import { Modal } from '../ui/Modal';
 import { Input } from '../ui/Input';
@@ -51,25 +52,37 @@ const DEFAULTS: SigningLinkFormValues = {
   payment_days: '3',
 };
 
+export type SigningLinkCreateResult = {
+  token: string;
+  linkId: string;
+  clientEmail: string;
+  clientName: string;
+  status: SigningLink['status'];
+};
+
 interface CreateSigningLinkModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (values: SigningLinkFormValues) => Promise<{ token: string } | void>;
+  onSubmit: (values: SigningLinkFormValues) => Promise<SigningLinkCreateResult | void>;
+  onSendEmail?: (ctx: SigningLinkCreateResult) => Promise<{ sent: boolean; error?: string }>;
 }
 
-export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSigningLinkModalProps) {
+export function CreateSigningLinkModal({ open, onClose, onSubmit, onSendEmail }: CreateSigningLinkModalProps) {
   const [form, setForm] = useState(DEFAULTS);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
-  const [createdToken, setCreatedToken] = useState<string | null>(null);
+  const [created, setCreated] = useState<SigningLinkCreateResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) {
       setForm(DEFAULTS);
       setErrors({});
-      setCreatedToken(null);
+      setCreated(null);
       setCopied(false);
+      setEmailError(null);
     }
   }, [open]);
 
@@ -77,7 +90,7 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
     setForm((f) => ({ ...f, [key]: value }));
   };
 
-  const signingUrl = createdToken ? `${window.location.origin}/sign/${createdToken}` : '';
+  const signingUrl = created ? `${window.location.origin}/sign/${created.token}` : '';
 
   const copyUrl = () => {
     if (!signingUrl) return;
@@ -117,7 +130,7 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
     try {
       const result = await onSubmit(form);
       if (result?.token) {
-        setCreatedToken(result.token);
+        setCreated(result);
       } else {
         onClose();
       }
@@ -128,20 +141,52 @@ export function CreateSigningLinkModal({ open, onClose, onSubmit }: CreateSignin
     }
   };
 
-  if (createdToken) {
+  const sendEmailToClient = async () => {
+    if (!created || !onSendEmail) return;
+    setEmailSending(true);
+    setEmailError(null);
+    const result = await onSendEmail(created);
+    setEmailSending(false);
+    if (!result.sent) {
+      setEmailError(result.error ?? 'שליחת המייל נכשלה');
+      return;
+    }
+    setCreated((c) => (c ? { ...c, status: c.status === 'pending' ? 'sent' : c.status } : c));
+  };
+
+  if (created) {
+    const statusLabel = SIGNING_STATUS_LABELS[created.status] ?? created.status;
     return (
       <Modal open={open} onClose={onClose} title="קישור נוצר בהצלחה" size="lg">
         <div className="space-y-4">
           <div className="flex items-center gap-3 rounded-xl border border-success/30 bg-success/10 p-4">
             <Check className="h-6 w-6 shrink-0 text-success" />
-            <p className="text-sm">קישור החתימה מוכן לשליחה ללקוח</p>
+            <div className="text-sm">
+              <p>קישור החתימה מוכן לשליחה ללקוח</p>
+              <p className="mt-1 text-muted-foreground">
+                סטטוס: <span className="font-medium text-foreground">{statusLabel}</span>
+                {created.clientEmail ? ` · ${created.clientEmail}` : ''}
+              </p>
+            </div>
           </div>
           <div className="rounded-xl border border-border bg-muted/30 p-3">
             <p className="mb-2 text-xs font-medium text-muted-foreground">קישור לחתימה</p>
             <p className="break-all text-sm font-mono">{signingUrl}</p>
           </div>
+          {emailError && <p className="text-sm text-destructive">{emailError}</p>}
           <div className="flex flex-wrap gap-2">
-            <Button type="button" onClick={copyUrl} className="flex-1 sm:flex-none">
+            {onSendEmail && created.clientEmail && (
+              <Button
+                type="button"
+                onClick={() => void sendEmailToClient()}
+                disabled={emailSending}
+                className="flex-1 sm:flex-none"
+              >
+                <Mail className="h-4 w-4" />
+                {emailSending ? 'שולח...' : 'שלח במייל ללקוח'}
+              </Button>
+            )}
+            <Button type="button" onClick={copyUrl} variant={onSendEmail ? 'outline' : 'default'} className="flex-1 sm:flex-none">
               <Copy className="h-4 w-4" />
               {copied ? 'הועתק!' : 'העתק קישור'}
             </Button>

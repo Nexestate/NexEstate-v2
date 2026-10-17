@@ -542,14 +542,29 @@ export async function fetchTenantById(id: string, managerId?: string): Promise<T
 
   let leaseCtx: TenantLeaseContext | undefined;
   if (managerId) {
-    const { data: lease } = await client
+    const leaseSelect =
+      'id, property_id, unit_id, monthly_rent, property_units(unit_number), properties(title)';
+    const { data: activeLease } = await client
       .from('leases')
-      .select('id, property_id, unit_id, monthly_rent, property_units(unit_number), properties(title)')
+      .select(leaseSelect)
       .eq('tenant_id', id)
       .eq('manager_id', managerId)
       .eq('is_active', true)
       .limit(1)
       .maybeSingle();
+    let lease = activeLease;
+    if (!lease) {
+      const { data: recentLease } = await client
+        .from('leases')
+        .select(leaseSelect)
+        .eq('tenant_id', id)
+        .eq('manager_id', managerId)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      lease = recentLease;
+    }
+
     if (lease) {
       leaseCtx = {
         property_id: lease.property_id as string,

@@ -1,5 +1,6 @@
-import { Copy, ExternalLink, FileDown, FileSignature, MoreHorizontal, Plus, Send, Trash2, XCircle } from 'lucide-react';
+import { Copy, ExternalLink, FileDown, FileSignature, MoreHorizontal, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { AgreementLinkActionsMenu } from '../../components/broker/AgreementLinkActionsMenu';
 import { useSearchParams } from 'react-router-dom';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -25,14 +26,17 @@ export function AgreementsPage() {
   const { openQuickAdd } = useQuickAdd();
   const [searchParams] = useSearchParams();
   const propertyFilter = searchParams.get('property');
-  const { links, loading, fetchLinks, cancelLink, deleteLink, markAsSent } = useSigningLinks();
+  const { links, loading, fetchLinks, cancelLink, deleteLink, markAsSent, emailSigningLink } =
+    useSigningLinks();
   const filteredLinks = useMemo(
     () => (propertyFilter ? links.filter((l) => l.property_id === propertyFilter) : links),
     [links, propertyFilter],
   );
   const [copied, setCopied] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const openMenuLink = menuOpen ? filteredLinks.find((l) => l.id === menuOpen) : undefined;
 
   useEntityCreated('agreement', fetchLinks);
 
@@ -140,56 +144,22 @@ export function AgreementsPage() {
                         </Button>
                       </a>
                     )}
-                    <div className="relative">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        title="עוד"
-                        onClick={() => setMenuOpen(menuOpen === link.id ? null : link.id)}
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                      {menuOpen === link.id && (
-                        <div className="absolute end-0 top-full z-20 mt-1 min-w-40 rounded-xl border border-border bg-card p-1 shadow-lg">
-                          {link.status === 'pending' && (
-                            <button
-                              type="button"
-                              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted"
-                              disabled={actionLoading === link.id}
-                              onClick={() => void runAction(link.id, () => markAsSent(link.id))}
-                            >
-                              <Send className="h-4 w-4" />
-                              סמן כנשלח
-                            </button>
-                          )}
-                          {(link.status === 'pending' || link.status === 'sent') && (
-                            <button
-                              type="button"
-                              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted"
-                              disabled={actionLoading === link.id}
-                              onClick={() => void runAction(link.id, () => cancelLink(link.id))}
-                            >
-                              <XCircle className="h-4 w-4" />
-                              בטל / פג תוקף
-                            </button>
-                          )}
-                          {link.status !== 'signed' && (
-                            <button
-                              type="button"
-                              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-destructive hover:bg-destructive/10"
-                              disabled={actionLoading === link.id}
-                              onClick={() => {
-                                if (!window.confirm('למחוק את קישור החתימה?')) return;
-                                void runAction(link.id, () => deleteLink(link.id));
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              מחק
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title="עוד"
+                      onClick={(e) => {
+                        if (menuOpen === link.id) {
+                          setMenuOpen(null);
+                          setMenuAnchor(null);
+                        } else {
+                          setMenuOpen(link.id);
+                          setMenuAnchor(e.currentTarget);
+                        }
+                      }}
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
                   </div>
                   {copied === link.token && <span className="text-xs text-success">הועתק!</span>}
                 </TableCell>
@@ -197,6 +167,34 @@ export function AgreementsPage() {
             ))}
           </TableBody>
         </Table>
+      )}
+
+      {openMenuLink && (
+        <AgreementLinkActionsMenu
+          link={openMenuLink}
+          open={Boolean(menuOpen)}
+          anchorEl={menuAnchor}
+          onClose={() => {
+            setMenuOpen(null);
+            setMenuAnchor(null);
+          }}
+          loading={actionLoading === openMenuLink.id}
+          onMarkSent={() => void runAction(openMenuLink.id, () => markAsSent(openMenuLink.id))}
+          onSendEmail={() =>
+            void (async () => {
+              setActionLoading(openMenuLink.id);
+              await emailSigningLink(openMenuLink);
+              setActionLoading(null);
+              setMenuOpen(null);
+              setMenuAnchor(null);
+            })()
+          }
+          onCancel={() => void runAction(openMenuLink.id, () => cancelLink(openMenuLink.id))}
+          onDelete={() => {
+            if (!window.confirm('למחוק את קישור החתימה?')) return;
+            void runAction(openMenuLink.id, () => deleteLink(openMenuLink.id));
+          }}
+        />
       )}
     </div>
   );

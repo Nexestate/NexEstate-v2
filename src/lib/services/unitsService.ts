@@ -97,6 +97,8 @@ export async function releaseUnitOccupancy(unitId: string): Promise<void> {
         unit.tenant_id = undefined;
         unit.tenant_name = undefined;
         unit.lease_id = undefined;
+        unit.unit_name = undefined;
+        unit.unit_status = 'available';
       }
     }
     return;
@@ -124,6 +126,7 @@ export async function releaseUnitOccupancy(unitId: string): Promise<void> {
     .update({
       tenant_id: null,
       unit_name: null,
+      unit_status: 'available',
       updated_at: now,
     })
     .eq('id', unitId);

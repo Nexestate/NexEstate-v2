@@ -21,8 +21,22 @@ describe('unitShowsTenant', () => {
 describe('groupOccupiedUnitsByTenant', () => {
   it('groups multiple units under one tenant', () => {
     const { groups, unassigned } = groupOccupiedUnitsByTenant([
-      base({ id: 'u3', unit_number: '3', tenant_id: 't1', tenant_name: 'לוטר', monthly_rent: 100 }),
-      base({ id: 'u4', unit_number: '4', tenant_id: 't1', tenant_name: 'לוטר', monthly_rent: 50 }),
+      base({
+        id: 'u3',
+        unit_number: '3',
+        tenant_id: 't1',
+        tenant_name: 'לוטר',
+        lease_id: 'l1',
+        monthly_rent: 100,
+      }),
+      base({
+        id: 'u4',
+        unit_number: '4',
+        tenant_id: 't1',
+        tenant_name: 'לוטר',
+        lease_id: 'l2',
+        monthly_rent: 50,
+      }),
       base({ id: 'u5', unit_number: '5', unit_status: 'available' }),
     ]);
     expect(groups).toHaveLength(1);

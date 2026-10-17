@@ -10,11 +10,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { useQuickAdd } from '../../contexts/QuickAddContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
-import { fetchAccessibleProperties, updateUnit } from '../../lib/services';
+import { attachTenantToUnit, fetchAccessibleProperties, fetchTenantsForProperties, updateUnit } from '../../lib/services';
 import { groupOccupiedUnitsByTenant, unitShowsTenant } from '../../lib/unitOccupancy';
 import { formatCurrency } from '../../lib/utils';
 import { notifyEntityCreated } from '../../contexts/QuickAddContext';
-import type { PropertyUnit, PropertyWithUnits, UnitStatus } from '../../types/domain';
+import type { PropertyUnit, PropertyWithUnits, Tenant, UnitStatus } from '../../types/domain';
 import { UNIT_STATUS_LABELS } from '../../types/domain';
 import { EntityLinkButton } from '../../components/broker/EntityLinkButton';
 import { PropertySubNav } from '../../components/broker/PropertySubNav';
@@ -41,6 +41,7 @@ export function UnitsPage() {
   const [loading, setLoading] = useState(true);
   const [properties, setProperties] = useState<PropertyWithUnits[]>([]);
   const [editingUnit, setEditingUnit] = useState<(PropertyUnit & { propertyTitle: string }) | null>(null);
+  const [unitTenants, setUnitTenants] = useState<Tenant[]>([]);
 
   const load = useCallback(() => {
     if (!user?.id) return;
@@ -115,8 +116,16 @@ export function UnitsPage() {
     ? properties.find((p) => p.id === propertyFilter)?.title
     : undefined;
 
+  useEffect(() => {
+    if (!editingUnit?.property_id) {
+      setUnitTenants([]);
+      return;
+    }
+    void fetchTenantsForProperties([editingUnit.property_id]).then(setUnitTenants);
+  }, [editingUnit?.property_id]);
+
   const handleUnitUpdate = async (values: UnitFormValues) => {
-    if (!editingUnit) return;
+    if (!editingUnit || !user) return;
     await updateUnit(editingUnit.id, {
       unit_number: values.unit_number.trim(),
       unit_name: values.unit_name.trim() || undefined,
@@ -125,6 +134,31 @@ export function UnitsPage() {
       unit_status: values.unit_status,
       floor: values.floor ? Number(values.floor) : undefined,
     });
+
+    const needsAttach =
+      values.unit_status === 'occupied' &&
+      values.tenant_id &&
+      values.tenant_id !== editingUnit.tenant_id &&
+      !editingUnit.lease_id;
+
+    if (needsAttach) {
+      const tenant = unitTenants.find((t) => t.id === values.tenant_id);
+      if (tenant) {
+        const start = new Date();
+        const end = new Date(start);
+        end.setFullYear(end.getFullYear() + 1);
+        await attachTenantToUnit(user.id, {
+          property_id: editingUnit.property_id,
+          unit_id: editingUnit.id,
+          tenant_id: tenant.id,
+          tenant_name: tenant.full_name,
+          start_date: start.toISOString().slice(0, 10),
+          end_date: end.toISOString().slice(0, 10),
+          monthly_rent: values.monthly_rent ? Number(values.monthly_rent) : editingUnit.monthly_rent ?? 0,
+        });
+      }
+    }
+
     notifyEntityCreated('unit');
     notifyEntityCreated('lease');
     setEditingUnit(null);
@@ -414,6 +448,8 @@ export function UnitsPage() {
         onClose={() => setEditingUnit(null)}
         onSubmit={handleUnitUpdate}
         title={editingUnit ? `עריכת יחידה ${editingUnit.unit_number}` : 'עריכת יחידה'}
+        propertyId={editingUnit?.property_id}
+        tenants={unitTenants.map((t) => ({ id: t.id, full_name: t.full_name }))}
         initial={
           editingUnit
             ? {
@@ -422,7 +458,8 @@ export function UnitsPage() {
                 area_sqm: editingUnit.area_sqm != null ? String(editingUnit.area_sqm) : '',
                 monthly_rent: editingUnit.monthly_rent != null ? String(editingUnit.monthly_rent) : '',
                 unit_status: editingUnit.unit_status,
-                floor: '',
+                floor: editingUnit.floor != null ? String(editingUnit.floor) : '',
+                tenant_id: editingUnit.tenant_id ?? '',
               }
             : undefined
         }

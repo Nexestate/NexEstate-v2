@@ -15,6 +15,7 @@ export interface UnitFormValues {
   monthly_rent: string;
   unit_status: UnitStatus;
   floor: string;
+  tenant_id: string;
 }
 
 const EMPTY: UnitFormValues = {
@@ -24,7 +25,10 @@ const EMPTY: UnitFormValues = {
   monthly_rent: '',
   unit_status: 'available',
   floor: '',
+  tenant_id: '',
 };
+
+type UnitTenantOption = { id: string; full_name: string };
 
 interface UnitFormModalProps {
   open: boolean;
@@ -32,6 +36,8 @@ interface UnitFormModalProps {
   initial?: Partial<UnitFormValues>;
   onSubmit: (values: UnitFormValues) => Promise<void>;
   title?: string;
+  propertyId?: string;
+  tenants?: UnitTenantOption[];
 }
 
 export function UnitFormModal({
@@ -40,6 +46,8 @@ export function UnitFormModal({
   initial,
   onSubmit,
   title = 'יחידה חדשה',
+  propertyId,
+  tenants = [],
 }: UnitFormModalProps) {
   const [form, setForm] = useState<UnitFormValues>({ ...EMPTY, ...initial });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -68,6 +76,9 @@ export function UnitFormModal({
     if (form.floor) {
       const floor = validatePositiveNumber(form.floor, false);
       if (!floor.isValid) next.floor = floor.error!;
+    }
+    if (form.unit_status === 'occupied' && propertyId && tenants.length > 0 && !form.tenant_id) {
+      next.tenant_id = 'יש לבחור שוכר ליחידה תפוסה';
     }
     setErrors(next);
     if (Object.keys(next).length) return;
@@ -132,6 +143,27 @@ export function UnitFormModal({
             error={errors.floor}
           />
         </div>
+        {form.unit_status === 'occupied' && propertyId && tenants.length > 0 && (
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">שוכר</label>
+            <select
+              className={SELECT_CLASS}
+              value={form.tenant_id}
+              onChange={(e) => setForm({ ...form, tenant_id: e.target.value })}
+            >
+              <option value="">בחרו שוכר...</option>
+              {tenants.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.full_name}
+                </option>
+              ))}
+            </select>
+            {errors.tenant_id && <p className="text-sm text-destructive">{errors.tenant_id}</p>}
+            <p className="text-xs text-muted-foreground">
+              שיוך שוכר יוצר חוזה שכירות פעיל (שנה) אם עדיין אין חוזה ליחידה.
+            </p>
+          </div>
+        )}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose}>
             ביטול

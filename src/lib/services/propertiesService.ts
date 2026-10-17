@@ -52,6 +52,25 @@ function demoLeasesByUnit(propertyId: string): Map<string, LeaseLink> {
   return map;
 }
 
+function syncStaleOccupiedUnits(units: PropertyUnit[], leasesByUnit: Map<string, LeaseLink>): void {
+  if (isDemoMode()) return;
+  const client = requireSupabase();
+  const now = new Date().toISOString();
+  for (const unit of units) {
+    if (unit.unit_status === 'occupied' && !leasesByUnit.has(unit.id)) {
+      void client
+        .from('property_units')
+        .update({
+          tenant_id: null,
+          unit_name: null,
+          unit_status: 'available',
+          updated_at: now,
+        })
+        .eq('id', unit.id);
+    }
+  }
+}
+
 function enrichUnitsWithLeases(
   units: PropertyUnit[],
   leasesByUnit: Map<string, LeaseLink>,
@@ -61,7 +80,9 @@ function enrichUnitsWithLeases(
       return presentationUnit(unit);
     }
     const lease = leasesByUnit.get(unit.id);
-    if (!lease) return unit;
+    if (!lease) {
+      return presentationUnit({ ...unit, unit_status: 'available' });
+    }
     return {
       ...unit,
       tenant_id: lease.tenant_id,
@@ -163,10 +184,10 @@ export async function fetchProperties(brokerId?: string): Promise<PropertyWithUn
     throwIfError(unitsError);
 
     const propId = prop.id as string;
-    const mappedUnits = enrichUnitsWithLeases(
-      (units ?? []).map(mapUnitRow),
-      leasesByProperty.get(propId) ?? new Map(),
-    );
+    const rawUnits = (units ?? []).map(mapUnitRow);
+    const leaseMap = leasesByProperty.get(propId) ?? new Map();
+    syncStaleOccupiedUnits(rawUnits, leaseMap);
+    const mappedUnits = enrichUnitsWithLeases(rawUnits, leaseMap);
 
     result.push(mapProperty(prop, mappedUnits));
   }
@@ -194,10 +215,10 @@ export async function fetchProperty(id: string): Promise<PropertyWithUnits | und
   throwIfError(unitsError);
 
   const leasesByProperty = await fetchLeasesByUnitForProperties([id]);
-  const mappedUnits = enrichUnitsWithLeases(
-    (units ?? []).map(mapUnitRow),
-    leasesByProperty.get(id) ?? new Map(),
-  );
+  const rawUnits = (units ?? []).map(mapUnitRow);
+  const leaseMap = leasesByProperty.get(id) ?? new Map();
+  syncStaleOccupiedUnits(rawUnits, leaseMap);
+  const mappedUnits = enrichUnitsWithLeases(rawUnits, leaseMap);
 
   return mapProperty(prop, mappedUnits);
 }

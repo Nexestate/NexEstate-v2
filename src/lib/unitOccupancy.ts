@@ -36,17 +36,20 @@ export function groupOccupiedUnitsByTenant(units: UnitWithMeta[]): {
   const unassigned: UnitWithMeta[] = [];
 
   for (const unit of units) {
-    if (unit.unit_status !== 'occupied' || !unit.tenant_id) {
+    const tenantId = unit.tenant_id;
+    const effectivelyOccupied =
+      unit.unit_status === 'occupied' && Boolean(tenantId) && Boolean(unit.lease_id);
+    if (!effectivelyOccupied || !tenantId) {
       unassigned.push(unit);
       continue;
     }
-    const existing = byTenant.get(unit.tenant_id);
+    const existing = byTenant.get(tenantId);
     if (existing) {
       existing.units.push(unit);
       existing.totalRent += unit.monthly_rent ?? 0;
     } else {
-      byTenant.set(unit.tenant_id, {
-        tenantId: unit.tenant_id,
+      byTenant.set(tenantId, {
+        tenantId,
         tenantName: unit.tenant_name ?? 'שוכר',
         propertyId: unit.property_id,
         propertyTitle: unit.propertyTitle,

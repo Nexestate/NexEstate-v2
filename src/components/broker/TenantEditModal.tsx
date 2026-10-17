@@ -88,7 +88,10 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
   const [saving, setSaving] = useState(false);
 
   const managerId = user?.id ?? '';
-  const propertyId = loadedTenant.property_id ?? tenant.property_id ?? leases[0]?.property_id;
+  const propertyId =
+    loadedTenant.property_id ??
+    tenant.property_id ??
+    leases.find((l) => l.tenant_id === tenant.id)?.property_id;
 
   const activeLeases = useMemo(
     () => leases.filter((l) => l.is_active && l.tenant_id === tenant.id),
@@ -132,7 +135,10 @@ export function TenantEditModal({ open, onClose, tenant, leases, onSaved }: Tena
     void (async () => {
       const full = (await fetchTenantById(tenant.id, managerId)) ?? tenant;
       applyTenantToForm(full, leases);
-      const pid = full.property_id ?? tenant.property_id ?? leases[0]?.property_id;
+      const pid =
+        full.property_id ??
+        tenant.property_id ??
+        leases.find((l) => l.tenant_id === tenant.id)?.property_id;
       if (pid) {
         const p = await fetchProperty(pid);
         setUnits(p?.units ?? []);

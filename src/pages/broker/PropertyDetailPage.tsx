@@ -28,7 +28,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useEntityCreated } from '../../hooks/useEntityCreated';
 import { usePropertyWorkspace } from '../../hooks/usePropertyWorkspace';
 import type { WorkspaceTab } from '../../lib/propertyWorkspace';
-import { saveUnitOnboarding, updateProperty, updateUnit } from '../../lib/services';
+import { attachTenantToUnit, saveUnitOnboarding, updateProperty, updateUnit } from '../../lib/services';
 import { supabase } from '../../lib/supabase';
 import type { PropertyKind, PropertyStatus, PropertyVisibility } from '../../types';
 import type { PropertyUnit } from '../../types/domain';
@@ -129,6 +129,31 @@ export function PropertyDetailPage() {
 
     if (!editingUnit) return;
     await updateUnit(editingUnit.id, payload);
+
+    const needsAttach =
+      values.unit_status === 'occupied' &&
+      values.tenant_id &&
+      values.tenant_id !== editingUnit.tenant_id &&
+      !editingUnit.lease_id;
+
+    if (needsAttach) {
+      const tenant = tenants.find((t) => t.id === values.tenant_id);
+      if (tenant) {
+        const start = new Date();
+        const end = new Date(start);
+        end.setFullYear(end.getFullYear() + 1);
+        await attachTenantToUnit(user.id, {
+          property_id: id,
+          unit_id: editingUnit.id,
+          tenant_id: tenant.id,
+          tenant_name: tenant.full_name,
+          start_date: start.toISOString().slice(0, 10),
+          end_date: end.toISOString().slice(0, 10),
+          monthly_rent: values.monthly_rent ? Number(values.monthly_rent) : editingUnit.monthly_rent ?? 0,
+        });
+      }
+    }
+
     setUnitModalOpen(false);
     setEditingUnit(null);
     reload();
@@ -260,6 +285,8 @@ export function PropertyDetailPage() {
         }}
         onSubmit={handleUnitSubmit}
         title={editingUnit ? `עריכת יחידה ${editingUnit.unit_number}` : 'עריכת יחידה'}
+        propertyId={id}
+        tenants={tenants.map((t) => ({ id: t.id, full_name: t.full_name }))}
         initial={
           editingUnit
             ? {
@@ -269,6 +296,7 @@ export function PropertyDetailPage() {
                 monthly_rent: editingUnit.monthly_rent != null ? String(editingUnit.monthly_rent) : '',
                 unit_status: editingUnit.unit_status,
                 floor: editingUnit.floor != null ? String(editingUnit.floor) : '',
+                tenant_id: editingUnit.tenant_id ?? '',
               }
             : undefined
         }
